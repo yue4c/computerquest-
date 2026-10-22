@@ -1,0 +1,732 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Computer Quest - T01 Level 3</title>
+
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Nunito+Sans:wght@700;800;900&display=swap" rel="stylesheet">
+
+  <style>
+    * { box-sizing: border-box; }
+
+    html, body {
+      margin: 0;
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+    }
+
+    body {
+      background: #030918;
+      color: white;
+      font-family: "Nunito Sans", Arial, sans-serif;
+    }
+
+    .game-page {
+      width: 100%;
+      height: 100vh;
+      height: 100dvh;
+      padding: 10px 4%;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      background:
+        radial-gradient(circle at 50% 48%, rgba(17, 53, 109, 0.34), transparent 48%),
+        #030918;
+    }
+
+    .header {
+      height: 210px;
+      flex: 0 0 210px;
+      position: relative;
+      text-align: center;
+      padding-top: 25px;
+    }
+
+    .level-status {
+      position: absolute;
+      top: 20px;
+      left: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: stretch;
+      gap: 8px;
+    }
+
+    .level-badge {
+      padding: 13px 22px;
+      color: #061126;
+      font-family: "Fredoka", sans-serif;
+      font-size: clamp(18px, 1.8vw, 27px);
+      font-weight: 700;
+      border: 3px solid #5eaaff;
+      background: linear-gradient(135deg, #d2e8ff, #6ca9ed);
+      box-shadow: 0 0 16px rgba(63, 157, 255, 0.55);
+    }
+
+    .lives-box {
+      padding: 7px 12px;
+      border: 3px solid #ff5364;
+      border-radius: 18px;
+      background: linear-gradient(135deg, #31111d, #671b2c);
+      box-shadow: 0 0 14px rgba(255, 60, 80, 0.65);
+      font-size: clamp(19px, 2vw, 27px);
+      line-height: 1;
+      letter-spacing: 5px;
+      text-align: center;
+    }
+
+    .xp-badge {
+      position: absolute;
+      top: 6px;
+      right: 0;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 18px 8px 11px;
+      color: #071428;
+      font-family: "Fredoka", sans-serif;
+      font-size: clamp(22px, 2.3vw, 34px);
+      font-weight: 700;
+      border: 4px solid #00aefa;
+      border-radius: 28px;
+      background: linear-gradient(135deg, #e9faff 0%, #84c8ff 55%, #4ca0ed 100%);
+      box-shadow: 0 0 20px rgba(0, 180, 255, 0.7);
+    }
+
+    .star {
+      color: #ffdf22;
+      font-size: 1.35em;
+      line-height: 1;
+      text-shadow:
+        0 0 2px #fff,
+        2px 2px 0 #ec9a00,
+        -2px -2px 0 #ec9a00;
+    }
+
+    .title {
+      margin: 0;
+      font-family: "Fredoka", sans-serif;
+      font-size: clamp(38px, 4.5vw, 65px);
+      font-weight: 700;
+      letter-spacing: 2px;
+      line-height: 1;
+    }
+
+    .subtitle {
+      max-width: 780px;
+      margin: 20px auto 0;
+      font-family: "Fredoka", sans-serif;
+      font-size: clamp(21px, 2.2vw, 31px);
+      font-weight: 600;
+      line-height: 1.18;
+    }
+
+    .game-box {
+      position: relative;
+      flex: 1;
+      min-height: 0;
+      width: min(1580px, 100%);
+      margin: 0 auto;
+      padding: 18px 14px;
+      border: 3px solid #20f38a;
+      border-radius: 52px;
+      background: rgba(11, 26, 57, 0.94);
+      box-shadow:
+        0 0 20px rgba(0, 255, 151, 0.2),
+        inset 0 0 35px rgba(18, 67, 129, 0.18);
+      display: flex;
+      align-items: center;
+    }
+
+    .match-grid {
+      width: 100%;
+      display: grid;
+      grid-template-columns: 1.2fr 1fr 1.2fr;
+      grid-template-rows: repeat(2, 150px);
+      gap: 18px 22px;
+      align-items: stretch;
+    }
+
+    .statement,
+    .drop-zone,
+    .memory-card {
+      min-width: 0;
+      height: 150px;
+      border: 3px solid #20ed88;
+      border-radius: 28px;
+      background: #0c1b3a;
+    }
+
+    .statement {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 12px 20px;
+      color: white;
+      text-align: center;
+      font-family: "Fredoka", sans-serif;
+      font-size: clamp(19px, 2vw, 30px);
+      font-weight: 600;
+      line-height: 1.22;
+    }
+
+    .drop-zone {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 10px;
+      color: white;
+      text-align: center;
+      font-family: "Fredoka", sans-serif;
+      font-size: clamp(19px, 2vw, 29px);
+      transition: 0.2s ease;
+    }
+
+    .drop-zone.drag-over {
+      border-color: #b9ff2b;
+      background: rgba(56, 116, 46, 0.55);
+      box-shadow: 0 0 22px rgba(181, 255, 41, 0.75);
+    }
+
+    .drop-zone.correct-drop {
+      border-color: #b9ff2b;
+      background: rgba(39, 107, 48, 0.58);
+      box-shadow: 0 0 20px rgba(181, 255, 41, 0.55);
+    }
+
+    .drop-zone.wrong-drop {
+      border-color: #ff4747;
+      background: rgba(130, 27, 35, 0.52);
+      box-shadow: 0 0 20px rgba(255, 59, 59, 0.65);
+    }
+
+    .memory-card {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 8px;
+      cursor: grab;
+      user-select: none;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .memory-card:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 0 20px rgba(38, 255, 151, 0.45);
+    }
+
+    .memory-card:active { cursor: grabbing; }
+    .memory-card.dragging { opacity: 0.4; }
+
+    .memory-card.locked {
+      width: 100%;
+      height: 100%;
+      cursor: default;
+      border: none;
+      background: transparent;
+      box-shadow: none;
+    }
+
+    .memory-card.locked:hover {
+      transform: none;
+      box-shadow: none;
+    }
+
+    .memory-image {
+      display: block;
+      width: min(88%, 160px);
+      height: 64px;
+      object-fit: contain;
+      pointer-events: none;
+    }
+
+    .memory-card h2 {
+      margin: 5px 0 0;
+      color: white;
+      font-family: "Fredoka", sans-serif;
+      font-size: clamp(24px, 2.6vw, 37px);
+      font-weight: 700;
+      line-height: 1;
+      pointer-events: none;
+    }
+
+    .next-button {
+      display: none;
+      position: absolute;
+      right: 28px;
+      bottom: 18px;
+      padding: 9px 21px;
+      color: white;
+      text-decoration: none;
+      font-family: "Fredoka", sans-serif;
+      font-size: clamp(18px, 1.7vw, 25px);
+      font-weight: 700;
+      border: 3px solid #ffdb1e;
+      border-radius: 30px;
+      background: linear-gradient(180deg, #73ed48, #149c31);
+      box-shadow:
+        0 4px 0 #07651b,
+        0 0 15px rgba(154, 255, 55, 0.7);
+    }
+
+    .next-button:hover { transform: translateY(-2px); }
+    .next-button.show { display: block; }
+
+    .failure-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      z-index: 9999;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      overflow-y: auto;
+      background: rgba(0, 0, 0, 0.88);
+    }
+
+    .failure-overlay.show { display: flex; }
+
+    .failure-card {
+      width: min(620px, 100%);
+      padding: 30px;
+      border: 4px solid #ff5364;
+      border-radius: 32px;
+      background: linear-gradient(145deg, #111d35, #080d19);
+      box-shadow: 0 0 35px rgba(255, 45, 70, 0.65);
+      text-align: center;
+    }
+
+    .failure-card h2 {
+      color: #ff5364;
+      font-family: "Fredoka", sans-serif;
+      font-size: clamp(27px, 4vw, 43px);
+      margin: 12px 0;
+    }
+
+    .failure-card p {
+      font-size: 20px;
+      line-height: 1.4;
+    }
+
+    .failure-hearts {
+      font-size: 36px;
+      letter-spacing: 6px;
+    }
+
+    .restart-zone-button {
+      padding: 13px 25px;
+      border: 3px solid #ffe44c;
+      border-radius: 18px;
+      background: linear-gradient(#ffef65, #ff9b00);
+      box-shadow: 0 0 18px #ffbc00;
+      color: #080808;
+      font-family: "Fredoka", sans-serif;
+      font-size: clamp(18px, 2vw, 24px);
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .restart-zone-button:hover {
+      filter: brightness(1.1);
+    }
+
+    @media (max-width: 760px) {
+      html, body { overflow-y: auto; }
+
+      .game-page {
+        height: auto;
+        min-height: 100vh;
+        overflow: visible;
+        padding: 14px;
+      }
+
+      .header {
+        height: 225px;
+        flex-basis: 225px;
+        padding-top: 112px;
+      }
+
+      .level-status { top: 10px; }
+
+      .level-badge {
+        padding: 9px 12px;
+        font-size: 15px;
+      }
+
+      .xp-badge {
+        top: 8px;
+        padding: 6px 11px;
+        font-size: 20px;
+      }
+
+      .title { font-size: 36px; }
+
+      .subtitle {
+        margin-top: 12px;
+        font-size: 20px;
+      }
+
+      .game-box {
+        min-height: 660px;
+        padding: 18px;
+        border-radius: 32px;
+      }
+
+      .match-grid {
+        grid-template-columns: 1fr;
+        grid-template-rows: repeat(6, 135px);
+        gap: 14px;
+      }
+
+      .statement,
+      .drop-zone,
+      .memory-card {
+        height: 135px;
+      }
+
+      .next-button {
+        right: 22px;
+        bottom: 16px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <main class="game-page">
+    <header class="header">
+      <div class="level-status">
+        <div class="level-badge">T01: LEVEL 3</div>
+
+        <div class="lives-box" id="livesBox"
+             role="status" aria-live="polite">
+          <span id="livesDisplay" aria-hidden="true"></span>
+        </div>
+      </div>
+
+      <div class="xp-badge">
+        <span class="star">★</span>
+        <span id="xpText">50 XP</span>
+      </div>
+
+      <h1 class="title">MEMORY FLEX</h1>
+
+      <p class="subtitle">
+        Drag and drop the correct memory<br>
+        type for each situation
+      </p>
+    </header>
+
+    <section class="game-box">
+      <div class="match-grid">
+        <div class="statement">
+          Stores data that is needed<br>
+          only while the computer is<br>
+          running
+        </div>
+
+        <div class="drop-zone" data-answer="RAM">
+          Drop here
+        </div>
+
+        <article class="memory-card" draggable="true" data-memory="RAM">
+          <img src="RAM.png" alt="RAM memory" class="memory-image">
+          <h2>RAM</h2>
+        </article>
+
+        <div class="statement">
+          Stores instruction that<br>
+          remain even when the<br>
+          power is off
+        </div>
+
+        <div class="drop-zone" data-answer="ROM">
+          Drop here
+        </div>
+
+        <article class="memory-card" draggable="true" data-memory="ROM">
+          <img src="ROM.png" alt="ROM memory" class="memory-image">
+          <h2>ROM</h2>
+        </article>
+      </div>
+
+      <a href="tol4.html" class="next-button" id="nextButton">
+        NEXT ➜
+      </a>
+    </section>
+  </main>
+
+  <div id="failureOverlay" class="failure-overlay"
+       role="dialog" aria-modal="true"
+       aria-labelledby="failureTitle" aria-hidden="true">
+    <div class="failure-card">
+      <h2 id="failureTitle">TRAINING ZONE FAILED!</h2>
+
+      <div class="failure-hearts" aria-label="No lives remaining">
+        🖤🖤🖤
+      </div>
+
+      <p>
+        You have lost all 3 lives.<br>
+        Restart Training Zone 1 and try again.
+      </p>
+
+      <button type="button" class="restart-zone-button" id="restartButton">
+        RESTART TRAINING ZONE
+      </button>
+    </div>
+  </div>
+
+  <audio id="selectSound" preload="auto">
+    <source src="select.mp3" type="audio/mpeg">
+  </audio>
+
+  <audio id="whooshSound" preload="auto">
+    <source src="whoosh.mp3" type="audio/mpeg">
+  </audio>
+
+  <audio id="wrongSound" preload="auto">
+    <source src="wrong.mp3" type="audio/mpeg">
+  </audio>
+
+  <audio id="coinsSound" preload="auto">
+    <source src="coins.mp3" type="audio/mpeg">
+  </audio>
+
+  <script>
+    const cards = document.querySelectorAll(".memory-card");
+    const zones = document.querySelectorAll(".drop-zone");
+    const nextButton = document.getElementById("nextButton");
+    const xpText = document.getElementById("xpText");
+    const livesBox = document.getElementById("livesBox");
+    const livesDisplay = document.getElementById("livesDisplay");
+    const failureOverlay = document.getElementById("failureOverlay");
+    const restartButton = document.getElementById("restartButton");
+    const gamePage = document.querySelector(".game-page");
+
+    const selectSound = document.getElementById("selectSound");
+    const whooshSound = document.getElementById("whooshSound");
+    const wrongSound = document.getElementById("wrongSound");
+    const coinsSound = document.getElementById("coinsSound");
+
+    // Read shared progress. Preserve saved zero values.
+    function readProgress(key, fallback, maximum = Infinity) {
+      const saved = localStorage.getItem(key);
+      const value = Number(saved);
+
+      if (
+        saved === null ||
+        saved.trim() === "" ||
+        !Number.isInteger(value) ||
+        value < 0 ||
+        value > maximum
+      ) {
+        localStorage.setItem(key, String(fallback));
+        return fallback;
+      }
+
+      return value;
+    }
+
+    let lives = readProgress("to1Lives", 3, 3);
+    let xp = readProgress("to1XP", 50);
+    let draggedCard = null;
+    let completedMatches = 0;
+    let failed = false;
+
+    function playSound(sound) {
+      sound.currentTime = 0;
+      sound.play().catch(() => {});
+    }
+
+    function updateLives() {
+      livesDisplay.textContent =
+        "❤️".repeat(lives) + "🖤".repeat(3 - lives);
+
+      livesBox.setAttribute(
+        "aria-label",
+        `${lives} of 3 lives remaining`
+      );
+    }
+
+    function showFailure() {
+      failed = true;
+      draggedCard = null;
+
+      cards.forEach((card) => {
+        card.draggable = false;
+        card.classList.remove("dragging");
+      });
+
+      zones.forEach((zone) => {
+        zone.classList.remove("drag-over");
+      });
+
+      nextButton.classList.remove("show");
+      gamePage.inert = true;
+
+      failureOverlay.classList.add("show");
+      failureOverlay.setAttribute("aria-hidden", "false");
+      restartButton.focus();
+    }
+
+    function loseLife() {
+      if (failed || lives <= 0) return;
+
+      lives -= 1;
+      localStorage.setItem("to1Lives", String(lives));
+      updateLives();
+
+      if (lives === 0) {
+        showFailure();
+      }
+    }
+
+    function restartTrainingZone() {
+      localStorage.setItem("to1Lives", "3");
+      localStorage.setItem("to1XP", "0");
+      window.location.href = "tol1.html";
+    }
+
+    restartButton.addEventListener("click", restartTrainingZone);
+
+    restartButton.addEventListener("mouseenter", () => {
+      playSound(selectSound);
+    });
+
+    cards.forEach((card) => {
+      card.addEventListener("mouseenter", () => {
+        if (!failed && card.draggable) {
+          playSound(selectSound);
+        }
+      });
+
+      card.addEventListener("dragstart", (event) => {
+        if (failed || !card.draggable) {
+          event.preventDefault();
+          return;
+        }
+
+        draggedCard = card;
+        card.classList.add("dragging");
+
+        event.dataTransfer.setData(
+          "text/plain",
+          card.dataset.memory
+        );
+
+        event.dataTransfer.effectAllowed = "move";
+        playSound(whooshSound);
+      });
+
+      card.addEventListener("dragend", () => {
+        draggedCard = null;
+        card.classList.remove("dragging");
+
+        zones.forEach((zone) => {
+          zone.classList.remove("drag-over");
+        });
+      });
+    });
+
+    zones.forEach((zone) => {
+      zone.addEventListener("dragover", (event) => {
+        event.preventDefault();
+
+        if (
+          !failed &&
+          draggedCard &&
+          !zone.classList.contains("correct-drop")
+        ) {
+          zone.classList.add("drag-over");
+        }
+      });
+
+      zone.addEventListener("dragleave", () => {
+        zone.classList.remove("drag-over");
+      });
+
+      zone.addEventListener("drop", (event) => {
+        event.preventDefault();
+        zone.classList.remove("drag-over");
+
+        // Consume each drag once to prevent duplicate life deductions.
+        const card = draggedCard;
+        draggedCard = null;
+
+        if (
+          failed ||
+          !card ||
+          !card.draggable ||
+          zone.classList.contains("correct-drop")
+        ) {
+          return;
+        }
+
+        card.classList.remove("dragging");
+
+        if (card.dataset.memory === zone.dataset.answer) {
+          playSound(coinsSound);
+
+          const placedCard = card.cloneNode(true);
+          placedCard.removeAttribute("draggable");
+          placedCard.classList.remove("dragging");
+          placedCard.classList.add("locked");
+
+          zone.innerHTML = "";
+          zone.appendChild(placedCard);
+          zone.classList.remove("wrong-drop");
+          zone.classList.add("correct-drop");
+
+          card.style.visibility = "hidden";
+          card.draggable = false;
+          completedMatches++;
+
+          // Correct matches never remove or reset lives.
+          if (completedMatches === 2) {
+            xp = 75;
+            localStorage.setItem("to1XP", String(xp));
+            xpText.textContent = `${xp} XP`;
+            nextButton.classList.add("show");
+          }
+        } else {
+          playSound(wrongSound);
+          zone.classList.add("wrong-drop");
+
+          // Exactly one life is removed for this incorrect drop.
+          loseLife();
+
+          setTimeout(() => {
+            zone.classList.remove("wrong-drop");
+          }, 700);
+        }
+      });
+    });
+
+    nextButton.addEventListener("mouseenter", () => {
+      if (!failed && completedMatches === 2) {
+        playSound(selectSound);
+      }
+    });
+
+    nextButton.addEventListener("click", (event) => {
+      if (failed || completedMatches !== 2) {
+        event.preventDefault();
+      }
+
+      // Navigation to tol4.html preserves saved lives and XP.
+    });
+
+    updateLives();
+    xpText.textContent = `${xp} XP`;
+
+    // Reloading with zero lives keeps the Training Zone failed.
+    if (lives === 0) {
+      showFailure();
+    }
+  </script>
+</body>
+</html>

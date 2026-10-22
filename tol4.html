@@ -1,0 +1,2320 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>TO1 Level 4 - Match The System</title>
+
+<style>
+
+* {
+    box-sizing: border-box;
+}
+
+html,
+body {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+}
+
+body {
+    font-family: Arial, Helvetica, sans-serif;
+    background: #030814;
+    color: white;
+}
+
+/* =========================
+   MAIN GAME
+========================= */
+
+.game {
+    width: 100vw;
+    height: 100vh;
+    padding: 10px 18px;
+    overflow: hidden;
+    position: relative;
+}
+
+/* =========================
+   TOP AREA
+========================= */
+
+.topbar {
+    position: relative;
+    width: 100%;
+    height: 70px;
+}
+
+.level-status {
+    position: absolute;
+    top: 4px;
+    left: 6px;
+    z-index: 100;
+}
+
+.level {
+    background: linear-gradient(#a9d2ff, #5595e9);
+    color: #071224;
+    font-weight: bold;
+    font-size: clamp(15px, 1.3vw, 22px);
+    padding: 8px 15px;
+    border: 2px solid #477fc4;
+}
+
+/* =========================
+   SHARED TO1 LIVES
+========================= */
+
+.lives-box {
+    margin-top: 8px;
+
+    width: 200px;
+    height: 56px;
+
+    padding: 0;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    background: linear-gradient(
+        135deg,
+        #551425,
+        #8a2038
+    );
+
+    border: 4px solid #ff5364;
+    border-radius: 22px;
+
+    box-shadow:
+        0 0 14px rgba(255, 60, 80, .75);
+
+    line-height: 1;
+}
+
+#livesDisplay {
+    font-size: 28px;
+    letter-spacing: 7px;
+    white-space: nowrap;
+}
+
+.lives-box.life-lost {
+    animation: lifeShake .45s ease;
+}
+
+@keyframes lifeShake {
+
+    0% {
+        transform: translateX(0);
+    }
+
+    20% {
+        transform: translateX(-7px);
+    }
+
+    40% {
+        transform: translateX(7px);
+    }
+
+    60% {
+        transform: translateX(-5px);
+    }
+
+    80% {
+        transform: translateX(5px);
+    }
+
+    100% {
+        transform: translateX(0);
+    }
+}
+
+/* =========================
+   TITLE
+========================= */
+
+.title-area {
+    position: absolute;
+    top: 82px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 600px;
+    max-width: 55vw;
+    text-align: center;
+    z-index: 10;
+}
+
+.title-area h1 {
+    font-size: clamp(27px, 2.5vw, 40px);
+    margin: 0;
+    letter-spacing: 2px;
+}
+
+.title-area p {
+    font-size: clamp(17px, 1.5vw, 25px);
+    font-weight: bold;
+    line-height: 1.25;
+    margin: 5px 0;
+}
+
+/* =========================
+   XP + HINT
+========================= */
+
+.right-tools {
+    position: absolute;
+    right: 4px;
+    top: 4px;
+    text-align: center;
+    z-index: 100;
+}
+
+.xp {
+    background: linear-gradient(#1688ff, #0351c7);
+    border: 4px solid #ffc800;
+    border-radius: 22px;
+    padding: 4px 14px;
+    font-size: clamp(17px, 1.4vw, 24px);
+    font-weight: 900;
+    color: white;
+    box-shadow: 0 0 8px #2196ff;
+}
+
+.hint-btn {
+    margin-top: 8px;
+    border: none;
+    background: linear-gradient(#29b7ff, #0064e8);
+    border: 4px solid #ffd000;
+    border-radius: 20px;
+    color: #fff;
+    font-weight: 900;
+    font-size: clamp(14px, 1.2vw, 19px);
+    padding: 6px 14px;
+    cursor: pointer;
+}
+
+/* =========================
+   MAIN BOARD
+========================= */
+
+.board {
+    position: absolute;
+
+    top: 205px;
+    left: 18px;
+    right: 18px;
+    bottom: 15px;
+
+    display: grid;
+
+    grid-template-columns:
+        minmax(330px, 40%)
+        minmax(280px, 30%)
+        minmax(280px, 30%);
+
+    gap: 14px;
+}
+
+/* =========================
+   DEVICE PANEL
+========================= */
+
+.device-panel {
+    min-height: 0;
+    height: 100%;
+
+    border: 6px solid #ff9f00;
+    border-radius: 30px;
+
+    padding: 45px 18px 12px;
+
+    background:
+        linear-gradient(
+            135deg,
+            #fff8d6,
+            #fff1bd
+        );
+
+    position: relative;
+    overflow: hidden;
+}
+
+.device-title {
+    position: absolute;
+    top: -3px;
+    left: 50%;
+
+    transform: translateX(-50%);
+
+    width: 70%;
+
+    text-align: center;
+
+    background:
+        linear-gradient(
+            #ffe62c,
+            #ff9f00
+        );
+
+    color: #111;
+
+    border: 5px solid #ff7800;
+    border-radius: 30px;
+
+    font-size: clamp(22px, 2vw, 31px);
+    font-weight: 900;
+
+    padding: 3px;
+}
+
+.devices {
+    height: 100%;
+
+    display: grid;
+
+    grid-template-columns: 1fr 1fr;
+
+    grid-template-rows:
+        repeat(2, minmax(0, 1fr))
+        minmax(0, 1fr);
+
+    gap: 8px;
+}
+
+.device {
+    min-height: 0;
+
+    background:
+        rgba(255,255,255,.65);
+
+    border-radius: 16px;
+
+    padding: 4px;
+
+    text-align: center;
+
+    cursor: grab;
+
+    color: red;
+
+    font-size:
+        clamp(13px, 1.1vw, 18px);
+
+    font-weight: bold;
+
+    display: flex;
+    flex-direction: column;
+
+    justify-content: center;
+    align-items: center;
+
+    transition: .2s;
+}
+
+.device:hover {
+    transform: scale(1.04);
+}
+
+.device:active {
+    cursor: grabbing;
+}
+
+.device img {
+    width: auto;
+
+    height:
+        min(10vh, 85px);
+
+    max-width: 90%;
+
+    object-fit: contain;
+
+    display: block;
+
+    margin: auto;
+}
+
+.device.car {
+    grid-column: 1 / 3;
+}
+
+.device.car img {
+    width: auto;
+
+    height:
+        min(9vh, 75px);
+}
+
+/* =========================
+   CATEGORY DROP BOXES
+========================= */
+
+.category {
+    min-height: 0;
+    height: 100%;
+
+    background:
+        linear-gradient(
+            #1685ff,
+            #0755c8
+        );
+
+    border: 5px solid #19a7ff;
+    border-radius: 30px;
+
+    padding: 10px;
+}
+
+.category h2 {
+    color: yellow;
+
+    text-align: center;
+
+    font-size:
+        clamp(18px, 1.7vw, 27px);
+
+    margin: 15px 0;
+}
+
+.drop-area {
+    min-height: 0;
+
+    height:
+        calc(100% - 65px);
+
+    background:
+        linear-gradient(
+            #eefaff,
+            #c6ecff
+        );
+
+    border-radius: 20px;
+
+    padding: 10px;
+
+    display: flex;
+    flex-wrap: wrap;
+
+    align-content: flex-start;
+    justify-content: center;
+
+    gap: 10px;
+
+    overflow: hidden;
+}
+
+.drop-area .device {
+    width: 46%;
+    height: 42%;
+
+    max-height: 145px;
+
+    background: white;
+
+    border: 3px solid #1685ff;
+
+    color: #092d70;
+
+    font-size:
+        clamp(12px, 1vw, 17px);
+}
+
+.drop-area .device img {
+    width: auto;
+
+    height:
+        min(8vh, 70px);
+
+    max-width: 90%;
+}
+
+/* =========================
+   CHECK BUTTON
+========================= */
+
+.check-container {
+    position: fixed;
+
+    bottom: 18px;
+    left: 50%;
+
+    transform:
+        translateX(-50%);
+
+    z-index: 50;
+}
+
+.check-btn {
+    padding: 8px 35px;
+
+    border: none;
+    border-radius: 25px;
+
+    background:
+        linear-gradient(
+            #41df39,
+            #0a9d19
+        );
+
+    border: 4px solid #eaff70;
+
+    color: white;
+
+    font-size:
+        clamp(15px, 1.2vw, 20px);
+
+    font-weight: 900;
+
+    cursor: pointer;
+
+    box-shadow:
+        0 5px 0 #05660e;
+}
+
+/* =========================
+   OVERLAY
+========================= */
+
+.overlay {
+    display: none;
+
+    position: fixed;
+
+    inset: 0;
+
+    width: 100vw;
+    height: 100vh;
+
+    background:
+        rgba(0,0,0,.78);
+
+    z-index: 1000;
+
+    padding: 15px;
+
+    align-items: center;
+    justify-content: center;
+
+    overflow: hidden;
+}
+
+.overlay.show {
+    display: flex;
+}
+
+/* =========================
+   POPUP
+========================= */
+
+.popup {
+    width:
+        min(650px, 92vw);
+
+    max-height: 94vh;
+
+    border-radius: 30px;
+
+    padding: 20px;
+
+    text-align: center;
+
+    position: relative;
+
+    overflow: hidden;
+
+    animation:
+        pop .25s ease;
+}
+
+@keyframes pop {
+
+    from {
+        transform: scale(.8);
+        opacity: 0;
+    }
+
+    to {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+
+/* =========================
+   INCORRECT
+========================= */
+
+.incorrect-popup {
+    background:
+        linear-gradient(
+            #fffaf5,
+            #fff0e9
+        );
+
+    color: #151515;
+
+    border: 6px solid #e72c1d;
+
+    box-shadow:
+        0 0 20px red;
+
+    width:
+        min(600px, 90vw);
+}
+
+.incorrect-popup h1 {
+    background:
+        linear-gradient(
+            #ff5c52,
+            #d71910
+        );
+
+    color: white;
+
+    border-radius: 20px;
+
+    padding: 8px;
+
+    border: 4px solid #ad130d;
+
+    font-size:
+        clamp(27px, 2.5vw, 38px);
+
+    margin: 0 0 10px;
+}
+
+.incorrect-popup h2 {
+    font-size:
+        clamp(18px, 1.7vw, 25px);
+}
+
+.incorrect-popup p {
+    font-size:
+        clamp(14px, 1.2vw, 19px);
+}
+
+.think-box {
+    border: 3px dashed #ff6c65;
+
+    border-radius: 15px;
+
+    padding: 10px;
+
+    margin: 12px 0;
+
+    font-size:
+        clamp(14px, 1.2vw, 19px);
+}
+
+.think-box strong {
+    color: #e1251b;
+}
+
+.popup-buttons {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+}
+
+.try-btn,
+.view-hint-btn {
+    border: none;
+
+    border-radius: 22px;
+
+    color: white;
+
+    padding: 10px 20px;
+
+    font-size: 18px;
+
+    font-weight: 900;
+
+    cursor: pointer;
+}
+
+.try-btn {
+    background:
+        linear-gradient(
+            #32c8ff,
+            #005be4
+        );
+
+    border: 4px solid #003b9d;
+}
+
+.view-hint-btn {
+    background:
+        linear-gradient(
+            #67ef48,
+            #0ca70b
+        );
+
+    border: 4px solid #087506;
+}
+
+/* =========================
+   CORRECT
+========================= */
+
+.correct-popup {
+    background:
+        linear-gradient(
+            #fffdf5,
+            #fff1cf
+        );
+
+    color: #09275e;
+
+    border: 8px solid #1685ff;
+
+    box-shadow:
+        0 0 30px #1685ff;
+
+    width:
+        min(600px, 90vw);
+}
+
+.correct-popup h1 {
+    background:
+        linear-gradient(
+            #38dd3d,
+            #079414
+        );
+
+    color: white;
+
+    border: 5px solid #087b0d;
+
+    border-radius: 20px;
+
+    font-size:
+        clamp(28px, 3vw, 45px);
+
+    padding: 8px;
+
+    margin: 0 0 10px;
+}
+
+.correct-popup h2 {
+    font-size:
+        clamp(20px, 2vw, 31px);
+}
+
+.big-star {
+    font-size:
+        clamp(40px, 5vw, 70px);
+}
+
+.reward-text {
+    font-size:
+        clamp(25px, 3vw, 37px);
+
+    font-weight: 900;
+
+    color: #1552c9;
+}
+
+.reward-note {
+    background: #fff8e6;
+
+    border: 2px dashed #98765c;
+
+    border-radius: 20px;
+
+    padding: 10px;
+
+    margin: 10px;
+
+    font-size: 18px;
+}
+
+.claim-btn {
+    background:
+        linear-gradient(
+            #4af034,
+            #079c12
+        );
+
+    border: 5px solid #05770d;
+
+    border-radius: 30px;
+
+    padding: 10px 30px;
+
+    color: white;
+
+    font-size: 22px;
+
+    font-weight: 900;
+
+    cursor: pointer;
+}
+
+/* =========================
+   HINT
+========================= */
+
+.hint-popup {
+    background: #eff9ff;
+
+    border: 8px solid #087aff;
+
+    color: #111;
+
+    width:
+        min(850px, 90vw);
+
+    max-height: 92vh;
+
+    padding: 15px 20px;
+}
+
+.hint-heading {
+    background:
+        linear-gradient(
+            #22aaff,
+            #064bd5
+        );
+
+    color: #ffca00;
+
+    border-radius: 20px;
+
+    padding: 7px;
+
+    font-size:
+        clamp(27px, 3vw, 42px);
+
+    font-weight: 900;
+
+    margin-bottom: 10px;
+}
+
+.hint-section {
+    text-align: left;
+
+    padding: 10px 20px;
+
+    border-radius: 20px;
+
+    margin: 8px;
+
+    font-size:
+        clamp(14px, 1.3vw, 19px);
+}
+
+.hint-section h2 {
+    font-size:
+        clamp(19px, 1.8vw, 28px);
+
+    margin: 5px 0 10px;
+}
+
+.general-hint {
+    background: #dceeff;
+}
+
+.embedded-hint {
+    background: #e5f8dc;
+}
+
+.general-hint h2 {
+    color: #1452d3;
+}
+
+.embedded-hint h2 {
+    color: green;
+}
+
+.think {
+    background: #fff8db;
+
+    border: 2px dashed #ffc329;
+
+    border-radius: 15px;
+
+    padding: 8px;
+
+    margin: 8px;
+
+    font-size:
+        clamp(14px, 1.2vw, 18px);
+}
+
+.close-btn {
+    position: absolute;
+
+    right: 15px;
+    top: 10px;
+
+    width: 40px;
+    height: 40px;
+
+    border-radius: 50%;
+
+    border: 4px solid #c16b00;
+
+    background: #ffc525;
+
+    font-size: 20px;
+    font-weight: bold;
+
+    cursor: pointer;
+}
+
+/* =========================
+   FINAL
+========================= */
+
+.final-popup {
+    background:
+        linear-gradient(
+            #fffbe8,
+            #ffe7a8
+        );
+
+    color: #09275e;
+
+    border: 8px solid #ffc400;
+
+    box-shadow:
+        0 0 40px #ffd900;
+}
+
+.final-popup h1 {
+    color: #079414;
+    font-size: 40px;
+}
+
+.final-xp {
+    font-size: 65px;
+
+    font-weight: 900;
+
+    color: #0863e8;
+
+    text-shadow:
+        3px 3px #ffc400;
+}
+
+.final-next-btn {
+    margin-top: 15px;
+
+    padding: 10px 35px;
+
+    border: 5px solid #05770d;
+
+    border-radius: 30px;
+
+    background:
+        linear-gradient(
+            #4af034,
+            #079c12
+        );
+
+    color: white;
+
+    font-size:
+        clamp(17px, 1.5vw, 23px);
+
+    font-weight: 900;
+
+    cursor: pointer;
+
+    box-shadow:
+        0 5px 0 #045c0a,
+        0 0 18px
+        rgba(50,255,50,.65);
+}
+
+/* =========================
+   FAILED
+========================= */
+
+.failure-popup {
+    width:
+        min(600px, 90vw);
+
+    background:
+        linear-gradient(
+            #1a2238,
+            #090d18
+        );
+
+    color: white;
+
+    border: 7px solid #ff4055;
+
+    box-shadow:
+        0 0 30px #ff4055;
+}
+
+.failure-heart {
+    font-size:
+        clamp(45px, 5vw, 70px);
+}
+
+.failure-popup h1 {
+    color: #ff5364;
+
+    font-size:
+        clamp(28px, 3vw, 42px);
+}
+
+.failure-popup h2 {
+    font-size:
+        clamp(18px, 2vw, 25px);
+}
+
+.empty-lives {
+    font-size:
+        clamp(28px, 4vw, 45px);
+
+    letter-spacing: 7px;
+
+    margin: 12px 0;
+}
+
+.failure-popup p {
+    color: #dce9ff;
+
+    font-size:
+        clamp(15px, 1.4vw, 19px);
+}
+
+.restart-zone-btn {
+    border: 4px solid #ffe44c;
+
+    border-radius: 22px;
+
+    background:
+        linear-gradient(
+            #ffef65,
+            #ff9b00
+        );
+
+    color: #111;
+
+    padding: 10px 24px;
+
+    font-size:
+        clamp(15px, 1.4vw, 20px);
+
+    font-weight: 900;
+
+    cursor: pointer;
+}
+
+/* =========================
+   SHORTER SCREENS
+========================= */
+
+@media (max-height: 800px) {
+
+    .title-area {
+        top: 72px;
+    }
+
+    .board {
+        top: 180px;
+    }
+
+    .lives-box {
+        width: 175px;
+        height: 48px;
+    }
+
+    #livesDisplay {
+        font-size: 23px;
+    }
+
+    .device-panel {
+        padding-top: 38px;
+    }
+
+    .category h2 {
+        margin: 8px 0;
+    }
+
+    .drop-area {
+        height: calc(100% - 50px);
+    }
+}
+
+</style>
+</head>
+
+<body>
+
+<div class="game">
+
+    <div class="topbar">
+
+        <div class="level-status">
+
+            <div class="level">
+                TO1: LEVEL 4
+            </div>
+
+            <div class="lives-box">
+                <span id="livesDisplay">
+                    ❤️❤️❤️
+                </span>
+            </div>
+
+        </div>
+
+        <div class="right-tools">
+
+            <div class="xp">
+                ⭐
+                <span id="xpDisplay">
+                    75 XP
+                </span>
+            </div>
+
+            <button
+                class="hint-btn"
+                onclick="openHint()">
+
+                💡 HINTS
+
+            </button>
+
+        </div>
+
+    </div>
+
+    <div class="title-area">
+
+        <h1>
+            MATCH THE SYSTEM
+        </h1>
+
+        <p>
+            Drag each computer device to the<br>
+            correct type of computer.
+        </p>
+
+    </div>
+
+    <div class="board">
+
+        <div class="device-panel">
+
+            <div class="device-title">
+                Devices
+            </div>
+
+            <div
+                class="devices"
+                id="deviceHome">
+
+                <div
+                    class="device"
+                    draggable="true"
+                    data-device="laptop">
+
+                    <img src="laptop.png">
+
+                    Laptop
+
+                </div>
+
+                <div
+                    class="device"
+                    draggable="true"
+                    data-device="desktop">
+
+                    <img src="desktop.png">
+
+                    Desktop
+
+                </div>
+
+                <div
+                    class="device"
+                    draggable="true"
+                    data-device="washingMachine">
+
+                    <img src="washing machine.png">
+
+                    Washing Machine
+
+                </div>
+
+                <div
+                    class="device"
+                    draggable="true"
+                    data-device="smartTV">
+
+                    <img src="tv.png">
+
+                    Smart TV
+
+                </div>
+
+                <div
+                    class="device car"
+                    draggable="true"
+                    data-device="carControl">
+
+                    <img src="ccs.png">
+
+                    Car Control System
+
+                </div>
+
+            </div>
+
+        </div>
+
+        <div
+            class="category"
+            data-zone="general">
+
+            <h2>
+                General Computer
+            </h2>
+
+            <div class="drop-area"></div>
+
+        </div>
+
+        <div
+            class="category"
+            data-zone="embedded">
+
+            <h2>
+                Embedded Systems
+            </h2>
+
+            <div class="drop-area"></div>
+
+        </div>
+
+    </div>
+
+    <div class="check-container">
+
+        <button
+            class="check-btn"
+            onclick="checkAnswers()">
+
+            ✓ CHECK ANSWER
+
+        </button>
+
+    </div>
+
+</div>
+
+<!-- INCORRECT -->
+
+<div
+    id="incorrectOverlay"
+    class="overlay">
+
+    <div class="popup incorrect-popup">
+
+        <h1>
+            ❌ Incorrect!
+        </h1>
+
+        <h2>
+            Oops! That's not correct.
+        </h2>
+
+        <p>
+            Some devices are in the wrong category.
+        </p>
+
+        <div class="think-box">
+
+            💡
+            <strong>Think again!</strong>
+
+            <br><br>
+
+            General computers can do many tasks.
+
+            <br>
+
+            Embedded systems do one specific task.
+
+        </div>
+
+        <div class="popup-buttons">
+
+            <button
+                class="try-btn"
+                onclick="tryAgain()">
+
+                ↻ TRY AGAIN
+
+            </button>
+
+            <button
+                class="view-hint-btn"
+                onclick="viewHintFromWrong()">
+
+                💡 VIEW HINT
+
+            </button>
+
+        </div>
+
+    </div>
+
+</div>
+
+<!-- CORRECT -->
+
+<div
+    id="correctOverlay"
+    class="overlay">
+
+    <div class="popup correct-popup">
+
+        <h1>
+            🏆 EXCELLENT!
+        </h1>
+
+        <h2>
+            YOU GOT IT RIGHT!
+        </h2>
+
+        <div class="big-star">
+            ⭐
+        </div>
+
+        <div class="reward-text">
+            +25 XP
+        </div>
+
+        <div class="reward-note">
+
+            You completed the final level!
+
+            <br>
+
+            Click
+            <strong>CLAIM REWARD</strong>
+            to collect your XP.
+
+        </div>
+
+        <button
+            class="claim-btn"
+            onclick="claimReward()">
+
+            🎁 CLAIM REWARD
+
+        </button>
+
+    </div>
+
+</div>
+
+<!-- HINT -->
+
+<div
+    id="hintOverlay"
+    class="overlay">
+
+    <div class="popup hint-popup">
+
+        <button
+            class="close-btn"
+            onclick="closeHint()">
+
+            ✕
+
+        </button>
+
+        <div class="hint-heading">
+            💡 HINT
+        </div>
+
+        <div
+            class="hint-section general-hint">
+
+            <h2>
+                💻 GENERAL-PURPOSE COMPUTER:
+            </h2>
+
+            A computer that can perform
+            <strong>many different tasks</strong>,
+            such as browsing, typing, gaming
+            and watching videos.
+
+        </div>
+
+        <div
+            class="hint-section embedded-hint">
+
+            <h2>
+                ⚙️ EMBEDDED SYSTEM:
+            </h2>
+
+            A computer built into another device
+            to perform a
+            <strong>specific task.</strong>
+
+        </div>
+
+        <div class="think">
+
+            💡 <strong>THINK:</strong>
+
+            <br><br>
+
+            💻 Many tasks
+            &nbsp; ➜ &nbsp;
+            <strong>General-Purpose</strong>
+
+            <br><br>
+
+            ⚙️ One specific job
+            &nbsp; ➜ &nbsp;
+            <strong>Embedded System</strong>
+
+        </div>
+
+    </div>
+
+</div>
+
+<!-- FINAL -->
+
+<div
+    id="finalOverlay"
+    class="overlay">
+
+    <div class="popup final-popup">
+
+        <h1>
+            🏆 AMAZING WORK!
+        </h1>
+
+        <h2>
+            YOU HAVE COLLECTED ALL
+        </h2>
+
+        <div class="final-xp">
+            100 XP!
+        </div>
+
+        <h2>
+            ⭐ YOU'RE A SYSTEM MASTER! ⭐
+        </h2>
+
+        <button
+            class="final-next-btn"
+            onclick="goToTO2()">
+
+            NEXT ▶
+
+        </button>
+
+    </div>
+
+</div>
+
+<!-- FAILED -->
+
+<div
+    id="failureOverlay"
+    class="overlay">
+
+    <div class="popup failure-popup">
+
+        <div class="failure-heart">
+            💔
+        </div>
+
+        <h1>
+            TRAINING ZONE FAILED!
+        </h1>
+
+        <h2>
+            YOU HAVE LOST ALL 3 LIVES
+        </h2>
+
+        <div class="empty-lives">
+            🖤🖤🖤
+        </div>
+
+        <p>
+            You have used all your lives
+            for Training Zone 1.
+
+            <br><br>
+
+            Restart Training Zone 1
+            and try again from Level 1.
+        </p>
+
+        <button
+            class="restart-zone-btn"
+            onclick="restartTrainingZone()">
+
+            🔄 RESTART TRAINING ZONE
+
+        </button>
+
+    </div>
+
+</div>
+
+<!-- SOUNDS -->
+
+<audio
+    id="selectSound"
+    preload="auto">
+
+    <source
+        src="select.mp3"
+        type="audio/mpeg">
+
+</audio>
+
+<audio
+    id="whooshSound"
+    preload="auto">
+
+    <source
+        src="whoosh.mp3"
+        type="audio/mpeg">
+
+</audio>
+
+<audio
+    id="wrongSound"
+    preload="auto">
+
+    <source
+        src="wrong.mp3"
+        type="audio/mpeg">
+
+</audio>
+
+<audio
+    id="coinsSound"
+    preload="auto">
+
+    <source
+        src="coins.mp3"
+        type="audio/mpeg">
+
+</audio>
+
+<script>
+
+/* ==========================
+   SOUNDS
+========================== */
+
+const selectSound =
+    document.getElementById("selectSound");
+
+const whooshSound =
+    document.getElementById("whooshSound");
+
+const wrongSound =
+    document.getElementById("wrongSound");
+
+const coinsSound =
+    document.getElementById("coinsSound");
+
+function playSelectSound() {
+
+    selectSound.currentTime = 0;
+
+    selectSound
+        .play()
+        .catch(function () {});
+
+}
+
+function playWhooshSound() {
+
+    whooshSound.currentTime = 0;
+
+    whooshSound
+        .play()
+        .catch(function () {});
+
+}
+
+function playWrongSound() {
+
+    wrongSound.currentTime = 0;
+
+    wrongSound
+        .play()
+        .catch(function () {});
+
+}
+
+function playCoinsSound() {
+
+    coinsSound.currentTime = 0;
+
+    coinsSound
+        .play()
+        .catch(function () {});
+
+}
+
+/* ==========================
+   SHARED TO1 DATA
+========================== */
+
+/*
+    DO NOT RESET LIVES
+    WHEN LEVEL 4 OPENS.
+*/
+
+if (
+    localStorage.getItem("to1Lives") === null
+) {
+
+    localStorage.setItem(
+        "to1Lives",
+        "3"
+    );
+
+}
+
+/*
+    Level 4 normally receives
+    75 XP from Level 3.
+
+    This is only a fallback
+    when no XP exists.
+*/
+
+if (
+    localStorage.getItem("to1XP") === null
+) {
+
+    localStorage.setItem(
+        "to1XP",
+        "75"
+    );
+
+}
+
+let lives =
+    parseInt(
+        localStorage.getItem("to1Lives")
+    );
+
+let xp =
+    parseInt(
+        localStorage.getItem("to1XP")
+    );
+
+if (isNaN(lives)) {
+
+    lives = 3;
+
+    localStorage.setItem(
+        "to1Lives",
+        "3"
+    );
+
+}
+
+if (isNaN(xp)) {
+
+    xp = 75;
+
+    localStorage.setItem(
+        "to1XP",
+        "75"
+    );
+
+}
+
+if (lives > 3) {
+    lives = 3;
+}
+
+if (lives < 0) {
+    lives = 0;
+}
+
+let rewardClaimed = false;
+let levelCompleted = false;
+
+const livesDisplay =
+    document.getElementById(
+        "livesDisplay"
+    );
+
+const livesBox =
+    document.querySelector(
+        ".lives-box"
+    );
+
+/* ==========================
+   DISPLAY LIVES
+========================== */
+
+function updateLivesDisplay() {
+
+    let hearts = "";
+
+    for (
+        let i = 0;
+        i < 3;
+        i++
+    ) {
+
+        if (i < lives) {
+
+            hearts += "❤️";
+
+        }
+
+        else {
+
+            hearts += "🖤";
+
+        }
+
+    }
+
+    livesDisplay.textContent =
+        hearts;
+
+}
+
+/* ==========================
+   DISPLAY XP
+========================== */
+
+function updateXPDisplay() {
+
+    document
+        .getElementById(
+            "xpDisplay"
+        )
+        .textContent =
+        xp + " XP";
+
+}
+
+updateLivesDisplay();
+updateXPDisplay();
+
+/* ==========================
+   CORRECT ANSWERS
+========================== */
+
+const correctAnswers = {
+
+    laptop:
+        "general",
+
+    desktop:
+        "general",
+
+    washingMachine:
+        "embedded",
+
+    smartTV:
+        "embedded",
+
+    carControl:
+        "embedded"
+
+};
+
+/* ==========================
+   DRAG AND DROP
+========================== */
+
+let draggedDevice = null;
+
+document
+    .querySelectorAll(".device")
+    .forEach(device => {
+
+        device.addEventListener(
+            "mouseenter",
+            function () {
+
+                playSelectSound();
+
+            }
+        );
+
+        device.addEventListener(
+            "dragstart",
+            function () {
+
+                draggedDevice =
+                    this;
+
+                playWhooshSound();
+
+                setTimeout(
+                    () => {
+
+                        this.style.opacity =
+                            "0.5";
+
+                    },
+                    0
+                );
+
+            }
+        );
+
+        device.addEventListener(
+            "dragend",
+            function () {
+
+                this.style.opacity =
+                    "1";
+
+            }
+        );
+
+    });
+
+document
+    .querySelectorAll(".category")
+    .forEach(category => {
+
+        category.addEventListener(
+            "dragover",
+            function (event) {
+
+                event.preventDefault();
+
+            }
+        );
+
+        category.addEventListener(
+            "drop",
+            function (event) {
+
+                event.preventDefault();
+
+                if (!draggedDevice) {
+
+                    return;
+
+                }
+
+                const dropArea =
+                    this.querySelector(
+                        ".drop-area"
+                    );
+
+                dropArea.appendChild(
+                    draggedDevice
+                );
+
+                draggedDevice
+                    .dataset
+                    .currentZone =
+                    this.dataset.zone;
+
+                draggedDevice =
+                    null;
+
+            }
+        );
+
+    });
+
+/* ==========================
+   CHECK ANSWER
+========================== */
+
+function checkAnswers() {
+
+    if (
+        levelCompleted ||
+        lives <= 0
+    ) {
+
+        return;
+
+    }
+
+    let allCorrect = true;
+
+    Object
+        .keys(correctAnswers)
+        .forEach(deviceName => {
+
+            const device =
+                document.querySelector(
+                    `[data-device="${deviceName}"]`
+                );
+
+            if (
+                !device.dataset.currentZone ||
+                device.dataset.currentZone !==
+                correctAnswers[deviceName]
+            ) {
+
+                allCorrect = false;
+
+            }
+
+        });
+
+    /*
+        CORRECT:
+        NO LIFE LOST
+    */
+
+    if (allCorrect) {
+
+        levelCompleted = true;
+
+        localStorage.setItem(
+            "to1Lives",
+            String(lives)
+        );
+
+        showCorrect();
+
+    }
+
+    /*
+        WRONG:
+        ONE CHECK = ONE LIFE
+    */
+
+    else {
+
+        /*
+            Play sound BEFORE
+            checking for 0 lives,
+            so final wrong answer
+            still has sound.
+        */
+
+        playWrongSound();
+
+        loseLife();
+
+        if (lives > 0) {
+
+            showIncorrect();
+
+        }
+
+    }
+
+}
+
+/* ==========================
+   LOSE ONE LIFE
+========================== */
+
+function loseLife() {
+
+    if (lives <= 0) {
+
+        return;
+
+    }
+
+    lives--;
+
+    localStorage.setItem(
+        "to1Lives",
+        String(lives)
+    );
+
+    updateLivesDisplay();
+
+    livesBox
+        .classList
+        .remove(
+            "life-lost"
+        );
+
+    void livesBox.offsetWidth;
+
+    livesBox
+        .classList
+        .add(
+            "life-lost"
+        );
+
+    if (lives === 0) {
+
+        setTimeout(
+            showTrainingFailed,
+            450
+        );
+
+    }
+
+}
+
+/* ==========================
+   INCORRECT
+========================== */
+
+function showIncorrect() {
+
+    /*
+        NO LIFE LOSS HERE.
+
+        Life was already removed
+        by checkAnswers().
+    */
+
+    document
+        .getElementById(
+            "incorrectOverlay"
+        )
+        .classList
+        .add(
+            "show"
+        );
+
+}
+
+/* ==========================
+   TRY AGAIN
+========================== */
+
+function tryAgain() {
+
+    /*
+        NO LIFE LOST
+    */
+
+    document
+        .getElementById(
+            "incorrectOverlay"
+        )
+        .classList
+        .remove(
+            "show"
+        );
+
+}
+
+/* ==========================
+   VIEW HINT
+========================== */
+
+function viewHintFromWrong() {
+
+    /*
+        NO LIFE LOST
+    */
+
+    document
+        .getElementById(
+            "incorrectOverlay"
+        )
+        .classList
+        .remove(
+            "show"
+        );
+
+    openHint();
+
+}
+
+function openHint() {
+
+    /*
+        NO LIFE LOST
+    */
+
+    document
+        .getElementById(
+            "hintOverlay"
+        )
+        .classList
+        .add(
+            "show"
+        );
+
+}
+
+function closeHint() {
+
+    document
+        .getElementById(
+            "hintOverlay"
+        )
+        .classList
+        .remove(
+            "show"
+        );
+
+}
+
+/* ==========================
+   CORRECT
+========================== */
+
+function showCorrect() {
+
+    /*
+        CORRECT ANSWER:
+        NO LIFE LOST
+    */
+
+    playCoinsSound();
+
+    document
+        .getElementById(
+            "correctOverlay"
+        )
+        .classList
+        .add(
+            "show"
+        );
+
+}
+
+/* ==========================
+   CLAIM REWARD
+========================== */
+
+function claimReward() {
+
+    if (!rewardClaimed) {
+
+        /*
+            FINAL TO1 XP
+            MUST BE 100.
+        */
+
+        xp = 100;
+
+        rewardClaimed = true;
+
+        localStorage.setItem(
+            "to1XP",
+            "100"
+        );
+
+        /*
+            KEEP WHATEVER
+            LIVES REMAIN.
+        */
+
+        localStorage.setItem(
+            "to1Lives",
+            String(lives)
+        );
+
+        playCoinsSound();
+
+    }
+
+    updateXPDisplay();
+
+    document
+        .getElementById(
+            "correctOverlay"
+        )
+        .classList
+        .remove(
+            "show"
+        );
+
+    document
+        .getElementById(
+            "finalOverlay"
+        )
+        .classList
+        .add(
+            "show"
+        );
+
+}
+
+/* ==========================
+   FAILED
+========================== */
+
+function showTrainingFailed() {
+
+    document
+        .getElementById(
+            "incorrectOverlay"
+        )
+        .classList
+        .remove(
+            "show"
+        );
+
+    document
+        .getElementById(
+            "hintOverlay"
+        )
+        .classList
+        .remove(
+            "show"
+        );
+
+    document
+        .getElementById(
+            "correctOverlay"
+        )
+        .classList
+        .remove(
+            "show"
+        );
+
+    document
+        .getElementById(
+            "finalOverlay"
+        )
+        .classList
+        .remove(
+            "show"
+        );
+
+    document
+        .getElementById(
+            "failureOverlay"
+        )
+        .classList
+        .add(
+            "show"
+        );
+
+}
+
+/* ==========================
+   RESTART TO1
+========================== */
+
+function restartTrainingZone() {
+
+    /*
+        ONLY RESTART
+        TRAINING ZONE 1.
+    */
+
+    localStorage.setItem(
+        "to1Lives",
+        "3"
+    );
+
+    localStorage.setItem(
+        "to1XP",
+        "0"
+    );
+
+    window.location.href =
+        "tol1.html";
+
+}
+
+/* ==========================
+   BUTTON HOVER SOUND
+========================== */
+
+document.addEventListener(
+    "mouseover",
+    function (event) {
+
+        const button =
+            event.target.closest(
+                "button"
+            );
+
+        if (!button) {
+
+            return;
+
+        }
+
+        if (button.disabled) {
+
+            return;
+
+        }
+
+        if (
+            event.relatedTarget &&
+            button.contains(
+                event.relatedTarget
+            )
+        ) {
+
+            return;
+
+        }
+
+        playSelectSound();
+
+    }
+);
+
+/* ==========================
+   NEXT TO TO2
+========================== */
+
+function goToTO2() {
+
+    /*
+        SAVE COMPLETED TO1.
+    */
+
+    localStorage.setItem(
+        "to1XP",
+        "100"
+    );
+
+    localStorage.setItem(
+        "to1Lives",
+        String(lives)
+    );
+
+    /*
+        TO2 IS A NEW
+        TRAINING ZONE.
+
+        FRESH 3 LIVES.
+    */
+
+    localStorage.setItem(
+        "to2Lives",
+        "3"
+    );
+
+    localStorage.setItem(
+        "to2XP",
+        "0"
+    );
+
+    /*
+        PRESSING NEXT
+        DOES NOT COST LIFE.
+    */
+
+    window.location.href =
+        "to2.html";
+
+}
+
+</script>
+
+</body>
+</html>

@@ -1,0 +1,6421 @@
+<!DOCTYPE html>
+
+<html lang="en">
+
+<head>
+
+<meta charset="UTF-8">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+
+
+<title>Computer Quest - Turtle Code Rescue</title>
+
+
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;600;700;800;900&family=Rajdhani:wght@500;600;700&display=swap" rel="stylesheet">
+
+
+
+<style>
+
+
+
+*{
+
+    box-sizing:border-box;
+
+    margin:0;
+
+    padding:0;
+
+}
+
+
+
+body{
+
+    min-height:100vh;
+
+    background:#020817;
+
+    color:white;
+
+    font-family:"Rajdhani",Arial,sans-serif;
+
+    overflow-x:hidden;
+
+}
+
+
+
+button{
+
+    font-family:"Orbitron",Arial,sans-serif;
+
+}
+
+
+
+/* =====================================================
+
+   MAIN BACKGROUND
+
+===================================================== */
+
+
+
+.game{
+
+    min-height:100vh;
+
+    position:relative;
+
+    overflow:hidden;
+
+
+
+    background:
+
+        radial-gradient(circle at 50% 35%,#164a7b 0%,#071d39 38%,#010714 80%);
+
+}
+
+
+
+.game::before{
+
+    content:"";
+
+    position:absolute;
+
+    inset:0;
+
+
+
+    background:
+
+        linear-gradient(rgba(0,190,255,.055) 1px,transparent 1px),
+
+        linear-gradient(90deg,rgba(0,190,255,.055) 1px,transparent 1px);
+
+
+
+    background-size:48px 48px;
+
+    pointer-events:none;
+
+}
+
+
+
+/* =====================================================
+
+   OUTER FRAME
+
+===================================================== */
+
+
+
+.frame{
+
+    position:fixed;
+
+    inset:9px;
+
+    z-index:1000;
+
+
+
+    border:4px solid #00baff;
+
+    border-radius:35px;
+
+
+
+    box-shadow:
+
+        inset 0 0 35px #004c8c,
+
+        0 0 22px #009cff;
+
+
+
+    pointer-events:none;
+
+}
+
+
+
+/* =====================================================
+
+   PRAYER FLAGS
+
+===================================================== */
+
+
+
+.prayer-flags{
+
+    position:absolute;
+
+    top:17px;
+
+    left:35px;
+
+    display:flex;
+
+    z-index:20;
+
+}
+
+
+
+.flag{
+
+    width:40px;
+
+    height:54px;
+
+    margin-right:4px;
+
+
+
+    clip-path:polygon(
+
+        0 0,
+
+        100% 0,
+
+        100% 75%,
+
+        50% 100%,
+
+        0 75%
+
+    );
+
+}
+
+
+
+.blue{background:#079be7;}
+
+.white{background:#eaf4ff;}
+
+.red{background:#e13d39;}
+
+.green{background:#28a65b;}
+
+.yellow{background:#f2c931;}
+
+
+
+/* =====================================================
+
+   HEADER
+
+===================================================== */
+
+
+
+.header{
+
+    position:relative;
+
+    z-index:10;
+
+    text-align:center;
+
+    padding-top:20px;
+
+}
+
+
+
+.zone-label{
+
+    font-family:"Orbitron";
+
+    font-size:15px;
+
+    letter-spacing:4px;
+
+    color:#9fcaff;
+
+}
+
+
+
+.game-title{
+
+    margin-top:5px;
+
+
+
+    font-family:"Orbitron";
+
+    font-size:clamp(28px,3.5vw,50px);
+
+    font-weight:900;
+
+    letter-spacing:2px;
+
+
+
+    color:#ffc43c;
+
+
+
+    text-shadow:
+
+        0 0 8px #ff8b00,
+
+        0 0 22px rgba(255,140,0,.75);
+
+}
+
+
+
+.subtitle{
+
+    margin-top:5px;
+
+    color:#d9efff;
+
+    font-size:18px;
+
+    font-weight:600;
+
+}
+
+
+
+/* =====================================================
+
+   HUD
+
+===================================================== */
+
+
+
+.hud{
+
+    position:absolute;
+
+    right:35px;
+
+    top:22px;
+
+    z-index:50;
+
+
+
+    display:flex;
+
+    flex-direction:column;
+
+    gap:8px;
+
+}
+
+
+
+.hud-box{
+
+    min-width:145px;
+
+    padding:9px 16px;
+
+
+
+    border:2px solid #00baff;
+
+    border-radius:25px;
+
+
+
+    background:#06284c;
+
+
+
+    font-family:"Orbitron";
+
+    font-weight:800;
+
+    text-align:center;
+
+
+
+    box-shadow:0 0 15px #0079c5;
+
+}
+
+
+
+.life-box{
+
+    border-color:#ff4f70;
+
+    background:#351020;
+
+}
+
+
+
+#xpDisplay.reward-pop{
+
+    display:inline-block;
+
+
+
+    animation:xpPop .75s ease;
+
+
+
+    color:#ffe04d;
+
+
+
+    text-shadow:
+
+        0 0 8px #ffba00,
+
+        0 0 18px #ff8a00;
+
+}
+
+
+
+@keyframes xpPop{
+
+
+
+    0%{
+
+        transform:scale(1);
+
+    }
+
+
+
+    35%{
+
+        transform:scale(1.8) rotate(-5deg);
+
+    }
+
+
+
+    65%{
+
+        transform:scale(1.4) rotate(4deg);
+
+    }
+
+
+
+    100%{
+
+        transform:scale(1);
+
+    }
+
+}
+
+
+
+/* =====================================================
+
+   MAIN LAYOUT
+
+===================================================== */
+
+
+
+.main-layout{
+
+    position:relative;
+
+    z-index:5;
+
+
+
+    width:min(1500px,95vw);
+
+    margin:18px auto 35px;
+
+
+
+    display:grid;
+
+
+
+    grid-template-columns:
+
+        300px
+
+        minmax(600px,1fr)
+
+        290px;
+
+
+
+    gap:18px;
+
+}
+
+
+
+/* =====================================================
+
+   PANELS
+
+===================================================== */
+
+
+
+.panel{
+
+    min-height:610px;
+
+    padding:20px;
+
+
+
+    border:3px solid #00baff;
+
+    border-radius:23px;
+
+
+
+    background:rgba(3,20,42,.95);
+
+
+
+    box-shadow:
+
+        inset 0 0 25px rgba(0,120,210,.25),
+
+        0 0 18px rgba(0,150,255,.25);
+
+}
+
+
+
+.panel-title{
+
+    color:#4dd7ff;
+
+
+
+    font-family:"Orbitron";
+
+    font-size:14px;
+
+    letter-spacing:1px;
+
+
+
+    padding-bottom:12px;
+
+
+
+    border-bottom:2px solid #00baff;
+
+}
+
+
+
+/* =====================================================
+
+   LEFT PANEL
+
+===================================================== */
+
+
+
+.mission-number{
+
+    margin-top:18px;
+
+
+
+    font-family:"Orbitron";
+
+    font-size:12px;
+
+
+
+    color:#ffd23c;
+
+}
+
+
+
+.clue-label{
+
+    margin-top:20px;
+
+
+
+    color:#49d7ff;
+
+
+
+    font-family:"Orbitron";
+
+    font-size:11px;
+
+}
+
+
+
+.clue{
+
+    margin-top:9px;
+
+
+
+    color:#e8f5ff;
+
+
+
+    font-size:21px;
+
+    line-height:1.3;
+
+    font-weight:600;
+
+}
+
+
+
+.wrong-counter{
+
+    margin-top:22px;
+
+    padding:12px;
+
+
+
+    border:2px solid #ffb52e;
+
+    border-radius:12px;
+
+
+
+    background:#271b04;
+
+
+
+    text-align:center;
+
+
+
+    color:#ffd85b;
+
+
+
+    font-family:"Orbitron";
+
+    font-size:11px;
+
+}
+
+
+
+.hint-button{
+
+    width:100%;
+
+    margin-top:18px;
+
+    padding:13px;
+
+
+
+    border:2px solid #d568ff;
+
+    border-radius:12px;
+
+
+
+    background:linear-gradient(#59216f,#2c103b);
+
+
+
+    color:white;
+
+    font-weight:900;
+
+
+
+    cursor:pointer;
+
+
+
+    box-shadow:
+
+        0 5px 0 #190622,
+
+        0 0 12px rgba(205,80,255,.4);
+
+
+
+    transition:.15s;
+
+}
+
+
+
+.hint-button:hover{
+
+    transform:translateY(-5px) scale(1.04);
+
+
+
+    box-shadow:
+
+        0 9px 0 #190622,
+
+        0 0 22px #c34fff;
+
+}
+
+
+
+.hint-button:active{
+
+    transform:translateY(2px) scale(.97);
+
+}
+
+
+
+/* =====================================================
+
+   JOURNEY
+
+===================================================== */
+
+
+
+.journey{
+
+    margin-top:25px;
+
+}
+
+
+
+.journey-title{
+
+    color:#4dd7ff;
+
+    font-family:"Orbitron";
+
+    font-size:11px;
+
+}
+
+
+
+.journey-list{
+
+    margin-top:10px;
+
+
+
+    display:flex;
+
+    flex-direction:column;
+
+    gap:7px;
+
+}
+
+
+
+.journey-item{
+
+    padding:9px 10px;
+
+
+
+    border:1px solid #164f75;
+
+    border-radius:8px;
+
+
+
+    background:#06192d;
+
+    color:#66869e;
+
+
+
+    font-family:"Orbitron";
+
+    font-size:9px;
+
+}
+
+
+
+.journey-item.active{
+
+    color:#ffe16b;
+
+
+
+    border-color:#ffc633;
+
+
+
+    background:#2a2107;
+
+
+
+    box-shadow:
+
+        0 0 10px rgba(255,195,40,.3);
+
+}
+
+
+
+.journey-item.complete{
+
+    color:#65f5a0;
+
+
+
+    border-color:#2ee77b;
+
+
+
+    background:#082a1b;
+
+}
+
+
+
+/* =====================================================
+
+   CENTER GAME BOARD
+
+===================================================== */
+
+
+
+.game-board{
+
+    min-height:610px;
+
+
+
+    padding:18px 25px;
+
+
+
+    border:3px solid #116fa7;
+
+    border-radius:25px;
+
+
+
+    background:
+
+        radial-gradient(circle at 50% 35%,#0d3c6b,#031329 73%);
+
+
+
+    box-shadow:
+
+        inset 0 0 40px rgba(0,130,220,.35);
+
+
+
+    text-align:center;
+
+}
+
+
+
+.rescue-label{
+
+    font-family:"Orbitron";
+
+
+
+    font-size:11px;
+
+
+
+    letter-spacing:3px;
+
+
+
+    color:#8bcfff;
+
+}
+
+
+
+/* =====================================================
+
+   TURTLE TRAP
+
+===================================================== */
+
+
+
+.trap-area{
+
+    width:430px;
+
+    max-width:100%;
+
+    height:270px;
+
+
+
+    margin:10px auto 0;
+
+
+
+    position:relative;
+
+}
+
+
+
+.ground{
+
+    position:absolute;
+
+
+
+    left:40px;
+
+    bottom:15px;
+
+
+
+    width:340px;
+
+    height:7px;
+
+
+
+    border-radius:10px;
+
+
+
+    background:#d9f2ff;
+
+
+
+    box-shadow:
+
+        0 0 12px #65cfff;
+
+}
+
+
+
+.trap-part{
+
+    opacity:0;
+
+
+
+    transition:
+
+        opacity .35s,
+
+        transform .35s;
+
+
+
+    transform:scale(.75);
+
+}
+
+
+
+.trap-part.show{
+
+    opacity:1;
+
+
+
+    transform:scale(1);
+
+}
+
+
+
+.pole{
+
+    position:absolute;
+
+
+
+    left:100px;
+
+    bottom:20px;
+
+
+
+    width:8px;
+
+    height:220px;
+
+
+
+    background:#d9f2ff;
+
+
+
+    border-radius:10px;
+
+
+
+    box-shadow:
+
+        0 0 10px #65cfff;
+
+}
+
+
+
+.beam{
+
+    position:absolute;
+
+
+
+    left:100px;
+
+    top:25px;
+
+
+
+    width:205px;
+
+    height:8px;
+
+
+
+    background:#d9f2ff;
+
+
+
+    border-radius:10px;
+
+
+
+    box-shadow:
+
+        0 0 10px #65cfff;
+
+}
+
+
+
+.support{
+
+    position:absolute;
+
+
+
+    left:106px;
+
+    top:32px;
+
+
+
+    width:65px;
+
+    height:7px;
+
+
+
+    background:#d9f2ff;
+
+
+
+    transform:
+
+        rotate(-45deg) !important;
+
+
+
+    transform-origin:
+
+        left center;
+
+
+
+    box-shadow:
+
+        0 0 8px #65cfff;
+
+}
+
+
+
+.support.show{
+
+    transform:
+
+        rotate(-45deg)
+
+        scale(1) !important;
+
+}
+
+
+
+.rope{
+
+    position:absolute;
+
+
+
+    left:295px;
+
+    top:30px;
+
+
+
+    width:5px;
+
+    height:60px;
+
+
+
+    background:#f0c86a;
+
+
+
+    box-shadow:
+
+        0 0 8px #f4ba31;
+
+}
+
+
+
+.cage-left{
+
+    position:absolute;
+
+
+
+    left:235px;
+
+    top:88px;
+
+
+
+    width:6px;
+
+    height:115px;
+
+
+
+    background:#ff647d;
+
+
+
+    box-shadow:
+
+        0 0 10px #ff3d62;
+
+}
+
+
+
+.cage-right{
+
+    position:absolute;
+
+
+
+    left:350px;
+
+    top:88px;
+
+
+
+    width:6px;
+
+    height:115px;
+
+
+
+    background:#ff647d;
+
+
+
+    box-shadow:
+
+        0 0 10px #ff3d62;
+
+}
+
+
+
+.cage-top{
+
+    position:absolute;
+
+
+
+    left:235px;
+
+    top:88px;
+
+
+
+    width:120px;
+
+    height:6px;
+
+
+
+    background:#ff647d;
+
+
+
+    box-shadow:
+
+        0 0 10px #ff3d62;
+
+}
+
+
+
+/* =====================================================
+
+   TURTLE
+
+===================================================== */
+
+
+
+.turtle{
+
+    position:absolute;
+
+
+
+    left:259px;
+
+    top:126px;
+
+
+
+    width:76px;
+
+    height:55px;
+
+
+
+    opacity:0;
+
+
+
+    transition:
+
+        opacity .4s,
+
+        transform .4s;
+
+
+
+    transform:scale(.5);
+
+}
+
+
+
+.turtle.show{
+
+    opacity:1;
+
+
+
+    transform:scale(1);
+
+}
+
+
+
+.shell{
+
+    position:absolute;
+
+
+
+    width:55px;
+
+    height:42px;
+
+
+
+    left:8px;
+
+    top:7px;
+
+
+
+    border:4px solid #25e487;
+
+
+
+    border-radius:50%;
+
+
+
+    background:#137846;
+
+
+
+    box-shadow:
+
+        0 0 15px rgba(40,235,135,.7);
+
+}
+
+
+
+.shell::before,
+
+.shell::after{
+
+    content:"";
+
+
+
+    position:absolute;
+
+
+
+    background:#1fb86b;
+
+}
+
+
+
+.shell::before{
+
+    width:3px;
+
+    height:34px;
+
+
+
+    left:23px;
+
+    top:1px;
+
+}
+
+
+
+.shell::after{
+
+    width:43px;
+
+    height:3px;
+
+
+
+    left:3px;
+
+    top:17px;
+
+}
+
+
+
+.turtle-head{
+
+    position:absolute;
+
+
+
+    right:0;
+
+    top:18px;
+
+
+
+    width:22px;
+
+    height:19px;
+
+
+
+    border-radius:50%;
+
+
+
+    background:#49ee9c;
+
+
+
+    box-shadow:
+
+        0 0 8px #31df87;
+
+}
+
+
+
+.turtle-head::after{
+
+    content:"";
+
+
+
+    position:absolute;
+
+
+
+    width:4px;
+
+    height:4px;
+
+
+
+    right:4px;
+
+    top:5px;
+
+
+
+    border-radius:50%;
+
+
+
+    background:#06120c;
+
+}
+
+
+
+.leg{
+
+    position:absolute;
+
+
+
+    width:14px;
+
+    height:8px;
+
+
+
+    border-radius:50%;
+
+
+
+    background:#3ce58f;
+
+}
+
+
+
+.leg1{
+
+    left:10px;
+
+    top:43px;
+
+}
+
+
+
+.leg2{
+
+    left:44px;
+
+    top:43px;
+
+}
+
+
+
+.cage-bottom{
+
+    position:absolute;
+
+
+
+    left:235px;
+
+    top:198px;
+
+
+
+    width:120px;
+
+    height:7px;
+
+
+
+    background:#ff3f61;
+
+
+
+    box-shadow:
+
+        0 0 15px #ff294d;
+
+}
+
+
+
+/* =====================================================
+
+   WORD
+
+===================================================== */
+
+
+
+.word-label{
+
+    margin-top:3px;
+
+
+
+    color:#8ddcff;
+
+
+
+    font-family:"Orbitron";
+
+
+
+    font-size:10px;
+
+
+
+    letter-spacing:2px;
+
+}
+
+
+
+.word-area{
+
+    margin-top:10px;
+
+
+
+    display:flex;
+
+
+
+    justify-content:center;
+
+    align-items:center;
+
+
+
+    flex-wrap:wrap;
+
+
+
+    gap:10px;
+
+}
+
+
+
+.word-letter{
+
+    min-width:42px;
+
+
+
+    padding:0 5px 7px;
+
+
+
+    border-bottom:
+
+        4px solid #dcefff;
+
+
+
+    color:#ffe155;
+
+
+
+    font-family:"Orbitron";
+
+
+
+    font-size:27px;
+
+    font-weight:900;
+
+
+
+    text-transform:uppercase;
+
+}
+
+
+
+.word-space{
+
+    width:25px;
+
+
+
+    border:none;
+
+}
+
+
+
+/* =====================================================
+
+   KEYBOARD
+
+===================================================== */
+
+
+
+.keyboard{
+
+    width:min(670px,100%);
+
+
+
+    margin:17px auto 0;
+
+
+
+    display:flex;
+
+
+
+    flex-wrap:wrap;
+
+
+
+    justify-content:center;
+
+
+
+    gap:7px;
+
+}
+
+
+
+.key{
+
+    width:43px;
+
+    height:39px;
+
+
+
+    border:
+
+        2px solid #1d80b9;
+
+
+
+    border-radius:8px;
+
+
+
+    background:#071b31;
+
+
+
+    color:#dff5ff;
+
+
+
+    font-family:"Orbitron";
+
+
+
+    font-size:13px;
+
+
+
+    font-weight:800;
+
+
+
+    cursor:pointer;
+
+
+
+    box-shadow:
+
+        0 4px 0 #020b14,
+
+        0 0 7px rgba(0,180,255,.2);
+
+
+
+    transition:.12s;
+
+}
+
+
+
+.key:hover:not(:disabled){
+
+    transform:
+
+        translateY(-4px)
+
+        scale(1.08);
+
+
+
+    border-color:#55dcff;
+
+
+
+    background:#0d3d61;
+
+
+
+    box-shadow:
+
+        0 7px 0 #020b14,
+
+        0 0 16px #00baff;
+
+}
+
+
+
+.key:active:not(:disabled){
+
+    transform:
+
+        translateY(1px)
+
+        scale(.96);
+
+}
+
+
+
+.key:disabled{
+
+    cursor:default;
+
+}
+
+
+
+.key.correct-key{
+
+    border-color:#35e780;
+
+
+
+    background:#0c4b2c;
+
+
+
+    color:#6dffa9;
+
+
+
+    box-shadow:
+
+        0 0 10px rgba(45,230,120,.5);
+
+}
+
+
+
+.key.wrong-key{
+
+    border-color:#ff4f70;
+
+
+
+    background:#45101d;
+
+
+
+    color:#ff758d;
+
+
+
+    opacity:.65;
+
+}
+
+
+
+/* =====================================================
+
+   RIGHT PANEL
+
+===================================================== */
+
+
+
+.status-card{
+
+    margin-top:18px;
+
+
+
+    padding:15px;
+
+
+
+    border:
+
+        2px solid #225f87;
+
+
+
+    border-radius:12px;
+
+
+
+    background:#071a30;
+
+}
+
+
+
+.status-label{
+
+    color:#6f91aa;
+
+
+
+    font-family:"Orbitron";
+
+
+
+    font-size:9px;
+
+}
+
+
+
+.status-value{
+
+    margin-top:5px;
+
+
+
+    color:#53dcff;
+
+
+
+    font-family:"Orbitron";
+
+
+
+    font-size:12px;
+
+}
+
+
+
+.danger-meter{
+
+    margin-top:20px;
+
+}
+
+
+
+.danger-title{
+
+    color:#ffbe3f;
+
+
+
+    font-family:"Orbitron";
+
+
+
+    font-size:10px;
+
+}
+
+
+
+.danger-bar{
+
+    height:18px;
+
+
+
+    margin-top:9px;
+
+
+
+    border:
+
+        2px solid #ffb43c;
+
+
+
+    border-radius:20px;
+
+
+
+    overflow:hidden;
+
+
+
+    background:#241603;
+
+}
+
+
+
+.danger-fill{
+
+    width:0%;
+
+
+
+    height:100%;
+
+
+
+    background:
+
+        linear-gradient(
+
+            90deg,
+
+            #ffc83e,
+
+            #ff7a34,
+
+            #ff3e61
+
+        );
+
+
+
+    transition:.4s;
+
+}
+
+
+
+.rescue-guide{
+
+    margin-top:24px;
+
+
+
+    padding:14px;
+
+
+
+    border:
+
+        2px solid #214e70;
+
+
+
+    border-radius:12px;
+
+
+
+    background:#06182c;
+
+
+
+    color:#badff7;
+
+
+
+    font-size:16px;
+
+
+
+    line-height:1.35;
+
+}
+
+
+
+.rescue-guide strong{
+
+    color:#ffd74a;
+
+}
+
+
+
+/* =====================================================
+
+   OVERLAYS
+
+===================================================== */
+
+
+
+.overlay{
+
+    position:fixed;
+
+
+
+    inset:0;
+
+
+
+    z-index:2000;
+
+
+
+    display:flex;
+
+
+
+    align-items:center;
+
+    justify-content:center;
+
+
+
+    padding:20px;
+
+
+
+    background:
+
+        rgba(0,5,16,.92);
+
+}
+
+
+
+.hidden{
+
+    display:none !important;
+
+}
+
+
+
+.modal{
+
+    width:min(700px,93vw);
+
+
+
+    padding:30px;
+
+
+
+    border:
+
+        4px solid #00baff;
+
+
+
+    border-radius:25px;
+
+
+
+    background:
+
+        linear-gradient(
+
+            145deg,
+
+            #09294e,
+
+            #041020
+
+        );
+
+
+
+    text-align:center;
+
+
+
+    box-shadow:
+
+        0 0 45px rgba(0,170,255,.55);
+
+}
+
+
+
+.modal h1{
+
+    color:#ffc83e;
+
+
+
+    font-family:"Orbitron";
+
+
+
+    font-size:27px;
+
+}
+
+
+
+.modal p{
+
+    margin-top:14px;
+
+
+
+    color:#d8edff;
+
+
+
+    font-size:19px;
+
+
+
+    line-height:1.4;
+
+}
+
+
+
+.instructions{
+
+    margin-top:20px;
+
+
+
+    display:grid;
+
+
+
+    grid-template-columns:
+
+        1fr 1fr;
+
+
+
+    gap:12px;
+
+
+
+    text-align:left;
+
+}
+
+
+
+.instruction-card{
+
+    padding:15px;
+
+
+
+    border:
+
+        2px solid #1e82bb;
+
+
+
+    border-radius:12px;
+
+
+
+    background:#071b31;
+
+}
+
+
+
+.instruction-card strong{
+
+    display:block;
+
+
+
+    margin-bottom:5px;
+
+
+
+    color:#4edcff;
+
+
+
+    font-family:"Orbitron";
+
+
+
+    font-size:11px;
+
+}
+
+
+
+.instruction-card span{
+
+    color:#d6eaff;
+
+
+
+    font-size:17px;
+
+}
+
+
+
+/* =====================================================
+
+   FEEDBACK
+
+===================================================== */
+
+
+
+.feedback{
+
+    width:min(600px,92vw);
+
+
+
+    padding:30px;
+
+
+
+    border-radius:25px;
+
+
+
+    text-align:center;
+
+}
+
+
+
+.correct-feedback{
+
+    border:
+
+        5px solid #35e77e;
+
+
+
+    background:#071f18;
+
+
+
+    box-shadow:
+
+        0 0 45px rgba(45,230,120,.6);
+
+}
+
+
+
+.failed-feedback{
+
+    border:
+
+        5px solid #ff526d;
+
+
+
+    background:#320c18;
+
+
+
+    box-shadow:
+
+        0 0 45px rgba(255,60,90,.6);
+
+}
+
+
+
+.feedback-title{
+
+    font-family:"Orbitron";
+
+
+
+    font-size:25px;
+
+}
+
+
+
+.correct-feedback .feedback-title{
+
+    color:#54f598;
+
+}
+
+
+
+.failed-feedback .feedback-title{
+
+    color:#ff7186;
+
+}
+
+
+
+.feedback-text{
+
+    margin-top:14px;
+
+
+
+    color:#e7f3ff;
+
+
+
+    font-size:20px;
+
+
+
+    font-weight:600;
+
+
+
+    line-height:1.4;
+
+}
+
+
+
+.learning-box{
+
+    margin-top:16px;
+
+
+
+    padding:14px;
+
+
+
+    border-radius:10px;
+
+
+
+    background:
+
+        rgba(255,255,255,.08);
+
+
+
+    color:#cce8ff;
+
+
+
+    font-size:17px;
+
+}
+
+
+
+/* =====================================================
+
+   XP REWARD
+
+===================================================== */
+
+
+
+.xp-reward{
+
+    margin-top:20px;
+
+
+
+    color:#ffd43f;
+
+
+
+    font-family:"Orbitron";
+
+
+
+    font-size:26px;
+
+
+
+    font-weight:900;
+
+
+
+    text-shadow:
+
+        0 0 10px #ffb000,
+
+        0 0 22px #ff8500;
+
+
+
+    animation:
+
+        rewardBounce .8s ease;
+
+}
+
+
+
+@keyframes rewardBounce{
+
+
+
+    0%{
+
+        transform:scale(.4);
+
+        opacity:0;
+
+    }
+
+
+
+    55%{
+
+        transform:scale(1.25);
+
+    }
+
+
+
+    75%{
+
+        transform:scale(.95);
+
+    }
+
+
+
+    100%{
+
+        transform:scale(1);
+
+        opacity:1;
+
+    }
+
+}
+
+
+
+/* =====================================================
+
+   BUTTONS
+
+===================================================== */
+
+
+
+.action-button{
+
+    display:block;
+
+
+
+    margin:22px auto 0;
+
+
+
+    padding:14px 32px;
+
+
+
+    border:
+
+        3px solid #ffe35b;
+
+
+
+    border-radius:14px;
+
+
+
+    background:
+
+        linear-gradient(
+
+            #ffef6c,
+
+            #ffac15
+
+        );
+
+
+
+    color:#07111c;
+
+
+
+    font-family:"Orbitron";
+
+
+
+    font-weight:900;
+
+
+
+    cursor:pointer;
+
+
+
+    box-shadow:
+
+        0 6px 0 #845000,
+
+        0 0 18px rgba(255,190,0,.5);
+
+
+
+    transition:.15s;
+
+}
+
+
+
+.action-button:hover{
+
+    transform:
+
+        translateY(-6px)
+
+        scale(1.07);
+
+
+
+    box-shadow:
+
+        0 10px 0 #754600,
+
+        0 0 22px #ffdc43,
+
+        0 0 38px rgba(255,170,0,.7);
+
+}
+
+
+
+.action-button:active{
+
+    transform:
+
+        translateY(2px)
+
+        scale(.97);
+
+}
+
+
+
+/* =====================================================
+
+   RESPONSIVE
+
+===================================================== */
+
+
+
+@media(max-width:1150px){
+
+
+
+    .main-layout{
+
+        grid-template-columns:
+
+            240px
+
+            minmax(500px,1fr)
+
+            230px;
+
+    }
+
+
+
+    .panel{
+
+        padding:14px;
+
+    }
+
+}
+
+
+
+@media(max-width:850px){
+
+
+
+    body{
+
+        overflow:auto;
+
+    }
+
+
+
+    .main-layout{
+
+        grid-template-columns:1fr;
+
+    }
+
+
+
+    .hud{
+
+        position:relative;
+
+
+
+        right:auto;
+
+        top:auto;
+
+
+
+        width:250px;
+
+
+
+        margin:15px auto;
+
+    }
+
+
+
+    .panel{
+
+        min-height:auto;
+
+    }
+
+
+
+    .instructions{
+
+        grid-template-columns:1fr;
+
+    }
+
+}
+
+
+
+
+/* Layout adjustment: trap on left, clue in center */
+.main-layout{grid-template-columns:minmax(270px,300px) minmax(0,1fr) minmax(240px,290px)}
+.panel .trap-area{width:430px;max-width:none;height:270px;transform:scale(.57);transform-origin:top left;margin:20px 0 -100px;}
+.game-board .mission-number,.game-board .clue-label,.game-board .clue{text-align:center}
+.game-board .clue{max-width:650px;margin:14px auto;font-size:clamp(18px,2vw,24px);line-height:1.35}
+.game-board .wrong-counter{max-width:340px;margin:14px auto 0}
+.game-board .hint-button{max-width:340px;margin:14px auto 20px}
+.game-board .word-label{margin-top:20px}
+@media(max-width:1150px) and (min-width:851px){.main-layout{grid-template-columns:240px minmax(0,1fr) 230px}.panel .trap-area{transform:scale(.46);margin-bottom:-130px}}
+@media(max-width:850px){.main-layout{grid-template-columns:1fr}.panel .trap-area{transform:scale(.57)}}
+
+/* Keep wrong-letter counter and hint above Rescue Journey */
+.left-actions { width:100%; margin-top:16px; }
+.left-actions .wrong-counter, .left-actions .hint-button { display:block; width:100%; max-width:100%; box-sizing:border-box; margin:12px 0; }
+.left-actions + .journey { margin-top:16px; }
+</style>
+
+</head>
+
+
+
+<body>
+
+
+
+<main class="game">
+
+
+
+<div class="frame"></div>
+
+
+
+<div class="prayer-flags">
+
+
+
+    <div class="flag blue"></div>
+
+    <div class="flag white"></div>
+
+    <div class="flag red"></div>
+
+    <div class="flag green"></div>
+
+    <div class="flag yellow"></div>
+
+
+
+</div>
+
+
+
+<header class="header">
+
+
+
+    <div class="zone-label">
+
+        TRAINING ZONE 2 • LEVEL 1
+
+    </div>
+
+
+
+    <div class="game-title">
+
+        🐢 TURTLE CODE RESCUE
+
+    </div>
+
+
+
+    <div class="subtitle">
+
+        Decode the computer system terms before the trap is complete.
+
+    </div>
+
+
+
+</header>
+
+
+
+<div class="hud">
+
+
+
+    <div class="hud-box">
+
+        ⭐ <span id="xpDisplay">0</span> XP
+
+    </div>
+
+
+
+    <div class="hud-box life-box" id="lifeDisplay">
+
+        ❤️ ❤️ ❤️
+
+    </div>
+
+
+
+</div>
+
+
+
+<section class="main-layout">
+
+
+
+<!-- =====================================================
+
+     LEFT PANEL
+
+===================================================== -->
+
+
+
+<aside class="panel">
+<div class="panel-title">🐢 TURTLE RESCUE</div>
+<div class="trap-area">
+<div class="ground"></div>
+<div class="trap-part pole" id="trap1"></div>
+<div class="trap-part beam" id="trap2"></div>
+<div class="trap-part support" id="trap3"></div>
+<div class="trap-part rope" id="trap4"></div>
+<div class="trap-part cage-top" id="trap5"></div>
+<div class="trap-part cage-left" id="trap5b"></div>
+<div class="trap-part cage-right" id="trap5c"></div>
+<div class="turtle" id="turtle"><div class="shell"></div><div class="turtle-head"></div><div class="leg leg1"></div><div class="leg leg2"></div></div>
+<div class="trap-part cage-bottom" id="trap6"></div>
+</div>
+<div class="left-actions">
+<div class="wrong-counter" id="wrongCounter">
+
+        ⚠ WRONG LETTERS: 0 / 6
+
+    </div>
+
+
+
+    <button
+
+        class="hint-button normal-ui"
+
+        onclick="showHint()"
+
+    >
+
+        💡 NEED A HINT?
+
+    </button>
+</div>
+<div class="journey"><div class="journey-title">RESCUE JOURNEY</div><div class="journey-list" id="journeyList"></div></div>
+</aside>
+
+<!-- =====================================================
+
+     CENTER
+
+===================================================== -->
+
+
+
+<section class="game-board">
+
+
+
+    <div class="rescue-label">
+
+        🎯 CURRENT MISSION
+
+    </div>
+
+
+
+    <div class="mission-number" id="missionNumber">
+
+        MISSION 1 / 3
+
+    </div>
+
+
+
+    <div class="clue-label">
+
+        DECODE THIS CLUE
+
+    </div>
+
+
+
+    <div class="clue" id="clueText"></div>
+
+
+
+    <div class="word-label">
+
+        DECODE THE COMPUTER SYSTEM TERM
+
+    </div>
+
+
+
+    <div class="word-area" id="wordArea"></div>
+
+
+
+    <div class="keyboard" id="keyboard"></div>
+
+
+
+</section>
+
+
+
+<!-- =====================================================
+
+     RIGHT PANEL
+
+===================================================== -->
+
+
+
+<aside class="panel">
+
+
+
+    <div class="panel-title">
+
+        🐢 RESCUE STATUS
+
+    </div>
+
+
+
+    <div class="status-card">
+
+
+
+        <div class="status-label">
+
+            TURTLE
+
+        </div>
+
+
+
+        <div
+
+            class="status-value"
+
+            id="turtleStatus"
+
+        >
+
+            SAFE
+
+        </div>
+
+
+
+    </div>
+
+
+
+    <div class="status-card">
+
+
+
+        <div class="status-label">
+
+            CURRENT ROUND
+
+        </div>
+
+
+
+        <div
+
+            class="status-value"
+
+            id="roundStatus"
+
+        >
+
+            ACTIVE
+
+        </div>
+
+
+
+    </div>
+
+
+
+    <div class="danger-meter">
+
+
+
+        <div class="danger-title">
+
+            ⚠ TRAP DANGER
+
+        </div>
+
+
+
+        <div class="danger-bar">
+
+
+
+            <div
+
+                class="danger-fill"
+
+                id="dangerFill"
+
+            ></div>
+
+
+
+        </div>
+
+
+
+    </div>
+
+
+
+    <div class="rescue-guide">
+
+
+
+        <strong>
+
+            HOW TO SAVE THE TURTLE
+
+        </strong>
+
+
+
+        <br><br>
+
+
+
+        Read the clue.
+
+
+
+        <br><br>
+
+
+
+        Choose letters from the keyboard.
+
+
+
+        <br><br>
+
+
+
+        Correct letters appear in the word.
+
+
+
+        <br><br>
+
+
+
+        Every wrong letter builds another part of the trap.
+
+
+
+        <br><br>
+
+
+
+        Decode the term before the trap closes!
+
+
+
+    </div>
+
+
+
+</aside>
+
+
+
+</section>
+
+
+
+</main>
+
+
+
+<!-- =====================================================
+
+     INSTRUCTION OVERLAY
+
+===================================================== -->
+
+
+
+<div
+
+    class="overlay"
+
+    id="instructionOverlay"
+
+>
+
+
+
+<div class="modal">
+
+
+
+    <h1>
+
+        🐢 TURTLE CODE RESCUE
+
+    </h1>
+
+
+
+    <p>
+
+
+
+        A turtle has become trapped inside the computer system!
+
+
+
+        <br><br>
+
+
+
+        Decode the computer system terms before the digital trap is completed.
+
+
+
+    </p>
+
+
+
+    <div class="instructions">
+
+
+
+        <div class="instruction-card">
+
+
+
+            <strong>
+
+                🔎 1. READ
+
+            </strong>
+
+
+
+            <span>
+
+                Read the computer-system clue carefully.
+
+            </span>
+
+
+
+        </div>
+
+
+
+        <div class="instruction-card">
+
+
+
+            <strong>
+
+                ⌨️ 2. CHOOSE
+
+            </strong>
+
+
+
+            <span>
+
+                Select a letter from A–Z.
+
+            </span>
+
+
+
+        </div>
+
+
+
+        <div class="instruction-card">
+
+
+
+            <strong>
+
+                ✅ 3. DECODE
+
+            </strong>
+
+
+
+            <span>
+
+                Correct letters automatically appear in the blank spaces.
+
+            </span>
+
+
+
+        </div>
+
+
+
+        <div class="instruction-card">
+
+
+
+            <strong>
+
+                ⚠️ 4. BE CAREFUL
+
+            </strong>
+
+
+
+            <span>
+
+                Each wrong letter builds one more part of the turtle trap.
+
+            </span>
+
+
+
+        </div>
+
+
+
+    </div>
+
+
+
+    <p>
+
+
+
+        <strong style="color:#ff7186;">
+
+            6 wrong letters = the trap closes.
+
+        </strong>
+
+
+
+        <br>
+
+
+
+        A failed rescue costs one ❤️.
+
+
+
+    </p>
+
+
+
+    <button
+
+        class="action-button normal-ui"
+
+        onclick="startGame()"
+
+    >
+
+        START RESCUE ▶
+
+    </button>
+
+
+
+</div>
+
+
+
+</div>
+
+
+
+<!-- =====================================================
+
+     HINT
+
+===================================================== -->
+
+
+
+<div
+
+    class="overlay hidden"
+
+    id="hintOverlay"
+
+>
+
+
+
+<div class="modal">
+
+
+
+    <h1>
+
+        💡 SYSTEM HINT
+
+    </h1>
+
+
+
+    <p id="hintText"></p>
+
+
+
+    <button
+
+        class="action-button normal-ui"
+
+        onclick="closeHint()"
+
+    >
+
+        BACK TO RESCUE ▶
+
+    </button>
+
+
+
+</div>
+
+
+
+</div>
+
+
+
+<!-- =====================================================
+
+     CORRECT
+
+===================================================== -->
+
+
+
+<div
+
+    class="overlay hidden"
+
+    id="correctOverlay"
+
+>
+
+
+
+<div class="feedback correct-feedback">
+
+
+
+    <div class="feedback-title">
+
+        ⚡ CODE DECODED!
+
+    </div>
+
+
+
+    <div
+
+        class="feedback-text"
+
+        id="correctMessage"
+
+    ></div>
+
+
+
+    <div
+
+        class="learning-box"
+
+        id="learningText"
+
+    ></div>
+
+
+
+    <button
+
+        class="action-button normal-ui"
+
+        onclick="nextMission()"
+
+    >
+
+        CONTINUE RESCUE ▶
+
+    </button>
+
+
+
+</div>
+
+
+
+</div>
+
+
+
+<!-- =====================================================
+
+     FAILED
+
+===================================================== -->
+
+
+
+<div
+
+    class="overlay hidden"
+
+    id="failedOverlay"
+
+>
+
+
+
+<div class="feedback failed-feedback">
+
+
+
+    <div class="feedback-title">
+
+        🐢 TRAP COMPLETE!
+
+    </div>
+
+
+
+    <div class="feedback-text">
+
+
+
+        The digital trap closed before the code was decoded.
+
+
+
+        <br><br>
+
+
+
+        You lost one ❤️.
+
+
+
+    </div>
+
+
+
+    <div
+
+        class="learning-box"
+
+        id="failedAnswer"
+
+    ></div>
+
+
+
+    <button
+
+        class="action-button normal-ui"
+
+        onclick="retryMission()"
+
+    >
+
+        RESCUE AGAIN ▶
+
+    </button>
+
+
+
+</div>
+
+
+
+</div>
+
+
+
+<!-- =====================================================
+
+     LEVEL COMPLETE
+
+===================================================== -->
+
+
+
+<div
+
+    class="overlay hidden"
+
+    id="completeOverlay"
+
+>
+
+
+
+<div class="feedback correct-feedback">
+
+
+
+    <div class="feedback-title">
+
+        🏆 TURTLE RESCUED!
+
+    </div>
+
+
+
+    <div class="feedback-text">
+
+
+
+        You decoded all three computer-system terms.
+
+
+
+        <br><br>
+
+
+
+        The turtle is safe and the system route has been restored!
+
+
+
+    </div>
+
+
+
+    <div class="learning-box">
+
+
+
+        INPUT UNIT • OUTPUT UNIT • CONTROL UNIT
+
+
+
+    </div>
+
+
+
+    <div
+
+        class="xp-reward"
+
+        id="rewardText"
+
+    >
+
+        🪙 +25 XP
+
+    </div>
+
+
+
+    <button
+
+        class="action-button normal-ui"
+
+        onclick="goToLevel2()"
+
+    >
+
+        CONTINUE TO LEVEL 2 ▶
+
+    </button>
+
+
+
+</div>
+
+
+
+</div>
+
+
+
+<!-- =====================================================
+
+     GAME OVER
+
+===================================================== -->
+
+
+
+<div
+
+    class="overlay hidden"
+
+    id="gameOverOverlay"
+
+>
+
+
+
+<div class="feedback failed-feedback">
+
+
+
+    <div class="feedback-title">
+
+        ☠ RESCUE FAILED
+
+    </div>
+
+
+
+    <div class="feedback-text">
+
+
+
+        All three lives have been lost.
+
+
+
+        <br><br>
+
+
+
+        Training Zone 2 must restart.
+
+
+
+    </div>
+
+
+
+    <button
+
+        class="action-button normal-ui"
+
+        onclick="restartZone()"
+
+    >
+
+        ↻ RESTART TRAINING ZONE 2
+
+    </button>
+
+
+
+</div>
+
+
+
+</div>
+
+
+
+<!-- =====================================================
+
+     AUDIO
+
+===================================================== -->
+
+
+
+<audio id="selectSound" preload="auto">
+
+    <source
+
+        src="select.mp3"
+
+        type="audio/mpeg"
+
+    >
+
+</audio>
+
+
+
+<audio id="correctSound" preload="auto">
+
+    <source
+
+        src="correct.mp3"
+
+        type="audio/mpeg"
+
+    >
+
+</audio>
+
+
+
+<!-- IMPORTANT: YOUR FILE IS coins.mp3 -->
+
+
+
+<audio id="coinSound" preload="auto">
+
+    <source
+
+        src="coins.mp3"
+
+        type="audio/mpeg"
+
+    >
+
+</audio>
+
+
+
+<audio id="hangmanStartSound" preload="auto">
+
+    <source
+
+        src="hangmanstart.mp3"
+
+        type="audio/mpeg"
+
+    >
+
+</audio>
+
+
+
+<audio id="hangmanRightSound" preload="auto">
+
+    <source
+
+        src="hangmanright.mp3"
+
+        type="audio/mpeg"
+
+    >
+
+</audio>
+
+
+
+<audio id="hangmanWrongSound" preload="auto">
+
+    <source
+
+        src="hangmanwrong.mp3"
+
+        type="audio/mpeg"
+
+    >
+
+</audio>
+
+
+
+<audio id="hangmanChalkSound" preload="auto">
+
+    <source
+
+        src="hangmanchalk.mp3"
+
+        type="audio/mpeg"
+
+    >
+
+</audio>
+
+
+
+<script>
+
+
+
+/* =====================================================
+
+   STORAGE
+
+===================================================== */
+
+
+
+if(
+
+    localStorage.getItem("TO2Lives") === null
+
+){
+
+    localStorage.setItem(
+
+        "TO2Lives",
+
+        "3"
+
+    );
+
+}
+
+
+
+if(
+
+    localStorage.getItem("TO2XP") === null
+
+){
+
+    localStorage.setItem(
+
+        "TO2XP",
+
+        "0"
+
+    );
+
+}
+
+
+
+/*
+
+Level 1 reward tracker.
+
+
+
+This prevents students from replaying
+
+Level 1 repeatedly to farm XP.
+
+*/
+
+
+
+if(
+
+    localStorage.getItem("TO2L1Reward") === null
+
+){
+
+    localStorage.setItem(
+
+        "TO2L1Reward",
+
+        "false"
+
+    );
+
+}
+
+
+
+let lives =
+
+    Number(
+
+        localStorage.getItem(
+
+            "TO2Lives"
+
+        )
+
+    );
+
+
+
+let xp = 0;
+
+
+
+let level1RewardCollected =
+
+    localStorage.getItem(
+
+        "TO2L1Reward"
+
+    ) === "true";
+
+
+
+/* =====================================================
+
+   MISSIONS
+
+===================================================== */
+
+
+
+const missions = [
+
+
+
+{
+
+    answer:"INPUT UNIT",
+
+
+
+    clue:
+
+    "This unit is where data and instructions ENTER the computer.",
+
+
+
+    hint:
+
+    "Think about the first stage of data flow. A keyboard and mouse send data through this unit.",
+
+
+
+    learning:
+
+    "The Input Unit is where data enters the computer. Input devices such as a keyboard or mouse provide the data."
+
+},
+
+
+
+{
+
+    answer:"OUTPUT UNIT",
+
+
+
+    clue:
+
+    "After processing is complete, the result is sent through this unit to devices such as a monitor or printer.",
+
+
+
+    hint:
+
+    "Think about the final stage of Input → Processing → Output.",
+
+
+
+    learning:
+
+    "The Output Unit sends processed information to output devices such as a monitor or printer."
+
+},
+
+
+
+{
+
+    answer:"CONTROL UNIT",
+
+
+
+    clue:
+
+    "Inside the CPU, I manage the other parts and send timing and control signals so operations happen in the correct order.",
+
+
+
+    hint:
+
+    "I am abbreviated as CU. I control and coordinate the computer's operations.",
+
+
+
+    learning:
+
+    "The Control Unit manages how the computer works and sends timing and control signals so components operate in the correct order."
+
+}
+
+]
+
+/* =====================================================
+
+   VARIABLES
+
+===================================================== */
+
+
+
+let currentMission = 0;
+
+
+
+let guessedLetters = [];
+
+
+
+let wrongGuesses = 0;
+
+
+
+let roundLocked = false;
+
+
+
+/* =====================================================
+
+   NORMAL AUDIO PLAYER
+
+===================================================== */
+
+
+
+function playSound(id){
+
+
+
+    const original =
+
+        document.getElementById(id);
+
+
+
+    if(!original){
+
+
+
+        console.warn(
+
+            "Audio not found:",
+
+            id
+
+        );
+
+
+
+        return;
+
+    }
+
+
+
+    /*
+
+    Clone audio so sounds don't interrupt
+
+    each other.
+
+    */
+
+
+
+    const sound =
+
+        original.cloneNode(true);
+
+
+
+    sound.volume = 1;
+
+
+
+    sound.play()
+
+        .catch(function(error){
+
+
+
+            /*
+
+            Ignore harmless AbortError.
+
+            */
+
+
+
+            if(
+
+                error.name !==
+
+                "AbortError"
+
+            ){
+
+
+
+                console.warn(
+
+                    "Audio could not play:",
+
+                    id,
+
+                    error
+
+                );
+
+
+
+            }
+
+
+
+        });
+
+
+
+}
+
+
+
+/* =====================================================
+
+   COIN AUDIO
+
+
+
+   Your actual filename:
+
+   coins.mp3
+
+===================================================== */
+
+
+
+function playCoinReward() {
+
+    const coin = document.getElementById("coinSound");
+
+
+
+    if (!coin) return;
+
+
+
+    coin.pause();
+
+    coin.currentTime = 0;
+
+    coin.volume = 1;
+
+
+
+    coin.play().catch(error => {
+
+        console.error("Coin audio error:", error);
+
+    });
+
+}
+
+
+
+/* =====================================================
+
+   START
+
+===================================================== */
+
+
+
+function startGame(){
+
+
+
+    playSound(
+
+        "selectSound"
+
+    );
+
+
+
+    document
+
+        .getElementById(
+
+            "instructionOverlay"
+
+        )
+
+        .classList
+
+        .add("hidden");
+
+
+
+    loadMission();
+
+
+
+    setTimeout(function(){
+
+
+
+        playSound(
+
+            "hangmanStartSound"
+
+        );
+
+
+
+    },250);
+
+
+
+}
+
+
+
+/* =====================================================
+
+   LOAD MISSION
+
+===================================================== */
+
+
+
+function loadMission(){
+
+
+
+    roundLocked = false;
+
+
+
+    guessedLetters = [];
+
+
+
+    wrongGuesses = 0;
+
+
+
+    document
+
+        .getElementById(
+
+            "missionNumber"
+
+        )
+
+        .textContent =
+
+        "MISSION " +
+
+        (currentMission + 1) +
+
+        " / " +
+
+        missions.length;
+
+
+
+    document
+
+        .getElementById(
+
+            "clueText"
+
+        )
+
+        .textContent =
+
+        missions[
+
+            currentMission
+
+        ].clue;
+
+
+
+    document
+
+        .getElementById(
+
+            "roundStatus"
+
+        )
+
+        .textContent =
+
+        "ACTIVE";
+
+
+
+    document
+
+        .getElementById(
+
+            "turtleStatus"
+
+        )
+
+        .textContent =
+
+        "SAFE";
+
+
+
+    resetTrap();
+
+
+
+    createKeyboard();
+
+
+
+    renderWord();
+
+
+
+    updateJourney();
+
+
+
+    updateHUD();
+
+
+
+}
+
+
+
+/* =====================================================
+
+   KEYBOARD
+
+===================================================== */
+
+
+
+function createKeyboard(){
+
+
+
+    const keyboard =
+
+        document.getElementById(
+
+            "keyboard"
+
+        );
+
+
+
+    keyboard.innerHTML = "";
+
+
+
+    const alphabet =
+
+        "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+
+
+
+    alphabet
+
+        .split("")
+
+        .forEach(function(letter){
+
+
+
+            const button =
+
+                document.createElement(
+
+                    "button"
+
+                );
+
+
+
+            button.className =
+
+                "key";
+
+
+
+            button.textContent =
+
+                letter;
+
+
+
+            button.dataset.letter =
+
+                letter;
+
+
+
+            /*
+
+            IMPORTANT:
+
+            Alphabet buttons DO NOT
+
+            play select.mp3.
+
+            */
+
+
+
+            button.onclick =
+
+                function(){
+
+
+
+                    chooseLetter(
+
+                        letter,
+
+                        button
+
+                    );
+
+
+
+                };
+
+
+
+            keyboard.appendChild(
+
+                button
+
+            );
+
+
+
+        });
+
+
+
+}
+
+
+
+/* =====================================================
+
+   CHOOSE LETTER
+
+===================================================== */
+
+
+
+function chooseLetter(
+
+    letter,
+
+    button
+
+){
+
+
+
+    if(roundLocked){
+
+        return;
+
+    }
+
+
+
+    if(
+
+        guessedLetters.includes(
+
+            letter
+
+        )
+
+    ){
+
+        return;
+
+    }
+
+
+
+    guessedLetters.push(
+
+        letter
+
+    );
+
+
+
+    button.disabled =
+
+        true;
+
+
+
+    const answer =
+
+        missions[
+
+            currentMission
+
+        ].answer;
+
+
+
+    /* =================================================
+
+       RIGHT LETTER
+
+    ================================================= */
+
+
+
+    if(
+
+        answer.includes(
+
+            letter
+
+        )
+
+    ){
+
+
+
+        button
+
+            .classList
+
+            .add(
+
+                "correct-key"
+
+            );
+
+
+
+        playSound(
+
+            "hangmanRightSound"
+
+        );
+
+
+
+        renderWord();
+
+
+
+        if(
+
+            isWordComplete()
+
+        ){
+
+
+
+            roundLocked =
+
+                true;
+
+
+
+            setTimeout(
+
+                completeMission,
+
+                550
+
+            );
+
+
+
+        }
+
+
+
+    }
+
+
+
+    /* =================================================
+
+       WRONG LETTER
+
+    ================================================= */
+
+
+
+    else{
+
+
+
+        button
+
+            .classList
+
+            .add(
+
+                "wrong-key"
+
+            );
+
+
+
+        wrongGuesses++;
+
+
+
+        /*
+
+        Wrong-letter sound.
+
+        */
+
+
+
+        playSound(
+
+            "hangmanWrongSound"
+
+        );
+
+
+
+        /*
+
+        Chalk sound as the trap
+
+        section is drawn.
+
+        */
+
+
+
+        setTimeout(function(){
+
+
+
+            playSound(
+
+                "hangmanChalkSound"
+
+            );
+
+
+
+            updateTrap();
+
+
+
+        },220);
+
+
+
+        if(
+
+            wrongGuesses >= 6
+
+        ){
+
+
+
+            roundLocked =
+
+                true;
+
+
+
+            setTimeout(
+
+                failMission,
+
+                1300
+
+            );
+
+
+
+        }
+
+
+
+    }
+
+
+
+}
+
+
+
+/* =====================================================
+
+   WORD
+
+===================================================== */
+
+
+
+function renderWord(){
+
+
+
+    const area =
+
+        document.getElementById(
+
+            "wordArea"
+
+        );
+
+
+
+    area.innerHTML =
+
+        "";
+
+
+
+    const answer =
+
+        missions[
+
+            currentMission
+
+        ].answer;
+
+
+
+    answer
+
+        .split("")
+
+        .forEach(
+
+            function(character){
+
+
+
+                const slot =
+
+                    document
+
+                    .createElement(
+
+                        "div"
+
+                    );
+
+
+
+                if(
+
+                    character === " "
+
+                ){
+
+
+
+                    slot.className =
+
+                        "word-space";
+
+
+
+                }
+
+
+
+                else{
+
+
+
+                    slot.className =
+
+                        "word-letter";
+
+
+
+                    if(
+
+                        guessedLetters
+
+                        .includes(
+
+                            character
+
+                        )
+
+                    ){
+
+
+
+                        slot.textContent =
+
+                            character;
+
+
+
+                    }
+
+
+
+                    else{
+
+
+
+                        slot.innerHTML =
+
+                            "&nbsp;";
+
+
+
+                    }
+
+
+
+                }
+
+
+
+                area.appendChild(
+
+                    slot
+
+                );
+
+
+
+            }
+
+        );
+
+
+
+}
+
+
+
+/* =====================================================
+
+   WORD COMPLETE?
+
+===================================================== */
+
+
+
+function isWordComplete(){
+
+
+
+    const answer =
+
+        missions[
+
+            currentMission
+
+        ].answer;
+
+
+
+    const required =
+
+        answer
+
+            .replaceAll(
+
+                " ",
+
+                ""
+
+            )
+
+            .split("");
+
+
+
+    return required
+
+        .every(
+
+            function(letter){
+
+
+
+                return guessedLetters
+
+                    .includes(
+
+                        letter
+
+                    );
+
+
+
+            }
+
+        );
+
+
+
+}
+
+
+
+/* =====================================================
+
+   TRAP
+
+===================================================== */
+
+
+
+function updateTrap(){
+
+
+
+    document
+
+        .getElementById(
+
+            "wrongCounter"
+
+        )
+
+        .textContent =
+
+        "⚠ WRONG LETTERS: " +
+
+        wrongGuesses +
+
+        " / 6";
+
+
+
+    document
+
+        .getElementById(
+
+            "dangerFill"
+
+        )
+
+        .style
+
+        .width =
+
+        (
+
+            (
+
+                wrongGuesses /
+
+                6
+
+            ) *
+
+            100
+
+        ) +
+
+        "%";
+
+
+
+    if(
+
+        wrongGuesses >= 1
+
+    ){
+
+
+
+        document
+
+            .getElementById(
+
+                "trap1"
+
+            )
+
+            .classList
+
+            .add("show");
+
+
+
+    }
+
+
+
+    if(
+
+        wrongGuesses >= 2
+
+    ){
+
+
+
+        document
+
+            .getElementById(
+
+                "trap2"
+
+            )
+
+            .classList
+
+            .add("show");
+
+
+
+    }
+
+
+
+    if(
+
+        wrongGuesses >= 3
+
+    ){
+
+
+
+        document
+
+            .getElementById(
+
+                "trap3"
+
+            )
+
+            .classList
+
+            .add("show");
+
+
+
+    }
+
+
+
+    if(
+
+        wrongGuesses >= 4
+
+    ){
+
+
+
+        document
+
+            .getElementById(
+
+                "trap4"
+
+            )
+
+            .classList
+
+            .add("show");
+
+
+
+    }
+
+
+
+    if(
+
+        wrongGuesses >= 5
+
+    ){
+
+
+
+        document
+
+            .getElementById(
+
+                "trap5"
+
+            )
+
+            .classList
+
+            .add("show");
+
+
+
+        document
+
+            .getElementById(
+
+                "trap5b"
+
+            )
+
+            .classList
+
+            .add("show");
+
+
+
+        document
+
+            .getElementById(
+
+                "trap5c"
+
+            )
+
+            .classList
+
+            .add("show");
+
+
+
+        document
+
+            .getElementById(
+
+                "turtle"
+
+            )
+
+            .classList
+
+            .add("show");
+
+
+
+        document
+
+            .getElementById(
+
+                "turtleStatus"
+
+            )
+
+            .textContent =
+
+            "DANGER";
+
+
+
+    }
+
+
+
+    if(
+
+        wrongGuesses >= 6
+
+    ){
+
+
+
+        document
+
+            .getElementById(
+
+                "trap6"
+
+            )
+
+            .classList
+
+            .add("show");
+
+
+
+        document
+
+            .getElementById(
+
+                "turtleStatus"
+
+            )
+
+            .textContent =
+
+            "TRAPPED";
+
+
+
+        document
+
+            .getElementById(
+
+                "roundStatus"
+
+            )
+
+            .textContent =
+
+            "FAILED";
+
+
+
+    }
+
+
+
+}
+
+
+
+/* =====================================================
+
+   RESET TRAP
+
+===================================================== */
+
+
+
+function resetTrap(){
+
+
+
+    const trapParts = [
+
+
+
+        "trap1",
+
+        "trap2",
+
+        "trap3",
+
+        "trap4",
+
+        "trap5",
+
+        "trap5b",
+
+        "trap5c",
+
+        "trap6"
+
+
+
+    ];
+
+
+
+    trapParts.forEach(
+
+        function(id){
+
+
+
+            document
+
+                .getElementById(id)
+
+                .classList
+
+                .remove("show");
+
+
+
+        }
+
+    );
+
+
+
+    document
+
+        .getElementById(
+
+            "turtle"
+
+        )
+
+        .classList
+
+        .remove("show");
+
+
+
+    document
+
+        .getElementById(
+
+            "wrongCounter"
+
+        )
+
+        .textContent =
+
+        "⚠ WRONG LETTERS: 0 / 6";
+
+
+
+    document
+
+        .getElementById(
+
+            "dangerFill"
+
+        )
+
+        .style
+
+        .width =
+
+        "0%";
+
+
+
+}
+
+
+
+/* =====================================================
+
+   COMPLETE MISSION
+
+===================================================== */
+
+
+
+function completeMission(){
+
+
+
+    /*
+
+    Completed-word sound.
+
+    */
+
+
+
+    playSound(
+
+        "correctSound"
+
+    );
+
+
+
+    const mission =
+
+        missions[
+
+            currentMission
+
+        ];
+
+
+
+    document
+
+        .getElementById(
+
+            "correctMessage"
+
+        )
+
+        .innerHTML =
+
+        "You decoded <strong>" +
+
+        mission.answer +
+
+        "</strong> and stopped the trap!";
+
+
+
+    document
+
+        .getElementById(
+
+            "learningText"
+
+        )
+
+        .textContent =
+
+        "📘 " +
+
+        mission.learning;
+
+
+
+    document
+
+        .getElementById(
+
+            "correctOverlay"
+
+        )
+
+        .classList
+
+        .remove("hidden");
+
+
+
+}
+
+
+
+/* =====================================================
+
+   NEXT MISSION
+
+===================================================== */
+
+
+
+function nextMission(){
+
+
+
+    playSound(
+
+        "selectSound"
+
+    );
+
+
+
+    document
+
+        .getElementById(
+
+            "correctOverlay"
+
+        )
+
+        .classList
+
+        .add("hidden");
+
+
+
+    currentMission++;
+
+
+
+    /*
+
+    ALL MISSIONS COMPLETE
+
+    */
+
+
+
+    if(
+
+        currentMission >=
+
+        missions.length
+
+    ){
+
+
+
+        finishLevel();
+
+
+
+        return;
+
+    }
+
+
+
+    loadMission();
+
+
+
+    /*
+
+    New round start audio.
+
+    */
+
+
+
+    setTimeout(function(){
+
+
+
+        playSound(
+
+            "hangmanStartSound"
+
+        );
+
+
+
+    },250);
+
+
+
+}
+
+
+
+/* =====================================================
+
+   FAIL
+
+===================================================== */
+
+
+
+function failMission(){
+
+
+
+    lives--;
+
+
+
+    localStorage.setItem(
+
+        "TO2Lives",
+
+        lives
+
+    );
+
+
+
+    updateHUD();
+
+
+
+    document
+
+        .getElementById(
+
+            "failedAnswer"
+
+        )
+
+        .innerHTML =
+
+        "The correct term was: <strong>" +
+
+        missions[
+
+            currentMission
+
+        ].answer +
+
+        "</strong>";
+
+
+
+    if(
+
+        lives <= 0
+
+    ){
+
+
+
+        document
+
+            .getElementById(
+
+                "gameOverOverlay"
+
+            )
+
+            .classList
+
+            .remove("hidden");
+
+
+
+        return;
+
+    }
+
+
+
+    document
+
+        .getElementById(
+
+            "failedOverlay"
+
+        )
+
+        .classList
+
+        .remove("hidden");
+
+
+
+}
+
+
+
+/* =====================================================
+
+   RETRY
+
+===================================================== */
+
+
+
+function retryMission(){
+
+
+
+    playSound(
+
+        "selectSound"
+
+    );
+
+
+
+    document
+
+        .getElementById(
+
+            "failedOverlay"
+
+        )
+
+        .classList
+
+        .add("hidden");
+
+
+
+    loadMission();
+
+
+
+    setTimeout(function(){
+
+
+
+        playSound(
+
+            "hangmanStartSound"
+
+        );
+
+
+
+    },250);
+
+
+
+}
+
+
+
+/* =====================================================
+
+   HINT
+
+===================================================== */
+
+
+
+function showHint(){
+
+
+
+    playSound(
+
+        "selectSound"
+
+    );
+
+
+
+    document
+
+        .getElementById(
+
+            "hintText"
+
+        )
+
+        .textContent =
+
+        missions[
+
+            currentMission
+
+        ].hint;
+
+
+
+    document
+
+        .getElementById(
+
+            "hintOverlay"
+
+        )
+
+        .classList
+
+        .remove("hidden");
+
+
+
+}
+
+
+
+function closeHint(){
+
+
+
+    playSound(
+
+        "selectSound"
+
+    );
+
+
+
+    document
+
+        .getElementById(
+
+            "hintOverlay"
+
+        )
+
+        .classList
+
+        .add("hidden");
+
+
+
+}
+
+
+
+/* =====================================================
+
+   JOURNEY
+
+===================================================== */
+
+
+
+function updateJourney(){
+
+
+
+    const container =
+
+        document
+
+        .getElementById(
+
+            "journeyList"
+
+        );
+
+
+
+    container.innerHTML =
+
+        "";
+
+
+
+    missions.forEach(
+
+        function(
+
+            item,
+
+            index
+
+        ){
+
+
+
+            const div =
+
+                document
+
+                .createElement(
+
+                    "div"
+
+                );
+
+
+
+            div.className =
+
+                "journey-item";
+
+
+
+            if(
+
+                index <
+
+                currentMission
+
+            ){
+
+
+
+                div
+
+                    .classList
+
+                    .add(
+
+                        "complete"
+
+                    );
+
+
+
+                div.textContent =
+
+                    "✓ CODE " +
+
+                    (
+
+                        index +
+
+                        1
+
+                    ) +
+
+                    " RESCUED";
+
+
+
+            }
+
+
+
+            else if(
+
+                index ===
+
+                currentMission
+
+            ){
+
+
+
+                div
+
+                    .classList
+
+                    .add(
+
+                        "active"
+
+                    );
+
+
+
+                div.textContent =
+
+                    "◆ CODE " +
+
+                    (
+
+                        index +
+
+                        1
+
+                    ) +
+
+                    " ACTIVE";
+
+
+
+            }
+
+
+
+            else{
+
+
+
+                div.textContent =
+
+                    "🔒 CODE " +
+
+                    (
+
+                        index +
+
+                        1
+
+                    );
+
+
+
+            }
+
+
+
+            container
+
+                .appendChild(
+
+                    div
+
+                );
+
+
+
+        }
+
+    );
+
+
+
+}
+
+
+
+/* =====================================================
+
+   FINISH LEVEL
+
+
+
+   IMPORTANT:
+
+
+
+   LEVEL 1 REWARD = 25 XP
+
+
+
+   The player can receive this reward
+
+   ONLY ONCE.
+
+
+
+   Replaying Level 1 does NOT add
+
+   another 25 XP.
+
+===================================================== */
+
+
+
+function finishLevel(){
+
+
+
+    document
+
+        .getElementById("completeOverlay")
+
+        .classList
+
+        .remove("hidden");
+
+
+
+    // Play coin audio when Level 1 is completed
+
+    playCoinReward();
+
+
+
+    // Check if 25 XP was already collected
+
+    if(level1RewardCollected){
+
+
+
+        document
+
+            .getElementById("rewardText")
+
+            .innerHTML =
+
+            "⭐ 25 XP ALREADY COLLECTED";
+
+
+
+        return;
+
+    }
+
+    /* =================================================
+
+       FIRST COMPLETION
+
+    ================================================= */
+
+
+
+    level1RewardCollected =
+
+        true;
+
+
+
+    localStorage.setItem(
+
+        "TO2L1Reward",
+
+        "true"
+
+    );
+
+
+
+    /*
+
+    Add exactly 25 XP.
+
+    */
+
+
+
+    xp = 25;
+
+localStorage.setItem("TO2L1Reward", "true");
+
+localStorage.setItem("TO2XP", "25");
+
+updateHUD();
+
+
+
+
+
+
+
+    /*
+
+    Display reward.
+
+    */
+
+
+
+    document
+
+        .getElementById(
+
+            "rewardText"
+
+        )
+
+        .innerHTML =
+
+        "🪙 +25 XP";
+
+
+
+    /*
+
+    Play YOUR coins.mp3 file.
+
+    */
+
+
+
+    playCoinReward();
+
+
+
+    /*
+
+    XP pop animation.
+
+    */
+
+
+
+    const xpDisplay =
+
+        document
+
+        .getElementById(
+
+            "xpDisplay"
+
+        );
+
+
+
+    xpDisplay
+
+        .classList
+
+        .remove(
+
+            "reward-pop"
+
+        );
+
+
+
+    /*
+
+    Force animation restart.
+
+    */
+
+
+
+    void xpDisplay.offsetWidth;
+
+
+
+    xpDisplay
+
+        .classList
+
+        .add(
+
+            "reward-pop"
+
+        );
+
+
+
+}
+
+
+
+/* =====================================================
+
+   HUD
+
+===================================================== */
+
+
+
+function updateHUD(){
+
+
+
+    document
+
+        .getElementById(
+
+            "xpDisplay"
+
+        )
+
+        .textContent =
+
+        xp;
+
+
+
+    let hearts =
+
+        "";
+
+
+
+    for(
+
+        let i = 0;
+
+        i < 3;
+
+        i++
+
+    ){
+
+
+
+        if(
+
+            i < lives
+
+        ){
+
+
+
+            hearts +=
+
+                "❤️ ";
+
+
+
+        }
+
+
+
+        else{
+
+
+
+            hearts +=
+
+                "🖤 ";
+
+
+
+        }
+
+
+
+    }
+
+
+
+    document
+
+        .getElementById(
+
+            "lifeDisplay"
+
+        )
+
+        .innerHTML =
+
+        hearts;
+
+
+
+}
+
+
+
+/* =====================================================
+
+   GO TO LEVEL 2
+
+===================================================== */
+
+
+
+function goToLevel2(){
+
+
+
+    playSound(
+
+        "selectSound"
+
+    );
+
+
+
+    setTimeout(function(){
+
+
+
+        window.location.href =
+
+            "to2l2.html";
+
+
+
+    },300);
+
+
+
+}
+
+
+
+/* =====================================================
+
+   RESTART TRAINING ZONE 2
+
+
+
+   This is the ONLY place where
+
+   Level 1's reward permission resets.
+
+===================================================== */
+
+
+
+function restartZone(){
+
+
+
+    playSound(
+
+        "selectSound"
+
+    );
+
+
+
+    localStorage.setItem(
+
+        "TO2Lives",
+
+        "3"
+
+    );
+
+
+
+    localStorage.setItem(
+
+        "TO2XP",
+
+        "0"
+
+    );
+
+
+
+    localStorage.setItem(
+
+        "TO2L1Reward",
+
+        "false"
+
+    );
+
+
+
+    setTimeout(function(){
+
+
+
+        window.location.href =
+
+            "to2.html";
+
+
+
+    },300);
+
+
+
+}
+
+
+
+/* =====================================================
+
+   NORMAL UI HOVER AUDIO
+
+
+
+   Only normal UI buttons use select.mp3.
+
+
+
+   Alphabet keys are NOT included.
+
+===================================================== */
+
+
+
+document
+
+    .querySelectorAll(
+
+        ".normal-ui"
+
+    )
+
+    .forEach(
+
+        function(button){
+
+
+
+            let hoverReady =
+
+                true;
+
+
+
+            button.addEventListener(
+
+                "mouseenter",
+
+                function(){
+
+
+
+                    if(
+
+                        !hoverReady
+
+                    ){
+
+                        return;
+
+                    }
+
+
+
+                    hoverReady =
+
+                        false;
+
+
+
+                    playSound(
+
+                        "selectSound"
+
+                    );
+
+
+
+                    setTimeout(
+
+                        function(){
+
+
+
+                            hoverReady =
+
+                                true;
+
+
+
+                        },
+
+                        150
+
+                    );
+
+
+
+                }
+
+            );
+
+
+
+        }
+
+    );
+
+
+
+/* =====================================================
+
+   INITIAL HUD
+
+===================================================== */
+
+
+
+updateHUD();
+
+
+
+</script>
+
+
+
+</body>
+
+</html>

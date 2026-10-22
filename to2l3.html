@@ -1,0 +1,1003 @@
+<!DOCTYPE html>
+<html lang="en">
+ <head>
+  <meta charset="utf-8"/>
+  <meta content="width=device-width,initial-scale=1" name="viewport"/>
+  <title>
+   Computer Quest • Memory Match
+  </title>
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@500;700;800;900&amp;family=Orbitron:wght@500;700;800&amp;display=swap" rel="stylesheet"/>
+  <style>
+   :root {
+    --cyan:#20c7ff;
+    --gold:#ffd15b;
+    --mint:#3af2a6;
+    --navy:#06172e
+}
+* {
+    box-sizing:border-box
+}
+html,body {
+    margin:0;
+    min-height:100%;
+    font-family:Nunito,Arial,sans-serif;
+    color:#effaff
+}
+body {
+    background:radial-gradient(ellipse at 60% 0,#16476c 0,#06162c 70%);
+    padding:10px
+}
+.shell {
+    height:calc(100dvh - 20px);
+    min-height:590px;
+    border:3px solid var(--cyan);
+    border-radius:27px;
+    box-shadow:0 0 26px #06b7ff4a,inset 0 0 60px #00aaff0b;
+    max-width:1850px;
+    margin:auto;
+    padding:14px 22px;
+    display:flex;
+    flex-direction:column;
+    overflow:hidden;
+    position:relative
+}
+.shell:before {
+    content:"";
+    position:absolute;
+    inset:0;
+    background:linear-gradient(#5ab4ff08 1px,transparent 1px),linear-gradient(90deg,#5ab4ff08 1px,transparent 1px);
+    background-size:60px 60px;
+    pointer-events:none
+}
+.header {
+    position:relative;
+    text-align:center;
+    flex-shrink:0;
+    padding:0 230px
+}
+.eyebrow {
+    font:700 clamp(10px,1.5vh,14px) Orbitron;
+    letter-spacing:3px;
+    color:#8bdcff
+}
+.header h1 {
+    font:800 clamp(23px,4.6vh,46px) Orbitron;
+    color:var(--gold);
+    text-shadow:0 0 19px #ffc04c7d;
+    margin:4px 0
+}
+.header p {
+    margin:0;
+    font-size:clamp(12px,1.8vh,17px);
+    color:#bfe7f7
+}
+.flags {
+    position:absolute;
+    left:4px;
+    top:-14px;
+    display:flex;
+    gap:5px
+}
+.flags i {
+    width:clamp(23px,2.9vw,35px);
+    height:clamp(32px,5vh,47px);
+    clip-path:polygon(0 0,100% 0,100% 77%,50% 100%,0 77%);
+    background:#079ce0
+}
+.flags i:nth-child(2) {
+    background:#e7f6ff
+}
+.flags i:nth-child(3) {
+    background:#e53f4b
+}
+.flags i:nth-child(4) {
+    background:#20a36d
+}
+.flags i:nth-child(5) {
+    background:#f4cf31
+}
+.hud {
+    position:absolute;
+    right:0;
+    top:0;
+    display:flex;
+    gap:9px
+}
+.pill {
+    border:2px solid var(--cyan);
+    background:#072743;
+    border-radius:30px;
+    padding:9px 15px;
+    font:700 clamp(11px,1.8vh,15px) Orbitron;
+    white-space:nowrap
+}
+.pill.life {
+    border-color:#ff5a89
+}
+.layout {
+    display:grid;
+    grid-template-columns:minmax(195px,24%) minmax(0,1fr);
+    gap:16px;
+    flex:1;
+    min-height:0;
+    margin-top:14px;
+    position:relative
+}
+.sidebar {
+    background:#081d36;
+    border:2px solid #1b8fb9;
+    border-radius:21px;
+    padding:clamp(12px,2vh,20px);
+    display:flex;
+    flex-direction:column;
+    min-height:0
+}
+.sidebar h2 {
+    font:700 clamp(12px,1.8vh,16px) Orbitron;
+    color:#69ddff;
+    margin:0 0 12px
+}
+.info {
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:10px
+}
+.stat {
+    background:#102f4d;
+    border:1px solid #2a6487;
+    border-radius:13px;
+    padding:clamp(9px,1.6vh,15px)
+}
+.stat span {
+    display:block;
+    font-size:clamp(10px,1.4vh,13px);
+    color:#a8d4e7
+}
+.stat strong {
+    font:800 clamp(16px,2.8vh,25px) Nunito;
+    color:white
+}
+.stat.timer strong {
+    color:#ffe083
+}
+.progress {
+    height:12px;
+    border-radius:20px;
+    background:#153952;
+    overflow:hidden;
+    margin:18px 0 10px
+}
+.fill {
+    height:100%;
+    width:0;
+    background:linear-gradient(90deg,#1dcaff,#46efa0);
+    transition:width .3s
+}
+.helper {
+    margin-top:auto;
+    background:#102b46;
+    border:1px solid #31658b;
+    border-radius:14px;
+    padding:13px;
+    font-size:clamp(11px,1.65vh,15px);
+    line-height:1.5
+}
+.helper b {
+    color:#ffdd79
+}
+.reward {
+    color:#ffdd79;
+    font-weight:900;
+    font-size:clamp(13px,2vh,18px);
+    margin-top:13px
+}
+.boardbox {
+    background:linear-gradient(145deg,#f8f3e9,#e9dfd0);
+    border:5px solid #d7b48b;
+    border-radius:24px;
+    padding:clamp(11px,1.7vh,19px);
+    color:#17334b;
+    display:flex;
+    flex-direction:column;
+    min-height:0;
+    box-shadow:0 8px 0 #021426
+}
+.boardhead {
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    gap:12px;
+    flex-shrink:0;
+    margin-bottom:10px
+}
+.boardhead h2 {
+    font:800 clamp(14px,2.1vh,19px) Nunito;
+    margin:0
+}
+.boardhead span {
+    color:#52677a;
+    font-size:clamp(11px,1.6vh,14px);
+    font-weight:900
+}
+.legend {
+    display:flex;
+    gap:9px;
+    align-items:center;
+    font-size:clamp(10px,1.5vh,13px);
+    margin-bottom:10px;
+    flex-shrink:0
+}
+.legend b {
+    background:#e6f4fa;
+    border-radius:8px;
+    padding:5px 10px
+}
+.legend b:last-child {
+    background:#fff1d8
+}
+.board {
+    display:grid;
+    grid-template-columns:repeat(5,minmax(0,1fr));
+    grid-template-rows:repeat(2,minmax(0,1fr));
+    gap:clamp(7px,1.4vh,13px);
+    flex:1;
+    min-height:0;
+    isolation:isolate
+}
+.card {
+    border:0;
+    padding:0;
+    background:transparent;
+    cursor:pointer;
+    perspective:850px;
+    position:relative;
+    min-width:0;
+    min-height:0
+}
+.card:focus-visible {
+    outline:3px solid #ffc43b;
+    border-radius:15px
+}
+.card:disabled {
+    cursor:default
+}
+.inner {
+    position:relative;
+    width:100%;
+    height:100%;
+    transform-style:preserve-3d;
+    transition:transform .42s
+}
+.card.flipped .inner,.card.matched .inner {
+    transform:rotateY(180deg)
+}
+.face {
+    position:absolute;
+    inset:0;
+    border-radius:15px;
+    backface-visibility:hidden;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    text-align:center;
+    padding:8px;
+    box-shadow:0 5px 10px #25415424
+}
+.back {
+    background:linear-gradient(140deg,#2a9dbe,#1b719d);
+    border:3px solid #b6eaff;
+    color:white
+}
+.back .symbol {
+    font-size:clamp(26px,5vh,42px);
+    line-height:1
+}
+.back .brand {
+    font:800 clamp(9px,1.6vh,14px) Orbitron;
+    letter-spacing:1px;
+    margin-top:8px
+}
+.front {
+    transform:rotateY(180deg);
+    background:#fff;
+    border:3px solid #e9bc5d;
+    color:#17324a;
+    font-size:clamp(10px,1.6vh,15px);
+    font-weight:900;
+    line-height:1.25;
+    overflow-wrap:anywhere
+}
+.front .emoji {
+    font-size:clamp(23px,4.3vh,36px);
+    margin-bottom:6px
+}
+.front .kind {
+    font:900 clamp(8px,1.3vh,11px) Nunito;
+    letter-spacing:1px;
+    color:#2875a0;
+    margin-bottom:4px
+}
+.card[data-kind=unit] .front {
+    background:#e7f7ff;
+    border-color:#58bce8
+}
+.card[data-kind=function] .front {
+    background:#fff8e9;
+    border-color:#e8b34f
+}
+.card.matched .front {
+    background:#d5ffe9;
+    border-color:#1acb85;
+    box-shadow:0 0 20px #36d89d9c
+}
+.message {
+    min-height:24px;
+    text-align:center;
+    font-weight:900;
+    font-size:clamp(12px,1.8vh,16px);
+    margin:9px 0 4px;
+    color:#2d5671
+}
+.footer {
+    display:flex;
+    justify-content:center;
+    gap:10px;
+    flex-shrink:0
+}
+.btn {
+    border:0;
+    border-radius:13px;
+    padding:clamp(9px,1.3vh,13px) 20px;
+    background:#ffcb4d;
+    color:#10273b;
+    font:900 15px Nunito;
+    cursor:pointer;
+    box-shadow:0 4px 0 #b98523
+}
+.btn.secondary {
+    background:#dff2fc;
+    box-shadow:0 4px 0 #91b5c9
+}
+.btn:hover {
+    filter:brightness(1.05);
+    transform:translateY(-1px)
+}
+.overlay {
+    position:fixed;
+    inset:0;
+    background:#020e1fdc;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    padding:20px;
+    z-index:100
+}
+.hidden {
+    display:none!important
+}
+.modal {
+    width:min(580px,100%);
+    background:linear-gradient(145deg,#123c60,#071e39);
+    border:3px solid var(--cyan);
+    border-radius:24px;
+    box-shadow:0 0 40px #00bbff52;
+    text-align:center;
+    padding:30px
+}
+.modal h2 {
+    font:800 clamp(22px,3vw,30px) Orbitron;
+    color:var(--gold);
+    margin:0 0 12px
+}
+.modal p {
+    line-height:1.5
+}
+.steps {
+    text-align:left;
+    display:grid;
+    gap:10px;
+    margin:22px 0
+}
+.step {
+    display:flex;
+    gap:13px;
+    align-items:center;
+    background:#092843;
+    border-radius:12px;
+    padding:11px
+}
+.step .num {
+    display:grid;
+    place-items:center;
+    flex:0 0 32px;
+    height:32px;
+    background:#ffd05a;
+    color:#06203a;
+    border-radius:50%;
+    font-weight:900
+}
+.step b {
+    color:#ffe083
+}
+.card.shuffling {
+    pointer-events:none;
+    z-index:4;
+    will-change:transform
+}
+@media(max-width:850px) {
+    body {
+        padding:4px
+    }
+    .shell {
+        height:auto;
+        min-height:100dvh;
+        padding:15px
+    }
+    .header {
+        padding:45px 0 0
+    }
+    .hud {
+        top:0;
+        right:0
+    }
+    .flags {
+        top:-15px
+    }
+    .layout {
+        grid-template-columns:1fr
+    }
+    .sidebar {
+        gap:10px
+    }
+    .info {
+        grid-template-columns:repeat(4,1fr)
+    }
+    .helper {
+        display:none
+    }
+    .boardbox {
+        min-height:550px
+    }
+    .board {
+        min-height:400px
+    }
+}
+@media(max-width:520px) {
+    .info {
+        grid-template-columns:repeat(2,1fr)
+    }
+    .board {
+        grid-template-columns:repeat(2,1fr);
+        grid-template-rows:repeat(5,130px)
+    }
+    .boardbox {
+        min-height:900px
+    }
+    .boardhead {
+        flex-direction:column;
+        align-items:flex-start
+    }
+    .legend {
+        flex-wrap:wrap
+    }
+    .card {
+        min-height:120px
+    }
+}
+.knot-logo {
+    display:block;
+    width:min(76%,110px);
+    height:80%;
+    object-fit:contain;
+    filter:drop-shadow(0 3px 5px #08223a55);
+    pointer-events:none
+}
+  </style>
+ </head>
+ <body>
+  <main class="shell">
+   <header class="header">
+    <div class="flags">
+     <i>
+     </i>
+     <i>
+     </i>
+     <i>
+     </i>
+     <i>
+     </i>
+     <i>
+     </i>
+    </div>
+    <div class="eyebrow">
+     TRAINING ZONE 2 • LEVEL 3
+    </div>
+    <h1>
+     🃏 MEMORY MATCH
+    </h1>
+    <p>
+     Find the computer unit and its matching function!
+    </p>
+    <div class="hud">
+     <div class="pill" id="xp">
+      ⭐ 50 XP
+     </div>
+     <div class="pill life" id="lives">
+      ❤️❤️❤️
+     </div>
+    </div>
+   </header>
+   <div class="layout">
+    <aside class="sidebar">
+     <h2>
+      🎯 YOUR CHALLENGE
+     </h2>
+     <div class="info">
+      <div class="stat">
+       <span>
+        PAIRS FOUND
+       </span>
+       <strong id="pairs">
+        0 / 5
+       </strong>
+      </div>
+      <div class="stat timer">
+       <span>
+        TIME LEFT
+       </span>
+       <strong id="timer">
+        10:00
+       </strong>
+      </div>
+      <div class="stat">
+       <span>
+        CARDS FLIPPED
+       </span>
+       <strong id="flips">
+        0
+       </strong>
+      </div>
+      <div class="stat">
+       <span>
+        MISSION
+       </span>
+       <strong>
+        1 / 1
+       </strong>
+      </div>
+     </div>
+     <div class="progress">
+      <div class="fill" id="fill">
+      </div>
+     </div>
+     <div class="helper">
+      <b>
+       💡 Remember:
+      </b>
+      Find one blue
+      <b>
+       UNIT
+      </b>
+      card and one yellow
+      <b>
+       FUNCTION
+      </b>
+      card that belong together. Wrong matches are safe to try!
+     </div>
+     <div class="reward">
+      🏆 REWARD: +25 XP
+     </div>
+    </aside>
+    <section class="boardbox">
+     <div class="boardhead">
+      <h2>
+       🧠 COMPUTER SYSTEM MEMORY BOARD
+      </h2>
+      <span>
+       5 pairs • 10 cards
+      </span>
+     </div>
+     <div class="legend">
+      <b>
+       🔵 Computer unit
+      </b>
+      <span>
+       +
+      </span>
+      <b>
+       🟡 Its function
+      </b>
+      <span>
+       = Matching pair
+      </span>
+     </div>
+     <div class="board" id="board">
+     </div>
+     <div aria-live="polite" class="message" id="message">
+      Press Start Game to begin.
+     </div>
+     <div class="footer">
+      <button class="btn secondary" id="instructionsBtn">
+       ❔ How to Play
+      </button>
+     </div>
+    </section>
+   </div>
+  </main>
+  <div class="overlay" id="intro">
+   <div class="modal">
+    <h2>
+     HOW TO PLAY 🎴
+    </h2>
+    <p>
+     Match each computer unit with the job it performs.
+    </p>
+    <div class="steps">
+     <div class="step">
+      <span class="num">
+       1
+      </span>
+      <span>
+       Press
+       <b>
+        Start Game
+       </b>
+       and watch the cards shuffle.
+      </span>
+     </div>
+     <div class="step">
+      <span class="num">
+       2
+      </span>
+      <span>
+       Flip two cards. Match a
+       <b>
+        computer unit
+       </b>
+       with its
+       <b>
+        function
+       </b>
+       .
+      </span>
+     </div>
+     <div class="step">
+      <span class="num">
+       3
+      </span>
+      <span>
+       Wrong matches flip back.
+       <b>
+        No life is lost.
+       </b>
+      </span>
+     </div>
+     <div class="step">
+      <span class="num">
+       4
+      </span>
+      <span>
+       Find all
+       <b>
+        5 pairs
+       </b>
+       within
+       <b>
+        10 minutes
+       </b>
+       to earn
+       <b>
+        25 XP
+       </b>
+       .
+      </span>
+     </div>
+     <div class="step">
+      <span class="num">
+       5
+      </span>
+      <span>
+       If time runs out, lose
+       <b>
+        one life
+       </b>
+       and retry Level 3. After 3 lives, restart Level 3 with fresh lives.
+      </span>
+     </div>
+    </div>
+    <button class="btn" id="startBtn">
+     ▶ START GAME
+    </button>
+   </div>
+  </div>
+  <div class="overlay hidden" id="end">
+   <div class="modal">
+    <h2 id="endTitle">
+     MISSION COMPLETE!
+    </h2>
+    <p id="endText">
+    </p>
+    <button class="btn" id="endBtn">
+     CONTINUE ▶
+    </button>
+   </div>
+  </div>
+  <audio id="selectSound" preload="auto" src="select.mp3">
+  </audio>
+  <audio id="memoryBeginSound" preload="auto" src="memorybegin.mp3">
+  </audio>
+  <audio id="shuffleSound" preload="auto" src="shuffle.mp3">
+  </audio>
+  <audio id="memoryClickSound" preload="auto" src="memoryclick.mp3">
+  </audio>
+  <audio id="memoryRightSound" preload="auto" src="memoryright.mp3">
+  </audio>
+  <audio id="memoryWrongSound" preload="auto" src="memorywrong.mp3">
+  </audio>
+  <audio id="coinSound" preload="auto" src="coins.mp3">
+  </audio>
+  <script>
+   (()=> {
+    'use strict';
+    const $=id=>document.getElementById(id);
+    const pairs=[ {
+        id:'input',unit:'INPUT UNIT',icon:'⌨️',fn:'Enters data and instructions into the computer.'
+    }
+    , {
+        id:'memoryBefore',unit:'MEMORY (BEFORE)',icon:'🧠',fn:'Holds 4 and 5 before processing.'
+    }
+    , {
+        id:'cpu',unit:'CPU (ALU + CU)',icon:'⚙️',fn:'Calculates 4 + 5 = 9 and controls processing.'
+    }
+    , {
+        id:'memoryAfter',unit:'MEMORY (AFTER)',icon:'💾',fn:'Stores the answer 9 after processing.'
+    }
+    , {
+        id:'output',unit:'OUTPUT UNIT',icon:'🖥️',fn:'Displays the final result 9.'
+    }
+    ];
+    const livesKey=localStorage.getItem('TO2Lives')!==null?'TO2Lives':'to2Lives';
+    if(localStorage.getItem(livesKey)===null)localStorage.setItem(livesKey,'3');
+    let lives=Math.min(3,Math.max(0,Number(localStorage.getItem(livesKey))||0));
+    let deck=[],first=null,locked=false,matched=0,flips=0,completed=false,active=false,timeLeft=600,timerId=null,version=0,shuffling=false;
+    function sound(id) {
+        const el=$(id);
+        if(!el)return;
+        try {
+            el.pause();
+            el.currentTime=0;
+            el.volume=1;
+            el.play().catch(()=> {
+            }
+            );
+        }
+        catch(e) {
+        }
+    }
+    document.addEventListener('pointerover',e=> {
+        const b=e.target.closest('button');
+        if(b&&!b.contains(e.relatedTarget)&&!b.classList.contains('card')) {
+            const el=$('selectSound');
+            if(el) {
+                const a=el.cloneNode();
+                a.volume=.4;
+                a.play().catch(()=> {
+                }
+                );
+                a.onended=()=>a.remove();
+            }
+        }
+    }
+    );
+    function hud() {
+        $('timer').textContent=String(Math.floor(timeLeft/60)).padStart(2,'0')+':'+String(timeLeft%60).padStart(2,'0');
+        $('xp').textContent='⭐ '+(completed?75:50)+' XP';
+        $('lives').textContent='❤️'.repeat(lives)+'🖤'.repeat(3-lives);
+        $('pairs').textContent=matched+' / 5';
+        $('flips').textContent=flips;
+        $('fill').style.width=matched*20+'%';
+    }
+    function shuffle(a) {
+        for(let i=a.length-1;
+        i>0;
+        i--) {
+            let j=Math.floor(Math.random()*(i+1));
+            [a[i],a[j]]=[a[j],a[i]];
+        }
+        return a;
+    }
+    function newDeck() {
+        return shuffle(pairs.flatMap(p=>[ {
+            key:p.id,type:'unit',label:p.unit,icon:p.icon
+        }
+        , {
+            key:p.id,type:'function',label:p.fn,icon:'📖'
+        }
+        ]));
+    }
+    function startTimer() {
+        clearInterval(timerId);
+        timerId=setInterval(()=> {
+            if(!active)return;
+            timeLeft--;
+            hud();
+            if(timeLeft<=0) {
+                active=false;
+                clearInterval(timerId);
+                lives--;
+                if(lives<=0) {
+                    lives=3;
+                    localStorage.setItem(livesKey,'3');
+                    showRestart('💔 ALL LIVES USED','Time ran out three times. Restart Level 3 with three fresh lives. Earlier levels remain completed.');
+                }
+                else {
+                    localStorage.setItem(livesKey,String(lives));
+                    showRestart('⏰ TIME IS UP','One life lost. Restart Level 3 and try to find all five pairs in time.');
+                }
+                hud();
+            }
+        }
+        ,1000);
+    }
+    function setup() {
+        const v=++version;
+        clearInterval(timerId);
+        active=false;
+        shuffling=true;
+        timeLeft=600;
+        first=null;
+        locked=false;
+        matched=0;
+        flips=0;
+        completed=false;
+        deck=newDeck();
+        $('board').innerHTML='';
+        deck.forEach((d,i)=> {
+            const b=document.createElement('button');
+            b.type='button';
+            b.className='card';
+            b.dataset.kind=d.type;
+            b.setAttribute('aria-label','Hidden card '+(i+1));
+            b.innerHTML='<div class="inner"><div class="face back"><img class="knot-logo" src="endless_knot_transparent.png" alt="Bhutanese endless knot"></div><div class="face front"><div class="emoji">'+d.icon+'</div><div class="kind">'+(d.type==='unit'?'COMPUTER UNIT':'FUNCTION')+'</div><div>'+d.label+'</div></div></div>';
+            b.onclick=()=>flip(i);
+            $('board').appendChild(b);
+        }
+        );
+        $('message').textContent='🔀 Shuffling cards...';
+        hud();
+        sound('shuffleSound');
+        const cards=[...$('board').children],r=$('board').getBoundingClientRect(),cx=r.left+r.width/2,cy=r.top+r.height/2;
+        const animations=cards.map((card,i)=> {
+            const q=card.getBoundingClientRect(),x=cx-(q.left+q.width/2),y=cy-(q.top+q.height/2);
+            card.classList.add('shuffling');
+            card.style.zIndex=String(i+10);
+            const rx=()=>x+(Math.random()-.5)*r.width*.48,ry=()=>y+(Math.random()-.5)*r.height*.45;
+            return card.animate([ {
+                transform:'translate(0,0) rotate(0deg)',offset:0
+            }
+            , {
+                transform:`translate(${x}px,${y}px) rotate(${(i%2?1:-1)*15}deg) scale(.88)`,offset:.23
+            }
+            , {
+                transform:`translate(${rx()}px,${ry()}px) rotate(${(Math.random()-.5)*75}deg) scale(.93)`,offset:.47
+            }
+            , {
+                transform:`translate(${rx()}px,${ry()}px) rotate(${(Math.random()-.5)*80}deg) scale(.91)`,offset:.72
+            }
+            , {
+                transform:'translate(0,0) rotate(0deg)',offset:1
+            }
+            ], {
+                duration:3100,delay:i*25,easing:'ease-in-out'
+            }
+            );
+        }
+        );
+        Promise.all(animations.map(a=>a.finished.catch(()=> {
+        }
+        ))).then(()=> {
+            if(v!==version)return;
+            cards.forEach(c=> {
+                c.classList.remove('shuffling');
+                c.style.zIndex='';
+            }
+            );
+            shuffling=false;
+            active=true;
+            $('message').textContent='🎮 Cards shuffled! Flip two cards to find a pair.';
+            startTimer();
+        }
+        );
+    }
+    function flip(i) {
+        if(!active||locked||shuffling)return;
+        const card=$('board').children[i],d=deck[i];
+        if(card.classList.contains('flipped')||card.classList.contains('matched'))return;
+        sound('memoryClickSound');
+        card.classList.add('flipped');
+        flips++;
+        hud();
+        if(first===null) {
+            first=i;
+            return;
+        }
+        const prev=first,a=deck[prev];
+        first=null;
+        locked=true;
+        if(a.key===d.key&&a.type!==d.type) {
+            setTimeout(()=> {
+                card.classList.add('matched');
+                $('board').children[prev].classList.add('matched');
+                matched++;
+                sound('memoryRightSound');
+                $('message').textContent='✅ Correct! '+pairs.find(p=>p.id===a.key).unit+' matched!';
+                locked=false;
+                hud();
+                if(matched===5)finish();
+            }
+            ,450);
+        }
+        else {
+            sound('memoryWrongSound');
+            $('message').textContent='❌ Not a match. Remember the cards and try again!';
+            setTimeout(()=> {
+                card.classList.remove('flipped');
+                $('board').children[prev].classList.remove('flipped');
+                locked=false;
+            }
+            ,1000);
+        }
+    }
+    function finish() {
+        active=false;
+        clearInterval(timerId);
+        completed=true;
+        const earned=localStorage.getItem('TO2L3Reward')!=='true';
+        localStorage.setItem('TO2L3Reward','true');
+        localStorage.setItem('TO2XP','75');
+        hud();
+        sound('coinSound');
+        $('endTitle').textContent='🏆 MEMORY MASTER!';
+        $('endText').textContent=earned?'All five pairs matched! You earned +25 XP. Total: 75 XP.':'You matched all five pairs again! Your total remains 75 XP.';
+        $('endBtn').textContent='NEXT LEVEL ▶';
+        $('endBtn').onclick=()=>location.href='to2l4.html';
+        $('end').classList.remove('hidden');
+    }
+    function showRestart(title,msg) {
+        active=false;
+        clearInterval(timerId);
+        $('endTitle').textContent=title;
+        $('endText').textContent=msg;
+        $('endBtn').textContent='↻ RESTART LEVEL 3';
+        $('endBtn').onclick=()=> {
+            $('end').classList.add('hidden');
+            setup();
+        }
+        ;
+        $('end').classList.remove('hidden');
+    }
+    $('startBtn').onclick=()=> {
+        sound('memoryBeginSound');
+        $('intro').classList.add('hidden');
+        setTimeout(setup,900);
+    }
+    ;
+    $('instructionsBtn').onclick=()=> {
+        const wasActive=active;
+        active=false;
+        $('intro').classList.remove('hidden');
+        $('startBtn').textContent='▶ RESUME GAME';
+        $('startBtn').onclick=()=> {
+            $('intro').classList.add('hidden');
+            active=wasActive;
+        }
+        ;
+    }
+    ;
+    hud();
+}
+)();
+  </script>
+ </body>
+</html>

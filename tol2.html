@@ -1,0 +1,943 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>Computer Quest - T01 Level 2</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Nunito:wght@600;700;800;900&display=swap" rel="stylesheet">
+
+  <style>
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      min-height: 100vh;
+      overflow-x: hidden;
+      color: white;
+      background: #020815;
+      font-family: "Nunito", Arial, sans-serif;
+    }
+
+    .game-page {
+      min-height: 100vh;
+      padding: 10px 4%;
+      background: radial-gradient(circle at 50% 40%, #0d1f41, #050b1a 57%, #01040c);
+    }
+
+    .header {
+      position: relative;
+      height: 122px;
+    }
+
+    /* LEVEL + LIVES */
+
+    .level-status {
+      position: absolute;
+      top: 0;
+      left: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 7px;
+    }
+
+    .level-badge {
+      padding: 11px 14px;
+      border: 2px solid #70aaff;
+      background: linear-gradient(135deg, #c5dcff, #6d9ee8);
+      box-shadow: 0 0 12px #276ebd;
+      color: #07111f;
+      font-family: "Fredoka", Arial, sans-serif;
+      font-size: clamp(16px, 2vw, 24px);
+      font-weight: 700;
+    }
+
+    .lives-box {
+      min-width: 150px;
+      padding: 7px 14px;
+      border: 3px solid #ff5364;
+      border-radius: 18px;
+      background: linear-gradient(135deg, #31111d, #671b2c);
+      box-shadow: 0 0 14px rgba(255,60,80,.75);
+      text-align: center;
+      font-size: clamp(18px,2vw,25px);
+    }
+
+    #livesDisplay {
+      letter-spacing: 5px;
+    }
+
+    .life-lost {
+      animation: shake .45s ease;
+    }
+
+    @keyframes shake {
+
+      0%{transform:translateX(0);}
+      20%{transform:translateX(-7px);}
+      40%{transform:translateX(7px);}
+      60%{transform:translateX(-5px);}
+      80%{transform:translateX(5px);}
+      100%{transform:translateX(0);}
+
+    }
+
+    /* XP */
+
+    .xp-box {
+      position: absolute;
+      top: -2px;
+      right: 0;
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      padding: 5px 13px 5px 7px;
+      border: 3px solid #0a9df2;
+      border-radius: 18px;
+      background: linear-gradient(135deg, #e7efff, #1374d5);
+      box-shadow: 0 0 12px #00aaff;
+      color: #00162d;
+      font-family: "Fredoka", Arial, sans-serif;
+      font-size: clamp(20px, 2.6vw, 30px);
+      font-weight: 700;
+    }
+
+    .xp-star {
+      color: #ffdf31;
+      font-size: clamp(35px,4vw,52px);
+      line-height: .8;
+      text-shadow: 0 0 8px #ffaf00;
+    }
+
+    .rapid-title {
+      padding-top: 12px;
+      color: #d90000;
+      text-align: center;
+      font-family: "Fredoka", Arial, sans-serif;
+      font-size: clamp(38px,5.2vw,65px);
+      letter-spacing: 2px;
+      text-shadow: 0 0 12px #740000;
+    }
+
+    .game-box {
+      width: min(100%,1050px);
+      min-height: 430px;
+      margin: 3px auto 0;
+      position: relative;
+      overflow: hidden;
+      border: 2px solid #26ef79;
+      border-radius: 70px;
+      background: rgba(12,25,48,.97);
+      box-shadow: inset 0 0 25px #071329,0 0 14px #0d6d49;
+    }
+
+    #introScreen {
+      min-height: 430px;
+      position: relative;
+      padding: 78px 70px 25px 32%;
+    }
+
+    .intro-girl {
+      position: absolute;
+      left: 1%;
+      bottom: -1%;
+      height: 83%;
+      width: auto;
+      object-fit: contain;
+    }
+
+    .fast-banner {
+      position: absolute;
+      top: 38px;
+      left: 20%;
+      width: 73%;
+      padding: 10px 25px;
+      border: 4px solid #ff75a8;
+      border-radius: 20px;
+      background: linear-gradient(90deg,#ffd9ea,#fff0f7,#ffd9ea);
+      box-shadow: 0 0 12px #ff4b92;
+      color: #2b1124;
+      font-family: "Fredoka", Arial, sans-serif;
+      font-size: clamp(20px,2.7vw,34px);
+    }
+
+    .intro-list {
+      font-size: clamp(19px,2.3vw,30px);
+      font-weight: 800;
+      line-height: 1.26;
+    }
+
+    .intro-list p {
+      margin: 5px 0;
+    }
+
+    .start-button {
+      position: absolute;
+      right: 7%;
+      bottom: 24px;
+    }
+
+    #questionScreen {
+      display: none;
+      min-height: 430px;
+      padding: 26px 4% 18px;
+    }
+
+    .timer {
+      position: absolute;
+      top: 16px;
+      right: 5%;
+      min-width: 105px;
+      padding: 7px 14px;
+      border: 3px solid #ffdc36;
+      border-radius: 20px;
+      background: #16294a;
+      box-shadow: 0 0 12px #ffcc00;
+      color: #ffeb4f;
+      font-family: "Fredoka", Arial, sans-serif;
+      font-size: 24px;
+      text-align: center;
+    }
+
+    .timer.danger {
+      border-color: #ff5364;
+      color: #ff6876;
+      box-shadow: 0 0 14px #ff293c;
+    }
+
+    .question-title {
+      margin: 4px 0 16px;
+      font-size: clamp(23px,2.8vw,34px);
+      font-weight: 800;
+    }
+
+    .question-title span {
+      color: #9be13f;
+    }
+
+    .hint-layout {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 36px;
+      align-items: center;
+    }
+
+    .answers {
+      display: grid;
+      gap: 14px;
+    }
+
+    .answer-button {
+      min-height: 62px;
+      padding: 10px;
+      border: 2px solid #26ef79;
+      border-radius: 12px;
+      background: #0c1a33;
+      color: white;
+      font-size: clamp(18px,2vw,24px);
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .answer-button:hover:not(:disabled) {
+      transform: scale(1.03);
+      background: #142747;
+      box-shadow: 0 0 12px #26ef79;
+    }
+
+    .answer-button:disabled {
+      cursor: default;
+      opacity: .7;
+    }
+
+    .hint-panel {
+      min-height: 290px;
+      padding: 23px 28px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      border: 2px solid #26ef79;
+      border-radius: 50px;
+      background: #0c1a33;
+      text-align: center;
+    }
+
+    .hint-panel h2 {
+      color: #9be13f;
+      font-family: "Fredoka", Arial, sans-serif;
+      font-size: clamp(25px,3vw,37px);
+    }
+
+    .hint-panel p {
+      margin-top: 12px;
+      font-size: clamp(17px,1.85vw,23px);
+      font-weight: 700;
+      line-height: 1.32;
+    }
+
+    .brain-image {
+      width: min(85%,280px);
+      max-height: 210px;
+      object-fit: contain;
+    }
+
+    .component-image {
+      width: min(85%,270px);
+      height: 120px;
+      margin-top: 12px;
+      object-fit: contain;
+    }
+
+    .start-button,
+    .back-button,
+    .restart-button,
+    .select-answer-button,
+    .next-button {
+      padding: 9px 23px;
+      border-radius: 22px;
+      font-family: "Fredoka", Arial, sans-serif;
+      font-size: clamp(17px,2vw,24px);
+      font-weight: 700;
+      cursor: pointer;
+      transition: .18s;
+    }
+
+    .start-button {
+      border: 4px solid #208f2c;
+      border-radius: 30px;
+      background: linear-gradient(#8fff64,#28c53b);
+      box-shadow: 0 0 14px #36ea4f;
+      color: white;
+    }
+
+    .back-button {
+      margin-top: 14px;
+      border: 3px solid #00aef7;
+      background: linear-gradient(135deg,#0a88f6,#143b9d);
+      box-shadow: 0 0 12px #00bfff;
+      color: white;
+    }
+
+    .restart-button,
+    .select-answer-button,
+    .next-button {
+      margin-top: 14px;
+      border: 3px solid #ffe44c;
+      background: linear-gradient(#ffef65,#ff9b00);
+      box-shadow: 0 0 12px #ffbc00;
+      color: #111;
+    }
+
+    button:hover {
+      transform: scale(1.05);
+      filter: brightness(1.1);
+    }
+
+    /* FAILURE */
+
+    .failure-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      z-index: 999;
+      background: rgba(0,0,0,.9);
+      align-items: center;
+      justify-content: center;
+    }
+
+    .failure-overlay.show {
+      display: flex;
+    }
+
+    .failure-card {
+      width: min(600px,90%);
+      padding: 35px;
+      text-align: center;
+      border: 5px solid #ff4055;
+      border-radius: 30px;
+      background: linear-gradient(145deg,#111d35,#080d19);
+      box-shadow: 0 0 35px rgba(255,45,70,.75);
+    }
+
+    .failure-card h1 {
+      color: #ff5364;
+      font-family: "Fredoka";
+      font-size: 40px;
+      margin-bottom: 12px;
+    }
+
+    .failure-card h2 {
+      margin-bottom: 15px;
+    }
+
+    .restart-zone-button {
+      margin-top: 18px;
+      padding: 13px 25px;
+      border: 3px solid #ffe44c;
+      border-radius: 18px;
+      background: linear-gradient(#ffef65,#ff9b00);
+      font-family: "Fredoka";
+      font-size: 20px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    @media(max-width:760px){
+
+      .game-page{
+        padding:10px 16px 25px;
+      }
+
+      .header{
+        height:150px;
+      }
+
+      .game-box,
+      #introScreen,
+      #questionScreen{
+        min-height:0;
+      }
+
+      #introScreen{
+        padding:95px 25px 110px;
+      }
+
+      .intro-girl{
+        opacity:.35;
+        left:-10%;
+        height:60%;
+      }
+
+      .fast-banner{
+        top:24px;
+        left:8%;
+        width:84%;
+      }
+
+      .start-button{
+        right:50%;
+        transform:translateX(50%);
+      }
+
+      .hint-layout{
+        grid-template-columns:1fr;
+      }
+
+      #questionScreen{
+        padding-top:72px;
+      }
+
+    }
+
+  </style>
+</head>
+
+<body>
+
+<main class="game-page">
+
+<header class="header">
+
+  <div class="level-status">
+
+    <div class="level-badge">
+      T01: LEVEL 2
+    </div>
+
+    <div id="livesBox" class="lives-box">
+      <span id="livesDisplay">❤️❤️❤️</span>
+    </div>
+
+  </div>
+
+  <div class="xp-box">
+    <span class="xp-star">★</span>
+    <span id="xpValue">25 XP</span>
+  </div>
+
+  <h1 class="rapid-title">
+    RAPID FIRE ROUND
+  </h1>
+
+</header>
+
+
+<section class="game-box">
+
+<div id="introScreen">
+
+<img class="intro-girl" src="GIRL IMAGE.png">
+
+<div class="fast-banner">
+⏰ Think FAST! Answer before the timer runs out! ❗
+</div>
+
+<div class="intro-list">
+
+<p>⏱️ You have 10 seconds to answer the question.</p>
+<p>🧠 Read the question carefully.</p>
+<p>🎯 Click an option to open its hint.</p>
+<p>💡 Read the hint, then select your answer.</p>
+<p>⏰ If time runs out, the question is skipped.</p>
+
+</div>
+
+<button class="start-button" onclick="startRound()">
+START
+</button>
+
+</div>
+
+
+<div id="questionScreen">
+
+<div id="timer" class="timer">
+⏱ 10
+</div>
+
+<h2 class="question-title">
+Which memory is <span>temporary</span> and <span>volatile</span>?
+</h2>
+
+<div class="hint-layout">
+
+<div class="answers">
+
+<button class="answer-button" data-component="ROM">A. ROM</button>
+<button class="answer-button" data-component="RAM">B. RAM</button>
+<button class="answer-button" data-component="CPU">C. CPU</button>
+<button class="answer-button" data-component="SSD">D. SSD</button>
+
+</div>
+
+<div id="hintPanel" class="hint-panel">
+
+<img class="brain-image" src="BRAIN.png">
+
+</div>
+
+</div>
+</div>
+
+</section>
+</main>
+
+
+<div id="failureOverlay" class="failure-overlay">
+
+<div class="failure-card">
+
+<h1>TRAINING ZONE FAILED!</h1>
+
+<h2>YOU LOST ALL 3 LIVES</h2>
+
+<div style="font-size:40px;margin:15px;">🖤🖤🖤</div>
+
+<p>
+You have lost all the lives for Training Zone 1.
+<br><br>
+Restart from Level 1.
+</p>
+
+<button class="restart-zone-button" onclick="restartTrainingZone()">
+🔄 RESTART TRAINING ZONE
+</button>
+
+</div>
+</div>
+
+
+<audio id="selectSound">
+<source src="select.mp3">
+</audio>
+
+<audio id="wrongSound">
+<source src="wrong.mp3">
+</audio>
+
+<audio id="coinsSound">
+<source src="coins.mp3">
+</audio>
+
+
+<script>
+
+const hints={
+
+ROM:{
+title:"ROM",
+image:"ROM.png",
+correct:false,
+text:"ROM (Read-Only Memory) stores important instructions needed to start the computer. It is non-volatile."
+},
+
+RAM:{
+title:"RAM",
+image:"RAM.png",
+correct:true,
+text:"RAM (Random Access Memory) is temporary working memory used by the CPU. It is volatile and loses data when power is off."
+},
+
+CPU:{
+title:"CPU",
+image:"CPU.png",
+correct:false,
+text:"CPU processes instructions and controls operations of the computer."
+},
+
+SSD:{
+title:"SSD",
+image:"SSD.png",
+correct:false,
+text:"SSD is permanent storage that keeps files even after shutdown."
+}
+
+};
+
+let timeLeft=10;
+let timerInterval;
+let isHintOpen=false;
+let completed=false;
+
+/* SHARED TO1 DATA */
+
+if(localStorage.getItem("to1Lives")===null){
+localStorage.setItem("to1Lives","3");
+}
+
+if(localStorage.getItem("to1XP")===null){
+localStorage.setItem("to1XP","25");
+}
+
+let lives=parseInt(localStorage.getItem("to1Lives"));
+let xp=parseInt(localStorage.getItem("to1XP"));
+
+const introScreen=document.getElementById("introScreen");
+const questionScreen=document.getElementById("questionScreen");
+const timer=document.getElementById("timer");
+const hintPanel=document.getElementById("hintPanel");
+const answerButtons=document.querySelectorAll(".answer-button");
+const livesDisplay=document.getElementById("livesDisplay");
+const livesBox=document.getElementById("livesBox");
+const xpValue=document.getElementById("xpValue");
+
+const selectSound=document.getElementById("selectSound");
+const wrongSound=document.getElementById("wrongSound");
+const coinsSound=document.getElementById("coinsSound");
+
+function playSelect(){
+
+selectSound.currentTime=0;
+selectSound.play().catch(()=>{});
+
+}
+
+function playWrong(){
+
+wrongSound.currentTime=0;
+wrongSound.play().catch(()=>{});
+
+}
+
+function playCoins(){
+
+coinsSound.currentTime=0;
+coinsSound.play().catch(()=>{});
+
+}
+
+function updateLives(){
+
+let heart="";
+
+for(let i=0;i<3;i++){
+
+if(i<lives){
+heart+="❤️";
+}else{
+heart+="🖤";
+}
+
+}
+
+livesDisplay.textContent=heart;
+
+}
+
+function updateXP(){
+
+xpValue.textContent=xp+" XP";
+
+}
+
+updateLives();
+updateXP();
+
+function startRound(){
+
+introScreen.style.display="none";
+questionScreen.style.display="block";
+
+restartTimer();
+
+}
+
+function startTimer(){
+
+clearInterval(timerInterval);
+
+timerInterval=setInterval(()=>{
+
+if(isHintOpen || completed)return;
+
+timeLeft--;
+
+timer.textContent="⏱ "+timeLeft;
+
+if(timeLeft<=3){
+timer.classList.add("danger");
+}
+
+if(timeLeft<=0){
+
+clearInterval(timerInterval);
+showTimeUp();
+
+}
+
+},1000);
+
+}
+
+function restartTimer(){
+
+clearInterval(timerInterval);
+
+timeLeft=10;
+isHintOpen=false;
+
+timer.textContent="⏱ 10";
+timer.classList.remove("danger");
+
+hintPanel.innerHTML=`
+<img class="brain-image" src="BRAIN.png">
+`;
+
+answerButtons.forEach(btn=>{
+btn.disabled=false;
+});
+
+startTimer();
+
+}
+
+function openHint(component){
+
+if(completed)return;
+
+clearInterval(timerInterval);
+isHintOpen=true;
+
+let hint=hints[component];
+
+hintPanel.innerHTML=`
+
+<h2>${hint.title}</h2>
+
+<p>${hint.text}</p>
+
+<img class="component-image" src="${hint.image}">
+
+<button class="select-answer-button" onclick="selectAnswer('${component}')">
+SELECT ${hint.title}
+</button>
+
+<button class="back-button" onclick="backToQuestion()">
+◀ BACK
+</button>
+
+`;
+
+}
+
+function loseLife(){
+
+lives--;
+
+localStorage.setItem("to1Lives",lives);
+
+updateLives();
+
+livesBox.classList.remove("life-lost");
+void livesBox.offsetWidth;
+livesBox.classList.add("life-lost");
+
+if(lives===0){
+
+setTimeout(()=>{
+document.getElementById("failureOverlay").classList.add("show");
+},500);
+
+}
+
+}
+
+function selectAnswer(component){
+
+let hint=hints[component];
+
+clearInterval(timerInterval);
+
+if(hint.correct){
+
+completed=true;
+
+xp=50;
+
+localStorage.setItem("to1XP",xp);
+
+updateXP();
+
+playCoins();
+
+hintPanel.innerHTML=`
+
+<h2>GREAT JOB!</h2>
+
+<p>
+RAM is the temporary and volatile memory.
+<br><br>
+⭐ You earned 25 XP!
+</p>
+
+<img class="component-image" src="${hint.image}">
+
+<button class="next-button" onclick="goNext()">
+NEXT ▶
+</button>
+
+`;
+
+}else{
+
+playWrong();
+
+loseLife();
+
+if(lives<=0)return;
+
+hintPanel.innerHTML=`
+
+<h2>TRY AGAIN</h2>
+
+<p>
+${hint.title} is not the correct answer.
+<br><br>
+❤️ Lives Remaining: ${lives}
+</p>
+
+<img class="component-image" src="${hint.image}">
+
+<button class="back-button" onclick="backToQuestion()">
+◀ BACK
+</button>
+
+`;
+
+}
+
+}
+
+function backToQuestion(){
+
+if(lives<=0)return;
+
+isHintOpen=false;
+
+hintPanel.innerHTML=`
+<img class="brain-image" src="BRAIN.png">
+`;
+
+if(timeLeft>0){
+startTimer();
+}
+
+}
+
+function showTimeUp(){
+
+answerButtons.forEach(btn=>{
+btn.disabled=true;
+});
+
+hintPanel.innerHTML=`
+
+<h2>TIME'S UP!</h2>
+
+<p>
+This question has been skipped.
+<br><br>
+No life was lost.
+</p>
+
+<button class="restart-button" onclick="restartTimer()">
+TRY AGAIN ↻
+</button>
+
+`;
+
+}
+
+function goNext(){
+
+localStorage.setItem("to1Lives",lives);
+localStorage.setItem("to1XP",xp);
+
+window.location.href="tol3.html";
+
+}
+
+function restartTrainingZone(){
+
+localStorage.setItem("to1Lives","3");
+localStorage.setItem("to1XP","0");
+
+window.location.href="tol1.html";
+
+}
+
+answerButtons.forEach(btn=>{
+
+btn.addEventListener("click",()=>{
+openHint(btn.dataset.component);
+});
+
+});
+
+/* HOVER SELECT SOUND */
+
+document.addEventListener("mouseover",function(e){
+
+let button=e.target.closest("button");
+
+if(!button)return;
+if(button.disabled)return;
+
+if(e.relatedTarget && button.contains(e.relatedTarget))return;
+
+playSelect();
+
+});
+
+</script>
+
+</body>
+</html>

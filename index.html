@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Computer Quest</title>
+  <style>
+    * { margin:0; padding:0; box-sizing:border-box; font-family:Arial,sans-serif; }
+    body { overflow:hidden; background:#020713; }
+    .cover-page { position:relative; width:100%; min-height:100vh; min-height:100dvh; overflow:hidden; display:flex; justify-content:center; align-items:center; background:radial-gradient(circle at center,#123b70 0%,#07162d 35%,#01040b 77%); isolation:isolate; }
+    .cover-page::before { content:""; position:absolute; inset:-30%; pointer-events:none; z-index:0; background:radial-gradient(ellipse at 58% 48%,rgba(0,167,255,.13),transparent 46%); animation:ambient 8s ease-in-out infinite alternate; }
+    .cover-page::after { content:""; position:absolute; inset:0; pointer-events:none; z-index:1; opacity:.16; background:repeating-linear-gradient(to bottom,transparent 0px,transparent 5px,rgba(42,170,255,.13) 6px,transparent 7px); }
+    .light { position:absolute; height:4px; background:#00bfff; box-shadow:0 0 8px #00c8ff,0 0 20px #006eff; animation:lightPulse 3.2s ease-in-out infinite alternate; }
+    .light1 { top:8%; left:6%; width:18%; transform:rotate(23deg); animation-delay:-.4s; }
+    .light2 { top:9%; right:9%; width:18%; animation-delay:-1.7s; }
+    .light3 { top:22%; left:31%; width:12%; animation-delay:-2.3s; }
+    .light4 { top:20%; right:27%; width:13%; animation-delay:-.9s; }
+    .light5 { bottom:8%; left:36%; width:30%; animation-delay:-2s; }
+    .light6 { bottom:18%; left:2%; width:24%; transform:rotate(-15deg); animation-delay:-1.2s; }
+    .light7 { bottom:18%; right:2%; width:24%; transform:rotate(15deg); animation-delay:-2.7s; }
+    .screen { position:absolute; top:17%; width:15%; height:55%; padding:15px; border:2px solid #006ba8; border-radius:9px; background:linear-gradient(145deg,#061830,#01050c); box-shadow:inset 0 0 25px #003b77,0 0 15px #00285b; overflow:hidden; animation:panelGlow 5s ease-in-out infinite alternate; }
+    .left-screen { left:3%; transform:skewY(5deg); }
+    .right-screen { right:3%; transform:skewY(-5deg); animation-delay:-2s; }
+    .screen-title { color:#00bfff; font-size:clamp(7px,1vw,12px); letter-spacing:1px; font-weight:bold; }
+    .code-lines { margin-top:18px; width:100%; height:65%; opacity:.7; background:repeating-linear-gradient(to bottom,#008edb 0px,#008edb 2px,transparent 2px,transparent 12px); animation:codeScroll 7s linear infinite; }
+    .screen::after { content:""; position:absolute; left:0; right:0; top:-30%; height:20%; background:linear-gradient(to bottom,transparent,rgba(0,191,255,.18),transparent); animation:scan 5s linear infinite; pointer-events:none; }
+    .boy { position:absolute; z-index:4; bottom:-4%; left:9%; height:min(87vh,720px); width:auto; object-fit:contain; transform-origin:50% 95%; animation:characterEntrance 1.1s ease-out both,characterIdle 4.6s ease-in-out 1.1s infinite; filter:drop-shadow(0 0 18px rgba(0,111,255,.24)); }
+    .main-content { position:relative; z-index:3; width:70%; margin-left:19%; text-align:center; }
+    h1 { color:#d8ebff; font-size:clamp(48px,8vw,105px); letter-spacing:4px; text-shadow:0 0 18px #2079d8; animation:titleIn .9s ease-out both,titleGlow 4s ease-in-out 1s infinite alternate; }
+    h2 { margin-top:12px; color:#00aeea; font-size:clamp(48px,7.5vw,94px); letter-spacing:7px; text-shadow:0 0 17px #006eff; animation:titleIn .9s ease-out .2s both,titleGlow 4s ease-in-out 1.2s infinite alternate; }
+    .subtitle { margin-top:14px; color:#d8e8ff; font-size:clamp(12px,2vw,24px); font-weight:bold; letter-spacing:4px; animation:fadeUp .9s ease-out .45s both; }
+    .start-button { position:relative; overflow:hidden; margin-top:28px; padding:16px 42px; border:5px solid #ffe449; border-radius:18px; background:linear-gradient(to bottom,#ffef61,#ff9c00); box-shadow:0 0 0 4px #804400,0 8px 0 #663500,0 0 25px #ffc400; color:black; font-size:clamp(22px,3.3vw,42px); font-weight:900; cursor:pointer; transition:transform .2s,filter .2s; animation:fadeUp .8s ease-out .7s both,buttonPulse 2.8s ease-in-out 1.5s infinite; }
+    .start-button::after { content:""; position:absolute; top:-60%; left:-60%; width:35%; height:220%; background:linear-gradient(90deg,transparent,rgba(255,255,255,.48),transparent); transform:rotate(25deg); animation:buttonShine 4.5s ease-in-out 2s infinite; pointer-events:none; }
+    .start-button:hover { transform:scale(1.05); filter:brightness(1.1); }
+    .start-button:active { transform:scale(.98); }
+    .start-button:focus-visible { outline:3px solid #fff; outline-offset:10px; }
+    @keyframes ambient { from{opacity:.4;transform:translateX(-2%)} to{opacity:1;transform:translateX(2%)} }
+    @keyframes lightPulse { from{opacity:.38;filter:brightness(.8)} to{opacity:1;filter:brightness(1.6)} }
+    @keyframes panelGlow { from{box-shadow:inset 0 0 18px #003b77,0 0 8px #00285b} to{box-shadow:inset 0 0 29px #005eab,0 0 23px #004887} }
+    @keyframes codeScroll { to{background-position:0 72px} }
+    @keyframes scan { to{top:115%} }
+    @keyframes characterEntrance { from{opacity:0;transform:translateY(36px)} to{opacity:1;transform:translateY(0)} }
+    @keyframes characterIdle { 0%,100%{transform:translateY(0) rotate(0deg)} 50%{transform:translateY(-9px) rotate(.6deg)} }
+    @keyframes titleIn { from{opacity:0;transform:translateY(25px) scale(.95);filter:blur(5px)} to{opacity:1;transform:translateY(0) scale(1);filter:blur(0)} }
+    @keyframes fadeUp { from{opacity:0;transform:translateY(18px)} to{opacity:1;transform:translateY(0)} }
+    @keyframes titleGlow { from{text-shadow:0 0 12px #1260ac} to{text-shadow:0 0 27px #258eff,0 0 45px #064994} }
+    @keyframes buttonPulse { 0%,100%{box-shadow:0 0 0 4px #804400,0 8px 0 #663500,0 0 18px #ffc400} 50%{box-shadow:0 0 0 4px #804400,0 8px 0 #663500,0 0 38px #ffdc32} }
+    @keyframes buttonShine { 0%,55%{left:-60%} 85%,100%{left:145%} }
+    @media(max-width:700px) { .boy{left:-10%;height:63vh;opacity:.8} .main-content{width:94%;margin-left:4%;margin-bottom:130px} .screen{opacity:.45;width:20%} .subtitle{letter-spacing:2px} }
+    @media(prefers-reduced-motion:reduce) { *,*::before,*::after{animation:none!important;transition:none!important} }
+  </style>
+</head>
+<body>
+  <!-- BACKGROUND MUSIC -->
+  <audio id="bgMusic" loop preload="auto"><source src="bg.mp3" type="audio/mpeg"></audio>
+  <section class="cover-page">
+    <div class="light light1"></div><div class="light light2"></div><div class="light light3"></div><div class="light light4"></div><div class="light light5"></div><div class="light light6"></div><div class="light light7"></div>
+    <div class="screen left-screen"><p class="screen-title">SYSTEM STATUS</p><div class="code-lines"></div></div>
+    <div class="screen right-screen"><p class="screen-title">SERVER NODE</p><div class="code-lines"></div></div>
+    <img class="boy" src="gho.png" alt="Computer Quest character">
+    <main class="main-content">
+      <h1>COMPUTER</h1>
+      <h2>QUEST</h2>
+      <p class="subtitle">PERSONALISED GAME BASED LEARNING</p>
+      <button class="start-button" onclick="window.location.href='howtoplay.html'">START MISSION ▶</button>
+    </main>
+  </section>
+  <script>
+    const bgMusic=document.getElementById('bgMusic');
+    bgMusic.volume=0.35;
+    window.addEventListener('load',function(){bgMusic.play().catch(function(){});});
+    function startBackgroundMusic(){if(bgMusic.paused){bgMusic.play().catch(function(){});}}
+    document.addEventListener('click',startBackgroundMusic,{once:true});
+  </script>
+</body>
+</html>

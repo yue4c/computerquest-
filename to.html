@@ -1,0 +1,1139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Computer Quest - Training Zone 1</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;600;700;800;900&family=Rajdhani:wght@500;600;700&display=swap" rel="stylesheet">
+
+<style>
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+html,
+body {
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+}
+
+body {
+    background: #020817;
+    color: white;
+    font-family: "Rajdhani", Arial, sans-serif;
+}
+
+.training-zone {
+    position: relative;
+    width: 100vw;
+    height: 100vh;
+    overflow: hidden;
+
+    background:
+        radial-gradient(
+            circle at 52% 42%,
+            rgba(18, 67, 126, .95) 0%,
+            rgba(5, 28, 62, .97) 43%,
+            #010711 88%
+        );
+}
+
+.sky-glow {
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+
+    background:
+        radial-gradient(
+            circle at 72% 28%,
+            rgba(44, 112, 190, .28),
+            transparent 28%
+        ),
+        radial-gradient(
+            circle at 35% 25%,
+            rgba(34, 94, 165, .22),
+            transparent 30%
+        );
+
+    pointer-events: none;
+}
+
+.stars {
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    opacity: .55;
+
+    background-image:
+        radial-gradient(
+            white 1px,
+            transparent 1px
+        );
+
+    background-size: 75px 75px;
+    pointer-events: none;
+}
+
+.mountains-back {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 9%;
+    height: 46%;
+    z-index: 0;
+    opacity: .85;
+
+    background:
+        linear-gradient(
+            145deg,
+            transparent 0 42%,
+            #0d3158 42% 53%,
+            transparent 53%
+        ),
+        linear-gradient(
+            215deg,
+            transparent 0 39%,
+            #154571 39% 54%,
+            transparent 54%
+        ),
+        linear-gradient(
+            150deg,
+            transparent 0 47%,
+            #092747 47% 61%,
+            transparent 61%
+        );
+
+    filter:
+        drop-shadow(
+            0 -5px 15px
+            rgba(29, 111, 194, .25)
+        );
+}
+
+.mountains-front {
+    position: absolute;
+    left: -5%;
+    right: -5%;
+    bottom: 5%;
+    height: 32%;
+    z-index: 0;
+
+    background:
+        linear-gradient(
+            150deg,
+            transparent 0 45%,
+            #031426 45% 100%
+        );
+
+    opacity: .9;
+}
+
+.floor {
+    position: absolute;
+    z-index: 1;
+    left: -10%;
+    bottom: -19%;
+    width: 120%;
+    height: 45%;
+
+    background:
+        linear-gradient(
+            90deg,
+            rgba(0, 188, 255, .40) 1px,
+            transparent 1px
+        ),
+        linear-gradient(
+            rgba(0, 188, 255, .40) 1px,
+            transparent 1px
+        );
+
+    background-size: 60px 38px;
+
+    transform:
+        perspective(380px)
+        rotateX(58deg);
+
+    box-shadow:
+        0 -10px 35px
+        rgba(0, 96, 190, .55);
+}
+
+.frame {
+    position: absolute;
+    inset: 8px;
+    z-index: 20;
+
+    border:
+        4px solid #05baff;
+
+    border-radius: 42px;
+
+    box-shadow:
+        inset 0 0 32px
+        rgba(0, 113, 207, .8),
+        0 0 17px
+        rgba(0, 174, 255, .9);
+
+    pointer-events: none;
+}
+
+.corner {
+    position: absolute;
+    z-index: 22;
+    width: 68px;
+    height: 68px;
+    pointer-events: none;
+}
+
+.corner::before,
+.corner::after {
+    content: "";
+    position: absolute;
+    background: #ffc735;
+
+    box-shadow:
+        0 0 8px
+        rgba(255, 188, 25, .6);
+}
+
+.corner::before {
+    width: 60px;
+    height: 5px;
+}
+
+.corner::after {
+    width: 5px;
+    height: 60px;
+}
+
+.corner-tl {
+    top: 24px;
+    left: 26px;
+}
+
+.corner-tr {
+    top: 24px;
+    right: 26px;
+    transform: rotate(90deg);
+}
+
+.corner-bl {
+    bottom: 24px;
+    left: 26px;
+    transform: rotate(-90deg);
+}
+
+.corner-br {
+    bottom: 24px;
+    right: 26px;
+    transform: rotate(180deg);
+}
+
+.corner span {
+    position: absolute;
+    width: 28px;
+    height: 28px;
+    top: 13px;
+    left: 13px;
+
+    border-left:
+        4px solid #ffc735;
+
+    border-top:
+        4px solid #ffc735;
+}
+
+.prayer-flags {
+    position: absolute;
+    top: 18px;
+    left: 4%;
+    z-index: 5;
+    display: flex;
+    transform: rotate(-7deg);
+
+    filter:
+        drop-shadow(
+            0 3px 3px
+            rgba(0,0,0,.5)
+        );
+}
+
+.flag {
+    position: relative;
+    width: 43px;
+    height: 58px;
+    margin-right: 2px;
+
+    clip-path:
+        polygon(
+            0 0,
+            100% 0,
+            86% 100%,
+            50% 87%,
+            15% 100%
+        );
+
+    opacity: .88;
+}
+
+.flag::after {
+    content: "༄";
+    position: absolute;
+    top: 14px;
+    left: 50%;
+    transform: translateX(-50%);
+    color: rgba(0,0,0,.45);
+    font-size: 17px;
+}
+
+.flag.blue {
+    background: #188bd2;
+}
+
+.flag.white {
+    background: #e8edf1;
+}
+
+.flag.red {
+    background: #db3c32;
+}
+
+.flag.green {
+    background: #32a259;
+}
+
+.flag.yellow {
+    background: #e5bd25;
+}
+
+.flag-line {
+    position: absolute;
+    width: 255px;
+    height: 2px;
+    top: 19px;
+    left: 3.8%;
+    z-index: 4;
+    background: rgba(230,230,230,.55);
+    transform: rotate(-7deg);
+}
+
+.title-area {
+    position: absolute;
+    top: 5%;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 57%;
+    z-index: 10;
+    text-align: center;
+}
+
+.zone-title {
+    color: #a7c8ff;
+    font-family: "Orbitron", Arial, sans-serif;
+    font-size: clamp(28px, 3.5vw, 55px);
+    font-weight: 600;
+    letter-spacing: 3px;
+
+    text-shadow:
+        0 0 10px
+        rgba(70, 130, 255, .5);
+}
+
+.title-decoration {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    margin-top: 5px;
+}
+
+.cloud {
+    color: #d9a545;
+    font-size: clamp(26px, 3vw, 45px);
+
+    text-shadow:
+        0 0 8px
+        rgba(255, 184, 49, .45);
+}
+
+.color-strip {
+    width: 58%;
+    height: 12px;
+    display: flex;
+    transform: skewX(-25deg);
+}
+
+.color-strip span {
+    flex: 1;
+}
+
+.strip-yellow {
+    background: #ffd329;
+}
+
+.strip-orange {
+    background: #ff8c25;
+}
+
+.strip-red {
+    background: #ff4939;
+}
+
+.lab-title-box {
+    margin: 7px auto 0;
+    width: 83%;
+    padding: 9px 20px;
+    position: relative;
+
+    background:
+        linear-gradient(
+            180deg,
+            rgba(12, 44, 84, .96),
+            rgba(3, 19, 42, .96)
+        );
+
+    border:
+        4px solid #06aaff;
+
+    border-radius: 18px;
+
+    box-shadow:
+        0 0 16px
+        rgba(0, 176, 255, .75),
+        inset 0 0 20px
+        rgba(0, 82, 163, .55);
+}
+
+.lab-title {
+    color: #ffc54c;
+    font-family: "Orbitron", Arial, sans-serif;
+    font-size: clamp(31px, 4vw, 59px);
+    font-weight: 800;
+    letter-spacing: 3px;
+
+    text-shadow:
+        0 0 7px #ff7b00,
+        0 0 15px
+        rgba(255, 152, 0, .65);
+}
+
+.tagline {
+    margin: 4px auto 0;
+    width: 68%;
+    padding: 5px 15px;
+    background: rgba(4, 28, 57, .92);
+
+    border-bottom:
+        3px solid #08a9ff;
+
+    border-radius:
+        0 0 15px 15px;
+
+    color: #d9e7ff;
+    font-family: "Orbitron", Arial, sans-serif;
+    font-size: clamp(11px, 1.25vw, 18px);
+    font-weight: 600;
+    letter-spacing: 4px;
+}
+
+.tagline span {
+    color: #ffc52f;
+    padding: 0 9px;
+}
+
+.system-panel {
+    position: absolute;
+    z-index: 8;
+    top: 24%;
+    left: 1.5%;
+    width: 14%;
+    height: 54%;
+    padding: 25px 18px;
+
+    background:
+        linear-gradient(
+            145deg,
+            rgba(3, 26, 52, .96),
+            rgba(1, 9, 20, .97)
+        );
+
+    border:
+        3px solid #08b9ff;
+
+    border-radius: 18px;
+
+    box-shadow:
+        0 0 16px
+        rgba(0, 174, 255, .8),
+        inset 0 0 20px
+        rgba(0, 73, 145, .7);
+
+    transform:
+        perspective(400px)
+        rotateY(7deg);
+}
+
+.panel-title {
+    color: #13caff;
+    font-family: "Orbitron", Arial, sans-serif;
+    font-size: clamp(10px, 1.1vw, 16px);
+    font-weight: 700;
+    margin-bottom: 18px;
+
+    border-bottom:
+        2px solid #08bfff;
+
+    padding-bottom: 12px;
+}
+
+.status-row {
+    color: #0fc7ff;
+    font-size: clamp(13px, 1.25vw, 19px);
+    font-weight: 600;
+    margin: 12px 0;
+}
+
+.status-divider {
+    width: 90%;
+    height: 2px;
+    margin: 18px auto;
+    background: #08bfff;
+
+    box-shadow:
+        0 0 8px #08bfff;
+}
+
+.computer-icon {
+    text-align: center;
+    font-size: clamp(40px, 4vw, 65px);
+    color: #10c8ff;
+
+    text-shadow:
+        0 0 15px
+        #00aaff;
+}
+
+.learn-panel {
+    position: absolute;
+    z-index: 8;
+    top: 24%;
+    right: 1.5%;
+    width: 14%;
+    height: 54%;
+    padding: 25px 18px;
+
+    background:
+        linear-gradient(
+            145deg,
+            rgba(3, 26, 52, .96),
+            rgba(1, 9, 20, .97)
+        );
+
+    border:
+        3px solid #08b9ff;
+
+    border-radius: 18px;
+
+    box-shadow:
+        0 0 16px
+        rgba(0, 174, 255, .8),
+        inset 0 0 20px
+        rgba(0, 73, 145, .7);
+
+    transform:
+        perspective(400px)
+        rotateY(-7deg);
+}
+
+.learn-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin: 15px 0;
+    color: #10c8ff;
+    font-size: clamp(13px, 1.3vw, 19px);
+    font-weight: 600;
+}
+
+.learn-icon {
+    width: 27px;
+    text-align: center;
+    font-size: clamp(18px, 1.7vw, 27px);
+}
+
+.bhutan-message {
+    margin-top: 16px;
+    padding-top: 16px;
+
+    border-top:
+        2px solid #08bfff;
+
+    color: #13caff;
+    text-align: center;
+    font-size: clamp(11px, 1.1vw, 16px);
+    font-weight: 700;
+    line-height: 1.25;
+}
+
+.boy {
+    position: absolute;
+    z-index: 9;
+    left: 14.5%;
+    bottom: 1%;
+    height: min(69vh, 610px);
+    width: auto;
+    object-fit: contain;
+
+    filter:
+        drop-shadow(
+            0 10px 8px
+            rgba(0,0,0,.45)
+        );
+}
+
+.content {
+    position: absolute;
+    z-index: 9;
+    left: 32%;
+    top: 43%;
+    width: 50%;
+    text-align: left;
+}
+
+.mission-text {
+    color: #eef4ff;
+    font-size: clamp(17px, 1.75vw, 27px);
+    font-weight: 600;
+    line-height: 1.35;
+    letter-spacing: .5px;
+
+    text-shadow:
+        0 2px 4px
+        rgba(0,0,0,.8);
+}
+
+.unlock-text {
+    margin-top: 14px;
+    color: #ffd329;
+    font-size: clamp(17px, 1.7vw, 26px);
+    font-weight: 700;
+    line-height: 1.25;
+
+    text-shadow:
+        0 2px 4px
+        rgba(0,0,0,.8);
+}
+
+.star {
+    margin-right: 10px;
+    font-size: 1.25em;
+}
+
+.start-button {
+    display: block;
+    margin: 25px auto 0;
+    min-width: 56%;
+    padding: 15px 34px;
+
+    border:
+        5px solid #ffe55c;
+
+    border-radius: 22px;
+
+    background:
+        linear-gradient(
+            to bottom,
+            #fff174,
+            #ffad18
+        );
+
+    box-shadow:
+        0 0 0 4px #915100,
+        0 7px 0 #653500,
+        0 0 30px
+        rgba(255, 177, 0, .85);
+
+    color: #080808;
+    font-family: "Orbitron", Arial, sans-serif;
+    font-size: clamp(18px, 2vw, 31px);
+    font-weight: 900;
+    cursor: pointer;
+
+    transition:
+        transform .2s ease,
+        filter .2s ease,
+        box-shadow .2s ease;
+}
+
+.start-button:hover {
+    transform: scale(1.055);
+    filter: brightness(1.08);
+
+    box-shadow:
+        0 0 0 4px #915100,
+        0 7px 0 #653500,
+        0 0 42px
+        rgba(255, 193, 0, 1);
+}
+
+.start-button:active {
+    transform: scale(.97);
+}
+
+.dzong {
+    position: absolute;
+    z-index: 2;
+    right: 15%;
+    bottom: 9%;
+    width: 170px;
+    height: 125px;
+    opacity: .65;
+
+    filter:
+        drop-shadow(
+            0 0 12px
+            rgba(255, 157, 40, .25)
+        );
+}
+
+.dzong-roof {
+    position: absolute;
+    width: 150px;
+    height: 20px;
+    left: 10px;
+    top: 0;
+    background: #10121a;
+
+    clip-path:
+        polygon(
+            10% 0,
+            90% 0,
+            100% 100%,
+            0 100%
+        );
+
+    border-bottom:
+        4px solid #9c5d26;
+}
+
+.dzong-body {
+    position: absolute;
+    top: 20px;
+    left: 28px;
+    width: 115px;
+    height: 85px;
+
+    background:
+        linear-gradient(
+            #d9c79d,
+            #a78b62
+        );
+
+    border:
+        5px solid #33251d;
+}
+
+.dzong-window {
+    display: inline-block;
+    width: 12px;
+    height: 18px;
+    margin: 15px 5px 0;
+    background: #ffad2b;
+
+    box-shadow:
+        0 0 8px
+        rgba(255, 166, 30, .8);
+}
+
+.bottom-neon {
+    position: absolute;
+    z-index: 4;
+    bottom: 11%;
+    left: 36%;
+    width: 28%;
+    height: 4px;
+    background: #09c8ff;
+
+    box-shadow:
+        0 0 10px #09c8ff,
+        0 0 25px #0077ff;
+}
+
+@media (max-height: 780px) {
+
+    .title-area {
+        top: 3%;
+    }
+
+    .boy {
+        height: 64vh;
+    }
+
+    .content {
+        top: 43%;
+    }
+
+    .system-panel,
+    .learn-panel {
+        top: 25%;
+        height: 56%;
+    }
+
+    .status-row,
+    .learn-item {
+        margin: 8px 0;
+    }
+
+    .start-button {
+        margin-top: 17px;
+        padding: 11px 28px;
+    }
+}
+
+@media (max-width: 850px) {
+
+    html,
+    body {
+        overflow-y: auto;
+    }
+
+    .training-zone {
+        min-height: 100vh;
+        height: auto;
+        padding-bottom: 50px;
+    }
+
+    .system-panel,
+    .learn-panel {
+        opacity: .18;
+        width: 24%;
+    }
+
+    .boy {
+        left: -5%;
+        height: 48vh;
+        opacity: .5;
+    }
+
+    .title-area {
+        width: 88%;
+    }
+
+    .content {
+        position: relative;
+        left: auto;
+        top: auto;
+        width: 86%;
+        margin: 0 auto;
+        padding-top: 43vh;
+        text-align: center;
+    }
+
+    .mission-text,
+    .unlock-text {
+        text-align: center;
+    }
+
+    .dzong {
+        opacity: .2;
+    }
+}
+
+
+/* --- Subtle animated game-cover enhancements --- */
+@keyframes zoneReveal { from { opacity:0; transform:translate(-50%, -20px) scale(.96); filter:blur(5px); } to {opacity:1; transform:translate(-50%,0) scale(1); filter:blur(0);} }
+@keyframes contentReveal { from {opacity:0; transform:translateY(22px);} to {opacity:1; transform:translateY(0);} }
+@keyframes characterBreathe { 0%,100% {transform:translateY(0) rotate(-.5deg);} 50% {transform:translateY(-10px) rotate(.6deg);} }
+@keyframes starDrift {from {background-position:0 0;} to {background-position:75px 75px;} }
+@keyframes skyPulse {0%,100% {opacity:.65;} 50% {opacity:1;} }
+@keyframes gridTravel {from {background-position:0 0;} to {background-position:0 38px;} }
+@keyframes neonBreathe {0%,100% {box-shadow:inset 0 0 26px rgba(0,113,207,.6),0 0 12px rgba(0,174,255,.6);} 50% {box-shadow:inset 0 0 38px rgba(0,113,207,.95),0 0 26px rgba(0,174,255,1);} }
+@keyframes panelGlow {0%,100% {filter:brightness(1);} 50% {filter:brightness(1.16);} }
+@keyframes flagWave {0%,100% {transform:skewX(0deg) rotate(0deg);} 50% {transform:skewX(5deg) rotate(2deg);} }
+@keyframes goldenPulse {0%,100% {box-shadow:0 0 0 4px #915100,0 7px 0 #653500,0 0 22px rgba(255,177,0,.65);} 50% {box-shadow:0 0 0 4px #915100,0 7px 0 #653500,0 0 43px rgba(255,193,0,1);} }
+@keyframes shinePass {0% {left:-80%;} 65%,100% {left:140%;} }
+@keyframes neonLine {0%,100% {opacity:.65; transform:scaleX(.94);} 50% {opacity:1; transform:scaleX(1.04);} }
+.title-area {animation:zoneReveal 1s cubic-bezier(.2,.8,.2,1) both;}
+.content {animation:contentReveal .85s .4s ease-out both;}
+.boy {transform-origin:50% 90%; animation:characterBreathe 3.6s ease-in-out infinite;}
+.stars {animation:starDrift 25s linear infinite;}
+.sky-glow {animation:skyPulse 6s ease-in-out infinite;}
+.floor {animation:gridTravel 2.6s linear infinite;}
+.frame {animation:neonBreathe 3.4s ease-in-out infinite;}
+.system-panel,.learn-panel {animation:panelGlow 4s ease-in-out infinite;}
+.learn-panel {animation-delay:-2s;}
+.flag {transform-origin:top center; animation:flagWave 2.4s ease-in-out infinite;}
+.flag:nth-child(2) {animation-delay:-.35s;}
+.flag:nth-child(3) {animation-delay:-.7s;}
+.flag:nth-child(4) {animation-delay:-1.05s;}
+.flag:nth-child(5) {animation-delay:-1.4s;}
+.start-button {position:relative; overflow:hidden; isolation:isolate; animation:goldenPulse 2.4s ease-in-out infinite;}
+.start-button::after {content:"";position:absolute;top:-30%;bottom:-30%;left:-80%;width:28%;background:linear-gradient(90deg,transparent,rgba(255,255,255,.45),transparent);transform:skewX(-22deg);pointer-events:none;animation:shinePass 4.8s ease-in-out infinite;}
+.start-button:hover {animation-play-state:paused;}
+.start-button:disabled {animation:none;cursor:default;}
+.bottom-neon {transform-origin:center;animation:neonLine 2.5s ease-in-out infinite;}
+@media (prefers-reduced-motion:reduce) { .title-area,.content,.boy,.stars,.sky-glow,.floor,.frame,.system-panel,.learn-panel,.flag,.start-button,.start-button::after,.bottom-neon {animation:none!important;} }
+
+</style>
+</head>
+
+<body>
+
+<main class="training-zone">
+
+    <div class="sky-glow"></div>
+    <div class="stars"></div>
+
+    <div class="mountains-back"></div>
+    <div class="mountains-front"></div>
+
+    <div class="floor"></div>
+
+    <div class="frame"></div>
+
+    <div class="corner corner-tl">
+        <span></span>
+    </div>
+
+    <div class="corner corner-tr">
+        <span></span>
+    </div>
+
+    <div class="corner corner-bl">
+        <span></span>
+    </div>
+
+    <div class="corner corner-br">
+        <span></span>
+    </div>
+
+    <div class="flag-line"></div>
+
+    <div class="prayer-flags">
+        <div class="flag blue"></div>
+        <div class="flag white"></div>
+        <div class="flag red"></div>
+        <div class="flag green"></div>
+        <div class="flag yellow"></div>
+    </div>
+
+    <section class="title-area">
+
+        <h1 class="zone-title">
+            TRAINING ZONE 1
+        </h1>
+
+        <div class="title-decoration">
+
+            <div class="cloud">
+                ☁
+            </div>
+
+            <div class="color-strip">
+                <span class="strip-yellow"></span>
+                <span class="strip-orange"></span>
+                <span class="strip-red"></span>
+            </div>
+
+            <div class="cloud">
+                ☁
+            </div>
+
+        </div>
+
+        <div class="lab-title-box">
+
+            <h2 class="lab-title">
+                BASICS ZONE
+            </h2>
+
+       
+    </section>
+
+    <aside class="system-panel">
+
+        <h3 class="panel-title">
+            SYSTEM STATUS
+        </h3>
+
+        <div class="status-row">
+            System: Online
+        </div>
+
+        <div class="status-row">
+            Zone: TO1
+        </div>
+
+        <div class="status-row">
+            Missions: 4
+        </div>
+
+        <div class="status-row">
+            Status: Ready
+        </div>
+
+        <div class="status-divider"></div>
+
+        <div class="computer-icon">
+            💻
+        </div>
+
+    </aside>
+
+    <aside class="learn-panel">
+
+        <h3 class="panel-title">
+            LEARN TODAY
+        </h3>
+
+        <div class="learn-item">
+            <span class="learn-icon">🖥</span>
+            Explore
+        </div>
+
+        <div class="learn-item">
+            <span class="learn-icon">⚙</span>
+            Learn
+        </div>
+
+        <div class="learn-item">
+            <span class="learn-icon">💡</span>
+            Solve
+        </div>
+
+        <div class="learn-item">
+            <span class="learn-icon">▰</span>
+            Grow
+        </div>
+
+        <div class="bhutan-message">
+            A BRIGHTER
+            <br>
+            BHUTAN TOMORROW
+        </div>
+
+    </aside>
+
+    <img
+        class="boy"
+        src="boy.png"
+        alt="Computer Quest guide"
+    >
+
+    <section class="content">
+
+        <p class="mission-text">
+
+            Earn 100 XP by completing
+            component identification, MCQ,
+            matching and PC repair challenges.
+
+        </p>
+
+        <p class="unlock-text">
+
+            <span class="star">
+                ⭐
+            </span>
+
+            Reach 100 XP to unlock
+            TO.2 — System Decoder.
+
+        </p>
+
+        <button
+            class="start-button"
+            id="startButton"
+            onclick="startMission()">
+
+            START MISSION ▶
+
+        </button>
+
+    </section>
+
+    <div class="dzong">
+
+        <div class="dzong-roof"></div>
+
+        <div class="dzong-body">
+
+            <span class="dzong-window"></span>
+            <span class="dzong-window"></span>
+            <span class="dzong-window"></span>
+
+            <br>
+
+            <span class="dzong-window"></span>
+            <span class="dzong-window"></span>
+            <span class="dzong-window"></span>
+
+        </div>
+
+    </div>
+
+    <div class="bottom-neon"></div>
+
+</main>
+
+<audio
+    id="startSound"
+    preload="auto">
+
+    <source
+        src="start.mp3"
+        type="audio/mpeg">
+
+</audio>
+
+<script>
+
+function startMission() {
+
+    const sound =
+        document.getElementById(
+            "startSound"
+        );
+
+    const button =
+        document.getElementById(
+            "startButton"
+        );
+
+    button.disabled = true;
+
+    sound.currentTime = 0;
+
+    sound
+        .play()
+        .catch(
+            function () {}
+        );
+
+    button.innerHTML =
+        "MISSION STARTING... 🚀";
+
+    setTimeout(
+        function () {
+
+            window.location.href =
+                "tol1.html";
+
+        },
+        1200
+    );
+
+}
+
+</script>
+
+</body>
+</html>

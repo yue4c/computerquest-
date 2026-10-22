@@ -1,0 +1,1084 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width,initial-scale=1" />
+        <title>Computer Quest — Architecture Express</title>
+        <style>
+            * {
+                box-sizing: border-box;
+            }
+            html,
+            body {
+                margin: 0;
+                width: 100%;
+                height: 100%;
+                overflow: hidden;
+                font-family: Georgia, serif;
+                background: #9cb1d0;
+            }
+            button {
+                cursor: pointer;
+            }
+            #game {
+                display: block;
+                width: 100vw;
+                height: 100vh;
+                touch-action: manipulation;
+            }
+            .hud {
+                position: absolute;
+                inset: 0 0 auto;
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                padding: 12px 20px;
+                color: white;
+                font:
+                    36px Arial,
+                    sans-serif;
+                pointer-events: none;
+                text-shadow: 0 2px 5px #344;
+            }
+            .progress {
+                width: 67%;
+                height: 30px;
+                background: #ffffff5c;
+                border: 2px solid #ffffff40;
+            }
+            .progress div {
+                height: 100%;
+                background: #fff;
+                transition: width 0.3s;
+            }
+            .corner {
+                position: absolute;
+                bottom: 14px;
+                background: #ffffff2c;
+                border: 3px solid white;
+                border-radius: 9px;
+                color: white;
+                font: 30px Arial;
+                padding: 4px 12px;
+            }
+            .corner.left {
+                left: 12px;
+            }
+            .corner.right {
+                right: 14px;
+            }
+            .corner.sound {
+                right: 85px;
+            }
+            .overlay {
+                position: absolute;
+                inset: 0;
+                background: #101f39a8;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                padding: 16px;
+            }
+            .overlay.hidden {
+                display: none;
+            }
+            .modal {
+                width: min(620px, 95vw);
+                background: #fff4d7;
+                border: 8px solid #765035;
+                border-radius: 17px;
+                box-shadow: 0 18px 70px #0008;
+                text-align: center;
+                padding: 28px;
+                color: #382a29;
+            }
+            .modal h1 {
+                font-size: clamp(24px, 4vw, 42px);
+                margin: 0 0 12px;
+            }
+            .modal p {
+                font: 20px/1.4 Georgia;
+                margin: 12px 0;
+            }
+            .modal button {
+                background: #ad2f37;
+                border: 4px solid #79212a;
+                border-radius: 10px;
+                color: white;
+                font: bold 23px Georgia;
+                padding: 13px 28px;
+                margin-top: 10px;
+            }
+            .modal button:hover {
+                background: #d4444b;
+            }
+            .pill {
+                position: absolute;
+                top: 65px;
+                left: 50%;
+                transform: translateX(-50%);
+                color: #fff4ca;
+                text-shadow: 2px 2px 3px #000;
+                font: bold 21px Georgia;
+                pointer-events: none;
+            }
+            .lives {
+                position: absolute;
+                top: 65px;
+                right: 20px;
+                color: #ff5475;
+                font: 25px Arial;
+                text-shadow: 1px 2px #000;
+            }
+            .toast {
+                position: absolute;
+                top: 21%;
+                left: 50%;
+                transform: translateX(-50%);
+                color: #fff;
+                font: bold 42px Georgia;
+                text-shadow:
+                    3px 3px #3d2d33,
+                    0 0 14px #000;
+                pointer-events: none;
+                opacity: 0;
+                transition: opacity 0.2s;
+                text-align: center;
+            }
+            .toast.show {
+                opacity: 1;
+            }
+            .hint {
+                position: absolute;
+                bottom: 80px;
+                left: 50%;
+                transform: translateX(-50%);
+                font: 17px Georgia;
+                color: #fff;
+                text-shadow: 1px 2px 3px #333;
+                pointer-events: none;
+                white-space: nowrap;
+            }
+            .small {
+                font-size: 14px !important;
+            }
+            .hide {
+                display: none !important;
+            }
+        </style>
+    </head>
+    <body>
+        <canvas id="game"></canvas>
+        <div class="hud">
+            <span id="time">10:00</span>
+            <div class="progress"><div id="progress" style="width: 100%"></div></div>
+            <span id="score">✓ 0</span>
+        </div>
+        <div class="pill" id="level">LEVEL 1 — COMPUTER SYSTEM</div>
+        <div class="lives" id="lives">♥ ♥ ♥</div>
+        <div class="toast" id="toast"></div>
+        <div class="hint" id="hint">Tap an airship to drop its answer into the train!</div>
+        <button class="corner left" id="menu">☰</button
+        ><button class="corner sound" id="sound">◖))</button
+        ><button class="corner right" id="full">⛶</button>
+        <div class="overlay" id="overlay">
+            <div class="modal">
+                <h1 id="modalTitle">🚂 ARCHITECTURE EXPRESS</h1>
+                <p id="modalText">
+                    Help the Bhutanese Computer Quest Express restore the computer system! Read the
+                    clue on the train and click the correct flying airship. Pop the correct flying
+                    answers to complete the situations shown on the train carriages before time runs
+                    out. You lose one life only if you cannot finish within 10 minutes.
+                </p>
+                <button id="go">START GAME ▶</button>
+            </div>
+        </div>
+        <script>
+            (() => {
+                "use strict";
+                const canvas = document.getElementById("game"),
+                    ctx = canvas.getContext("2d"),
+                    $ = (id) => document.getElementById(id);
+                let W = 0,
+                    H = 0,
+                    scale = 1,
+                    t = 0,
+                    last = 0,
+                    playing = false,
+                    paused = false,
+                    seconds = 600,
+                    lives = 3,
+                    score = 0,
+                    question = 0,
+                    ships = [],
+                    particles = [],
+                    drops = [],
+                    nextId = 0,
+                    spawn = 0,
+                    locked = false,
+                    muted = false,
+                    raf = 0,
+                    introCountdown = 0,
+                    optionBag = [],
+                    lastOption = null,
+                    smoke = [],
+                    levelIndex = 0,
+                    solved = new Set(),
+                    trainShift = 0;
+                let state = "intro";
+                const trainBgAudio = new Audio("trainbg.mp3"),
+                    trainEntryAudio = new Audio("train.mp3"),
+                    trainMoveAudio = new Audio("tmove.mp3");
+                trainBgAudio.loop = false;
+                trainBgAudio.volume = 0.35;
+                trainEntryAudio.volume = 0.8;
+                trainMoveAudio.volume = 0.55;
+                trainMoveAudio.loop = true;
+                trainEntryAudio.addEventListener("ended", () => {
+                    if (playing && !muted) {
+                        trainMoveAudio.currentTime = 0;
+                        trainMoveAudio.play().catch(() => {});
+                    }
+                });
+                function startTrainBackground() {
+                    if (muted || trainBgAudio.ended) return;
+                    trainBgAudio.play().catch(() => {});
+                }
+                function playTrainEntry() {
+                    trainMoveAudio.pause();
+                    trainMoveAudio.currentTime = 0;
+                    if (muted) return;
+                    trainEntryAudio.pause();
+                    trainEntryAudio.currentTime = 0;
+                    trainEntryAudio.play().catch(() => {});
+                }
+                const questions = [
+                    {
+                        q: "Device used to enter letters and numbers into a computer.",
+                        a: "Keyboard",
+                        opts: ["Keyboard", "Monitor", "Printer", "RAM"],
+                    },
+                    {
+                        q: "Pointing input device used to click and select items.",
+                        a: "Mouse",
+                        opts: ["Mouse", "ROM", "CPU", "Speaker"],
+                    },
+                    {
+                        q: "The brain of the computer that processes instructions.",
+                        a: "CPU",
+                        opts: ["CPU", "Keyboard", "ROM", "Monitor"],
+                    },
+                    {
+                        q: "Temporary memory that loses data when power is off.",
+                        a: "RAM",
+                        opts: ["RAM", "ROM", "SSD", "Printer"],
+                    },
+                    {
+                        q: "Non-volatile memory containing startup instructions.",
+                        a: "ROM",
+                        opts: ["ROM", "RAM", "ALU", "Mouse"],
+                    },
+                    {
+                        q: "The CPU component that controls and coordinates operations.",
+                        a: "Control Unit",
+                        opts: ["Control Unit", "ALU", "RAM", "Monitor"],
+                    },
+                    {
+                        q: "CPU component that performs calculations and comparisons.",
+                        a: "ALU",
+                        opts: ["ALU", "CU", "ROM", "Printer"],
+                    },
+                    {
+                        q: "Small, very fast storage locations inside the CPU.",
+                        a: "Registers",
+                        opts: ["Registers", "Hard Drive", "Monitor", "Mouse"],
+                    },
+                    {
+                        q: "First stage of the CPU instruction cycle.",
+                        a: "Fetch",
+                        opts: ["Fetch", "Execute", "Output", "Store"],
+                    },
+                    {
+                        q: "Stage when the CPU interprets an instruction.",
+                        a: "Decode",
+                        opts: ["Decode", "Fetch", "Input", "Print"],
+                    },
+                    {
+                        q: "Stage when the CPU carries out the instruction.",
+                        a: "Execute",
+                        opts: ["Execute", "Decode", "Fetch", "Display"],
+                    },
+                    {
+                        q: "Device that displays visual output from the computer.",
+                        a: "Monitor",
+                        opts: ["Monitor", "Keyboard", "ROM", "CPU"],
+                    },
+                    {
+                        q: "Board connecting the CPU, memory and other components.",
+                        a: "Motherboard",
+                        opts: ["Motherboard", "Mouse", "ALU", "Printer"],
+                    },
+                    {
+                        q: "Permanent storage device used for files and programs.",
+                        a: "SSD / HDD",
+                        opts: ["SSD / HDD", "RAM", "Registers", "CU"],
+                    },
+                    {
+                        q: "The order in which a CPU handles instructions.",
+                        a: "Fetch → Decode → Execute",
+                        opts: [
+                            "Fetch → Decode → Execute",
+                            "Execute → Fetch → Decode",
+                            "Decode → Execute → Fetch",
+                            "Input → Output → CPU",
+                        ],
+                    },
+                ];
+                const stages = [
+                    { name: "COMPUTER SYSTEM", qs: [0], color: "#a42d38", car: "#b73d4c" },
+                    { name: "INPUT & MEMORY", qs: [1, 3], color: "#2768a2", car: "#377dc0" },
+                    { name: "CPU ARCHITECTURE", qs: [5, 6, 7], color: "#23846d", car: "#34a58a" },
+                    {
+                        name: "INSTRUCTION CYCLE",
+                        qs: [8, 9, 10, 14],
+                        color: "#8c4db1",
+                        car: "#ae65d0",
+                    },
+                ];
+                function activeQuestions() {
+                    return stages[levelIndex].qs.filter((i) => !solved.has(i));
+                }
+                function questionForShip() {
+                    const remaining = activeQuestions();
+                    return remaining.length
+                        ? remaining[Math.floor(Math.random() * remaining.length)]
+                        : null;
+                }
+                function resize() {
+                    W = innerWidth;
+                    H = innerHeight;
+                    scale = Math.min(W / 1300, H / 680);
+                    canvas.width = W * devicePixelRatio;
+                    canvas.height = H * devicePixelRatio;
+                    ctx.setTransform(devicePixelRatio, 0, 0, devicePixelRatio, 0, 0);
+                }
+                addEventListener("resize", resize);
+                resize();
+                function rr(x, y, w, h, r, fill, stroke, lw = 1) {
+                    ctx.beginPath();
+                    ctx.roundRect(x, y, w, h, r);
+                    if (fill) {
+                        ctx.fillStyle = fill;
+                        ctx.fill();
+                    }
+                    if (stroke) {
+                        ctx.lineWidth = lw;
+                        ctx.strokeStyle = stroke;
+                        ctx.stroke();
+                    }
+                }
+                function text(
+                    s,
+                    x,
+                    y,
+                    size = 20,
+                    color = "#fff",
+                    align = "center",
+                    font = "Georgia",
+                    stroke = null,
+                ) {
+                    ctx.font = `bold ${size}px ${font}`;
+                    ctx.textAlign = align;
+                    ctx.textBaseline = "middle";
+                    if (stroke) {
+                        ctx.strokeStyle = stroke;
+                        ctx.lineWidth = Math.max(2, size / 5);
+                        ctx.lineJoin = "round";
+                        ctx.strokeText(s, x, y);
+                    }
+                    ctx.fillStyle = color;
+                    ctx.fillText(s, x, y);
+                }
+                function poly(points, fill) {
+                    ctx.beginPath();
+                    points.forEach(([x, y], i) => (i ? ctx.lineTo(x, y) : ctx.moveTo(x, y)));
+                    ctx.closePath();
+                    ctx.fillStyle = fill;
+                    ctx.fill();
+                }
+                function cloud(x, y, k = 1, alpha = 0.7) {
+                    ctx.save();
+                    ctx.globalAlpha = alpha;
+                    ctx.fillStyle = "#f4f6ff";
+                    for (let i = 0; i < 5; i++) {
+                        ctx.beginPath();
+                        ctx.ellipse(
+                            x + (i - 2) * 26 * k,
+                            y + Math.sin(i) * 9 * k,
+                            (32 + (i % 2) * 10) * k,
+                            (20 + (i % 3) * 7) * k,
+                            0,
+                            0,
+                            Math.PI * 2,
+                        );
+                        ctx.fill();
+                    }
+                    ctx.restore();
+                }
+                function background() {
+                    const sky = ctx.createLinearGradient(0, 0, 0, H);
+                    sky.addColorStop(0, "#a6b3d8");
+                    sky.addColorStop(0.68, "#dce9f6");
+                    sky.addColorStop(0.7, "#f3d9ad");
+                    sky.addColorStop(1, "#b48959");
+                    ctx.fillStyle = sky;
+                    ctx.fillRect(0, 0, W, H);
+                    for (let layer = 0; layer < 3; layer++) {
+                        let step = 120 + layer * 28,
+                            base = H * (0.49 + layer * 0.08);
+                        for (let i = -1; i < W / step + 2; i++) {
+                            let x = i * step + ((layer * 51) % step),
+                                peak =
+                                    base -
+                                    (100 + Math.abs(Math.sin(i * 3.3 + layer)) * 125) *
+                                        (1 - layer * 0.16);
+                            poly(
+                                [
+                                    [x - 90, base + 70],
+                                    [x - 40, base - 15],
+                                    [x - 15, base - 55],
+                                    [x + 6, peak],
+                                    [x + 27, peak + 35],
+                                    [x + 42, base - 20],
+                                    [x + 88, base + 70],
+                                ],
+                                ["#a4b3d4", "#9caaca", "#b0b0c8"][layer],
+                            );
+                        }
+                    }
+                    for (let i = 0; i < 9; i++)
+                        cloud(
+                            ((((i * 221 - t * (3 + (i % 3))) % (W + 300)) + W + 300) % (W + 300)) -
+                                100,
+                            H * 0.22 + (i % 3) * 42,
+                            0.55 + (i % 3) * 0.25,
+                            0.2 + (i % 3) * 0.13,
+                        );
+                    ctx.fillStyle = "#dfbc87";
+                    ctx.fillRect(0, H * 0.73, W, H * 0.27);
+                    for (let i = 0; i < 26; i++) {
+                        let x = ((((i * 119 - t * 8) % (W + 150)) + W + 150) % (W + 150)) - 50;
+                        ctx.fillStyle = i % 2 ? "#e4c491" : "#cba876";
+                        ctx.beginPath();
+                        ctx.ellipse(x, H * 0.84 + (i % 3) * 16, 45, 8, 0, 0, Math.PI * 2);
+                        ctx.fill();
+                    }
+                    for (let i = 0; i < 9; i++) {
+                        let x = ((((i * 240 - t * 14) % (W + 300)) + W + 300) % (W + 300)) - 100,
+                            y = H * 0.72 + (i % 2) * 14;
+                        drawCactus(x, y, 0.65 + (i % 3) * 0.16);
+                    }
+                    const railY = H * 0.885;
+                    ctx.fillStyle = "#8a6645";
+                    ctx.fillRect(0, railY, W, H - railY);
+                    ctx.fillStyle = "#49443e";
+                    ctx.fillRect(0, railY + 8, W, 8);
+                    ctx.fillRect(0, railY + 36, W, 8);
+                    for (let i = 0; i < W / 47 + 2; i++) {
+                        let x = ((((i * 47 - t * 115) % (W + 47)) + W + 47) % (W + 47)) - 47;
+                        ctx.fillStyle = "#6d5641";
+                        ctx.fillRect(x, railY + 8, 29, 46);
+                        ctx.fillStyle = "#9a7a55";
+                        ctx.fillRect(x, railY + 15, 29, 7);
+                    }
+                }
+                function drawCactus(x, y, k) {
+                    ctx.save();
+                    ctx.translate(x, y);
+                    ctx.scale(k, k);
+                    ctx.strokeStyle = "#5e8b58";
+                    ctx.lineWidth = 13;
+                    ctx.lineCap = "round";
+                    ctx.beginPath();
+                    ctx.moveTo(0, 0);
+                    ctx.lineTo(0, -74);
+                    ctx.moveTo(0, -28);
+                    ctx.lineTo(-22, -35);
+                    ctx.lineTo(-24, -61);
+                    ctx.moveTo(0, -48);
+                    ctx.lineTo(23, -55);
+                    ctx.lineTo(25, -79);
+                    ctx.stroke();
+                    ctx.strokeStyle = "#acd19b";
+                    ctx.lineWidth = 2;
+                    ctx.beginPath();
+                    ctx.moveTo(-3, 0);
+                    ctx.lineTo(-3, -74);
+                    ctx.stroke();
+                    ctx.restore();
+                }
+                function train() {
+                    const stage = stages[levelIndex],
+                        n = stage.qs.length,
+                        sc = Math.min(1, (W - 80) / (n * 240 + 322)),
+                        baseX =
+                            W / 2 +
+                            ((n * 240 + 278) * sc) / 2 +
+                            Math.sin(t * 1.35) * Math.min(48, W * 0.035),
+                        y = H * 0.81;
+                    trainShift = baseX;
+                    ctx.save();
+                    ctx.translate(baseX, y);
+                    ctx.scale(sc, sc);
+                    const gold = "#e6c069",
+                        engine = stage.color,
+                        car = stage.car;
+                    // Every stage adds another real carriage with its own question.
+                    for (let j = 0; j < n; j++) {
+                        const qid = stage.qs[j],
+                            x = -300 - (n - j) * 240,
+                            done = solved.has(qid);
+                        rr(x, -65, 226, 83, 5, done ? "#52765a" : car, gold, 5);
+                        rr(x + 8, -55, 210, 62, 3, done ? "#3c684d" : "#67405e", gold, 3);
+                        for (let w = 0; w < 2; w++) {
+                            ctx.beginPath();
+                            ctx.arc(x + 52 + w * 120, 25, 18, 0, Math.PI * 2);
+                            ctx.fillStyle = "#594139";
+                            ctx.fill();
+                            ctx.strokeStyle = gold;
+                            ctx.lineWidth = 4;
+                            ctx.stroke();
+                        }
+                        ctx.save();
+                        ctx.translate(x + 113, -24);
+                        wrapText(
+                            introCountdown > 0
+                                ? "POP THE CORRECT ITEM"
+                                : done
+                                  ? "✓ CORRECT"
+                                  : questions[qid].q,
+                            0,
+                            0,
+                            198,
+                            16,
+                            15,
+                            "#ffe9a6",
+                        );
+                        ctx.restore();
+                    }
+                    rr(-300, -84, 268, 101, 9, engine, gold, 5);
+                    rr(-264, -120, 66, 44, 4, engine, gold, 4);
+                    rr(-258, -112, 52, 29, 2, "#253d52", gold, 2);
+                    text(String(levelIndex + 1), -232, -96, 24, "#fff0a7");
+                    rr(-100, -124, 28, 61, 4, "#373d43", gold, 3);
+                    rr(-35, -110, 26, 48, 4, "#3a3a40", gold, 3);
+                    rr(-278, -60, 268, 63, 8, engine, gold, 3);
+                    for (let i = 0; i < 5; i++) {
+                        ctx.beginPath();
+                        ctx.arc(-267 + i * 53, 24, 21, 0, Math.PI * 2);
+                        ctx.fillStyle = "#5c3b34";
+                        ctx.fill();
+                        ctx.lineWidth = 4;
+                        ctx.strokeStyle = gold;
+                        ctx.stroke();
+                    }
+                    poly(
+                        [
+                            [-26, -60],
+                            [22, 17],
+                            [-32, 17],
+                        ],
+                        "#d8b46b",
+                    );
+                    ctx.restore();
+                }
+                function wrapText(str, x, y, maxWidth, lineHeight, size, color) {
+                    ctx.font = `bold ${size}px Georgia`;
+                    let words = str.split(" "),
+                        lines = [],
+                        line = "";
+                    for (let w of words) {
+                        let next = line ? line + " " + w : w;
+                        if (ctx.measureText(next).width > maxWidth && line) {
+                            lines.push(line);
+                            line = w;
+                        } else line = next;
+                    }
+                    lines.push(line);
+                    let start = y - ((lines.length - 1) * lineHeight) / 2;
+                    lines.forEach((s, i) =>
+                        text(
+                            s,
+                            x,
+                            start + i * lineHeight,
+                            size,
+                            color,
+                            "center",
+                            "Georgia",
+                            "#754a36",
+                        ),
+                    );
+                }
+                function drawShip(s) {
+                    let x = s.x,
+                        y = s.y + Math.sin(t * 1.7 + s.phase) * 7,
+                        k = s.size;
+                    ctx.save();
+                    ctx.translate(x, y);
+                    ctx.scale(k, k);
+                    ctx.globalAlpha = s.hit ? 0.35 : 1;
+                    ctx.fillStyle = "#8a98bc";
+                    ctx.beginPath();
+                    ctx.ellipse(0, 0, 105, 42, 0, 0, Math.PI * 2);
+                    ctx.fill();
+                    ctx.strokeStyle = "#52678e";
+                    ctx.lineWidth = 3;
+                    ctx.stroke();
+                    ctx.fillStyle = "#d4dff2";
+                    ctx.beginPath();
+                    ctx.ellipse(-8, -15, 81, 18, 0, Math.PI, Math.PI * 2);
+                    ctx.fill();
+                    ctx.fillStyle = "#7487ad";
+                    ctx.fillRect(-50, 32, 95, 12);
+                    rr(-42, 40, 75, 15, 4, "#677da2", "#40577c", 2);
+                    poly(
+                        [
+                            [95, -16],
+                            [121, -32],
+                            [120, 29],
+                            [93, 18],
+                        ],
+                        "#8194b9",
+                    );
+                    for (let i = 0; i < 4; i++) {
+                        ctx.beginPath();
+                        ctx.arc(-26 + i * 18, 48, 3, 0, Math.PI * 2);
+                        ctx.fillStyle = "#b8c9e1";
+                        ctx.fill();
+                    }
+                    rr(-69, -24, 138, 49, 4, "#f8f7ef", "#c4d3e0", 1);
+                    let label = s.label;
+                    let size =
+                        label.length > 19
+                            ? 12
+                            : label.length > 13
+                              ? 15
+                              : label.length > 9
+                                ? 18
+                                : 23;
+                    wrapText(label, 0, 0, 125, size + 1, size, "#152032");
+                    ctx.restore();
+                }
+                function burst(x, y, good) {
+                    for (let i = 0; i < 20; i++) {
+                        let a = Math.random() * Math.PI * 2,
+                            v = 60 + Math.random() * 150;
+                        particles.push({
+                            x,
+                            y,
+                            vx: Math.cos(a) * v,
+                            vy: Math.sin(a) * v,
+                            life: 0.7 + Math.random() * 0.4,
+                            c: good ? "#ffd55c" : "#ed4c58",
+                        });
+                    }
+                }
+                function update(dt) {
+                    t += dt;
+                    smoke.forEach((p) => {
+                        p.x += p.vx * dt;
+                        p.y += p.vy * dt;
+                        p.radius += 17 * dt;
+                        p.life -= dt;
+                    });
+                    smoke = smoke.filter((p) => p.life > 0);
+                    particles.forEach((p) => {
+                        p.x += p.vx * dt;
+                        p.y += p.vy * dt;
+                        p.vy += 80 * dt;
+                        p.life -= dt;
+                    });
+                    particles = particles.filter((p) => p.life > 0);
+                    if (!paused) {
+                        for (const d of drops) {
+                            d.elapsed += dt;
+                            if (d.elapsed >= d.duration && !d.done) {
+                                d.done = true;
+                                burst(d.targetX, d.targetY, d.good);
+                                if (d.good) {
+                                    score += 10;
+                                    solved.add(d.qid);
+                                    ships = ships.filter((s) => s.qid !== d.qid);
+                                    question++;
+                                    toast("BINGO! KEEP GOING!");
+                                    if (solved.size === stages[levelIndex].qs.length) {
+                                        ships = [];
+                                        optionBag = [];
+                                        lastOption = null;
+                                        spawn = 0.2;
+                                    }
+                                    if (solved.size === stages[levelIndex].qs.length) {
+                                        if (levelIndex === 3) end(true);
+                                        else {
+                                            levelIndex++;
+                                            solved.clear();
+                                            ships = [];
+                                            introCountdown = 3;
+                                            playTrainEntry();
+                                            toast("NEW SITUATIONS!");
+                                        }
+                                    }
+                                }
+                                locked = false;
+                            }
+                        }
+                        drops = drops.filter((d) => !d.done);
+                    }
+                    if (!playing || paused) return;
+                    if (Math.random() < dt * 12) {
+                        let sc = Math.min(1, (W - 80) / (stages[levelIndex].qs.length * 240 + 322));
+                        smoke.push({
+                            x: trainShift - 85 * sc,
+                            y: H * 0.81 - 127 * sc,
+                            vx: -40 - Math.random() * 30,
+                            vy: -48 - Math.random() * 35,
+                            radius: 7 + Math.random() * 7,
+                            life: 1.6 + Math.random() * 0.7,
+                        });
+                    }
+                    if (introCountdown > 0) {
+                        introCountdown = Math.max(0, introCountdown - dt);
+                        if (introCountdown === 0) {
+                            spawn = 0.1;
+                            optionBag = [];
+                            lastOption = null;
+                        }
+                        hud();
+                        return;
+                    }
+                    seconds -= dt;
+                    spawn -= dt;
+                    if (spawn <= 0 && ships.length < 7) {
+                        createShip();
+                        spawn = 0.9 + Math.random() * 0.55;
+                    }
+                    ships.forEach((s) => (s.x -= s.speed * dt));
+                    ships = ships.filter((s) => s.x > -180 && !s.hit);
+                    if (seconds <= 0) {
+                        seconds = 600;
+                        lives--;
+                        ships = [];
+                        spawn = 0.2;
+                        if (lives <= 0) {
+                            end(
+                                false,
+                                "All three lives were used after the 10-minute time limits.",
+                            );
+                        } else {
+                            toast("⏰ TIME UP! −1 LIFE");
+                            playSound(170);
+                        }
+                    }
+                    hud();
+                }
+                function createShip() {
+                    const qid = questionForShip();
+                    if (qid === null) return;
+                    const q = questions[qid];
+                    let labels = q.opts;
+                    let choices = labels.filter(
+                        (v) => !ships.some((s) => s.label === v && s.qid === qid),
+                    );
+                    if (!ships.some((s) => s.qid === qid && s.label === q.a))
+                        choices = [q.a, ...choices.filter((v) => v !== q.a)];
+                    if (!choices.length) return;
+                    let label =
+                        choices.includes(q.a) &&
+                        !ships.some((s) => s.qid === qid && s.label === q.a)
+                            ? q.a
+                            : choices[Math.floor(Math.random() * choices.length)];
+                    if (choices.length > 1 && label === lastOption)
+                        label = choices.find((v) => v !== lastOption) || label;
+                    lastOption = label;
+                    let y = H * (0.18 + Math.random() * 0.27);
+                    ships.push({
+                        id: nextId++,
+                        qid,
+                        label,
+                        x: W + 100 + Math.random() * 110,
+                        y,
+                        size: 0.7 + Math.random() * 0.3,
+                        speed: 85 + Math.random() * 65,
+                        phase: Math.random() * 10,
+                    });
+                }
+                function hud() {
+                    $("time").textContent =
+                        Math.floor(seconds / 60) +
+                        ":" +
+                        String(Math.floor(seconds % 60)).padStart(2, "0");
+                    $("progress").style.width = (seconds / 600) * 100 + "%";
+                    $("score").textContent = "✓ " + score;
+                    $("lives").textContent = "♥ ".repeat(lives);
+                    $("level").textContent =
+                        "LEVEL " +
+                        (levelIndex + 1) +
+                        " — " +
+                        stages[levelIndex].name +
+                        " — " +
+                        solved.size +
+                        "/" +
+                        stages[levelIndex].qs.length +
+                        " CARTS";
+                }
+                function toast(s) {
+                    $("toast").textContent = s;
+                    $("toast").classList.add("show");
+                    clearTimeout(toast.timer);
+                    toast.timer = setTimeout(() => $("toast").classList.remove("show"), 950);
+                }
+                function click(e) {
+                    if (!playing || paused || locked || introCountdown > 0) return;
+                    const r = canvas.getBoundingClientRect(),
+                        x = ((e.clientX - r.left) * W) / r.width,
+                        y = ((e.clientY - r.top) * H) / r.height;
+                    let picked = -1,
+                        best = Infinity;
+                    for (let i = 0; i < ships.length; i++) {
+                        const s = ships[i],
+                            sy = s.y + Math.sin(t * 1.7 + s.phase) * 7;
+                        if (solved.has(s.qid)) continue;
+                        const dx = Math.abs(x - s.x) / (s.size * 122),
+                            dy = Math.abs(y - sy) / (s.size * 67);
+                        if (dx <= 1 && dy <= 1) {
+                            const distance = dx * dx + dy * dy;
+                            if (distance < best) {
+                                best = distance;
+                                picked = i;
+                            }
+                        }
+                    }
+                    if (picked < 0) return;
+                    const s = ships[picked],
+                        sy = s.y + Math.sin(t * 1.7 + s.phase) * 7,
+                        good = s.label === questions[s.qid].a;
+                    ships.splice(picked, 1);
+                    locked = good;
+                    const n = stages[levelIndex].qs.length,
+                        sc = Math.min(1, (W - 80) / (n * 240 + 322));
+                    const targetX =
+                        trainShift +
+                        (-300 - (n - stages[levelIndex].qs.indexOf(s.qid)) * 240 + 113) * sc;
+                    drops.push({
+                        x: s.x,
+                        y: sy,
+                        targetX,
+                        targetY: H * 0.81 - 36,
+                        qid: s.qid,
+                        elapsed: 0,
+                        duration: 0.85,
+                        label: s.label,
+                        good,
+                        size: s.size,
+                    });
+                    playSound(good ? 700 : 170);
+                    if (good) toast("BINGO! KEEP GOING!");
+                }
+                function playSound(freq) {
+                    if (muted) return;
+                    try {
+                        let A = window.AudioContext || window.webkitAudioContext,
+                            a = new A(),
+                            o = a.createOscillator(),
+                            g = a.createGain();
+                        o.type = "sine";
+                        o.frequency.setValueAtTime(freq, a.currentTime);
+                        o.frequency.exponentialRampToValueAtTime(freq * 0.65, a.currentTime + 0.17);
+                        g.gain.setValueAtTime(0.12, a.currentTime);
+                        g.gain.exponentialRampToValueAtTime(0.001, a.currentTime + 0.19);
+                        o.connect(g);
+                        g.connect(a.destination);
+                        o.start();
+                        o.stop(a.currentTime + 0.2);
+                        setTimeout(() => a.close(), 500);
+                    } catch (e) {}
+                }
+                function end(won, reason) {
+                    trainBgAudio.pause();
+                    trainEntryAudio.pause();
+                    trainMoveAudio.pause();
+                    playing = false;
+                    state = won ? "won" : "lost";
+                    if (won) {
+                        localStorage.setItem("to3lfCompleted", "true");
+                        localStorage.setItem(
+                            "to3XP",
+                            String(Number(localStorage.getItem("to3XP") || 0) + 25),
+                        );
+                    }
+                    show(
+                        won ? "🏆 SYSTEM RESTORED!" : "💔 TRY AGAIN",
+                        won
+                            ? "You restored the Architecture Express! Final score: " + score
+                            : reason + " You answered " + question + " questions.",
+                        "PLAY AGAIN",
+                        start,
+                    );
+                }
+                function show(title, body, button, fn) {
+                    $("modalTitle").textContent = title;
+                    $("modalText").textContent = body;
+                    $("go").textContent = button;
+                    $("overlay").classList.remove("hidden");
+                    $("go").onclick = fn;
+                }
+                function start() {
+                    trainMoveAudio.pause();
+                    trainMoveAudio.currentTime = 0;
+                    trainBgAudio.currentTime = 0;
+                    startTrainBackground();
+                    playTrainEntry();
+                    seconds = 600;
+                    lives = 3;
+                    score = 0;
+                    question = 0;
+                    levelIndex = 0;
+                    solved.clear();
+                    ships = [];
+                    particles = [];
+                    drops = [];
+                    smoke = [];
+                    optionBag = [];
+                    lastOption = null;
+                    introCountdown = 5;
+                    spawn = 0.2;
+                    locked = false;
+                    playing = true;
+                    paused = false;
+                    state = "playing";
+                    $("overlay").classList.add("hidden");
+                    hud();
+                }
+                function render() {
+                    background();
+                    for (let s of ships) drawShip(s);
+                    train();
+                    for (const p of smoke) {
+                        ctx.save();
+                        ctx.globalAlpha = Math.max(0, Math.min(0.6, p.life * 0.34));
+                        ctx.fillStyle = "#d9dce0";
+                        ctx.beginPath();
+                        ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
+                        ctx.fill();
+                        ctx.restore();
+                    }
+                    for (const d of drops) {
+                        const u = Math.min(1, d.elapsed / d.duration),
+                            ease = u * u * (3 - 2 * u);
+                        const x = d.x + (d.targetX - d.x) * ease,
+                            y = d.y + (d.targetY - d.y) * ease - 65 * Math.sin(Math.PI * u);
+                        ctx.save();
+                        ctx.globalAlpha = 1 - u * 0.1;
+                        ctx.translate(x, y);
+                        ctx.rotate(u * Math.PI * 0.35);
+                        ctx.fillStyle = d.good ? "#fff2a9" : "#ffe2e2";
+                        ctx.strokeStyle = d.good ? "#efb82c" : "#e16c7a";
+                        ctx.lineWidth = 3;
+                        ctx.fillRect(-70, -23, 140, 46);
+                        ctx.strokeRect(-70, -23, 140, 46);
+                        wrapText(d.label, 0, 0, 130, 16, d.label.length > 18 ? 12 : 17, "#24324a");
+                        ctx.restore();
+                    }
+                    if (playing && introCountdown > 0) {
+                        ctx.save();
+                        ctx.fillStyle = "#fff9dd";
+                        ctx.strokeStyle = "#644832";
+                        ctx.lineWidth = 5;
+                        ctx.font = "bold " + Math.min(54, W * 0.055) + "px Georgia";
+                        ctx.textAlign = "center";
+                        ctx.strokeText(String(Math.ceil(introCountdown)), W / 2, H * 0.34);
+                        ctx.fillText(String(Math.ceil(introCountdown)), W / 2, H * 0.34);
+                        ctx.restore();
+                    }
+                    for (let p of particles) {
+                        ctx.globalAlpha = Math.max(0, p.life);
+                        ctx.fillStyle = p.c;
+                        ctx.beginPath();
+                        ctx.arc(p.x, p.y, 5, 0, Math.PI * 2);
+                        ctx.fill();
+                        ctx.globalAlpha = 1;
+                    }
+                    if (!playing && state === "intro") {
+                        ctx.save();
+                        ctx.globalAlpha = 0.3;
+                        text(
+                            "ARCHITECTURE EXPRESS",
+                            W / 2,
+                            H * 0.27,
+                            Math.min(55, W * 0.045),
+                            "#fff",
+                            "center",
+                            "Georgia",
+                            "#223a55",
+                        );
+                        ctx.restore();
+                    }
+                }
+                function loop(now) {
+                    let dt = Math.min(0.04, (now - last) / 1000 || 0);
+                    last = now;
+                    if (!paused) update(dt);
+                    render();
+                    raf = requestAnimationFrame(loop);
+                }
+                canvas.addEventListener("pointerdown", click);
+                $("menu").onclick = () => {
+                    if (state === "playing") {
+                        paused = true;
+                        show(
+                            "⏸ GAME PAUSED",
+                            "Resume the Architecture Express, or restart the game.",
+                            "RESUME",
+                            () => {
+                                paused = false;
+                                $("overlay").classList.add("hidden");
+                            },
+                        );
+                    } else
+                        show(
+                            "🚂 ARCHITECTURE EXPRESS",
+                            "Pop the correct flying airship for each computer-system clue.",
+                            "START",
+                            start,
+                        );
+                };
+                $("sound").onclick = () => {
+                    muted = !muted;
+                    if (muted) {
+                        trainBgAudio.pause();
+                        trainEntryAudio.pause();
+                        trainMoveAudio.pause();
+                    } else if (playing) {
+                        startTrainBackground();
+                        if (
+                            !trainEntryAudio.ended &&
+                            trainEntryAudio.currentTime < trainEntryAudio.duration
+                        ) {
+                            trainEntryAudio.play().catch(() => {});
+                        } else {
+                            trainMoveAudio.play().catch(() => {});
+                        }
+                    }
+                    $("sound").textContent = muted ? "◖×" : "◖))";
+                };
+                $("full").onclick = () => {
+                    if (!document.fullscreenElement) document.documentElement.requestFullscreen?.();
+                    else document.exitFullscreen?.();
+                };
+                $("go").onclick = start;
+                hud();
+                requestAnimationFrame(loop);
+            })();
+        </script>
+    </body>
+</html>

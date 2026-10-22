@@ -1,0 +1,4015 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Computer Quest - Data Flow Defender</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;600;700;800;900&family=Rajdhani:wght@500;600;700&display=swap" rel="stylesheet">
+
+<style>
+
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+}
+
+html,body{
+    width:100%;
+    height:100%;
+    overflow:hidden;
+}
+
+body{
+    background:#020817;
+    color:white;
+    font-family:"Rajdhani",sans-serif;
+}
+
+button{
+    font-family:"Orbitron",sans-serif;
+}
+
+/* =========================================================
+   MAIN SCREEN
+========================================================= */
+
+#game{
+    width:100vw;
+    height:100vh;
+    position:relative;
+    overflow:hidden;
+
+    background:
+        radial-gradient(circle at 50% 35%,rgba(12,76,130,.85),transparent 45%),
+        linear-gradient(180deg,#031326 0%,#020817 65%,#03152a 100%);
+}
+
+#game::before{
+    content:"";
+    position:absolute;
+    inset:0;
+
+    background:
+        linear-gradient(rgba(0,190,255,.05) 1px,transparent 1px),
+        linear-gradient(90deg,rgba(0,190,255,.05) 1px,transparent 1px);
+
+    background-size:55px 55px;
+}
+
+.star{
+    position:absolute;
+    width:3px;
+    height:3px;
+    background:#9adfff;
+    border-radius:50%;
+    opacity:.5;
+}
+
+/* =========================================================
+   FRAME
+========================================================= */
+
+.frame{
+    position:absolute;
+    inset:15px;
+
+    border:4px solid #00baff;
+    border-radius:38px;
+
+    box-shadow:
+        inset 0 0 35px rgba(0,160,255,.25),
+        0 0 25px rgba(0,170,255,.55);
+
+    z-index:100;
+    pointer-events:none;
+}
+
+/* =========================================================
+   FLAGS
+========================================================= */
+
+.flags{
+    position:absolute;
+    left:48px;
+    top:20px;
+    display:flex;
+    z-index:60;
+}
+
+.flag{
+    width:42px;
+    height:58px;
+    margin-right:5px;
+
+    clip-path:polygon(
+        0 0,
+        100% 0,
+        100% 72%,
+        50% 100%,
+        0 72%
+    );
+}
+
+.blue{background:#079ee5;}
+.white{background:#e9f5ff;}
+.red{background:#df3b43;}
+.green{background:#23a45e;}
+.yellow{background:#f2cb31;}
+
+/* =========================================================
+   HEADER
+========================================================= */
+
+.header{
+    position:absolute;
+    top:25px;
+    left:50%;
+    transform:translateX(-50%);
+    text-align:center;
+    z-index:50;
+}
+
+.zone{
+    font-family:"Orbitron";
+    letter-spacing:5px;
+    font-size:13px;
+    color:#80caff;
+}
+
+.title{
+    margin-top:5px;
+    font-family:"Orbitron";
+    font-weight:900;
+    font-size:35px;
+    color:#ffc33d;
+
+    text-shadow:
+        0 0 7px #ffb000,
+        0 0 20px rgba(255,140,0,.75);
+}
+
+.subtitle{
+    margin-top:4px;
+    font-size:17px;
+    color:#e0f3ff;
+}
+
+/* =========================================================
+   HUD
+========================================================= */
+
+.hud{
+    position:absolute;
+    right:45px;
+    top:28px;
+    display:flex;
+    gap:12px;
+    z-index:70;
+}
+
+.hudBox{
+    min-width:135px;
+    padding:10px 18px;
+
+    border:2px solid #00baff;
+    border-radius:25px;
+
+    background:#062445;
+
+    font-family:"Orbitron";
+    font-size:13px;
+    font-weight:800;
+    text-align:center;
+
+    box-shadow:0 0 15px rgba(0,180,255,.4);
+}
+
+.livesBox{
+    border-color:#ff4f76;
+    background:#371224;
+}
+
+/* =========================================================
+   MISSION PANEL
+========================================================= */
+
+.missionPanel{
+    position:absolute;
+    left:38px;
+    top:120px;
+    width:305px;
+    padding:18px;
+
+    border:3px solid #00baff;
+    border-radius:20px;
+
+    background:rgba(2,20,42,.96);
+
+    box-shadow:
+        0 0 20px rgba(0,180,255,.35);
+
+    z-index:70;
+}
+
+.panelTitle{
+    color:#58dcff;
+    font-family:"Orbitron";
+    font-size:13px;
+
+    border-bottom:2px solid #00baff;
+    padding-bottom:11px;
+}
+
+.stageLabel{
+    margin-top:15px;
+    color:#ffd13c;
+    font-family:"Orbitron";
+    font-size:11px;
+}
+
+.missionText{
+    margin-top:10px;
+    font-size:19px;
+    font-weight:600;
+    line-height:1.3;
+}
+
+.packetDisplay{
+    margin-top:15px;
+    padding:12px;
+
+    border:2px solid #ffcc34;
+    border-radius:12px;
+
+    background:#251c04;
+    text-align:center;
+
+    color:#ffe165;
+    font-family:"Orbitron";
+    font-size:13px;
+}
+
+.hintButton{
+    width:100%;
+    margin-top:14px;
+    padding:12px;
+
+    border:2px solid #d458ff;
+    border-radius:12px;
+
+    background:linear-gradient(#632079,#371144);
+    color:white;
+    cursor:pointer;
+
+    box-shadow:
+        0 5px 0 #1a0822,
+        0 0 13px rgba(200,70,255,.4);
+
+    transition:.15s;
+}
+
+.hintButton:hover{
+    transform:translateY(-4px) scale(1.02);
+
+    box-shadow:
+        0 9px 0 #1a0822,
+        0 0 23px #bd48ff;
+}
+
+/* =========================================================
+   JOURNEY
+========================================================= */
+
+.journey{
+    position:absolute;
+    left:38px;
+    bottom:35px;
+
+    width:305px;
+    padding:15px;
+
+    border:2px solid #167db1;
+    border-radius:17px;
+
+    background:rgba(2,17,34,.95);
+    z-index:70;
+}
+
+.journeyTitle{
+    font-family:"Orbitron";
+    color:#57d9ff;
+    font-size:10px;
+}
+
+.route{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    margin-top:13px;
+}
+
+.routeNode{
+    width:55px;
+    height:55px;
+
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    flex-direction:column;
+
+    border:2px solid #245b79;
+    border-radius:10px;
+
+    background:#071b30;
+    font-size:18px;
+}
+
+.routeNode span{
+    font-family:"Orbitron";
+    font-size:6px;
+    margin-top:3px;
+}
+
+.routeNode.active{
+    border-color:#ffcf3b;
+    box-shadow:0 0 15px #ffb000;
+    color:#ffe35b;
+}
+
+.routeNode.done{
+    border-color:#34e98c;
+    box-shadow:0 0 12px #21d977;
+    color:#53f4a1;
+}
+
+.arrow{
+    color:#38cfff;
+    font-size:18px;
+}
+
+/* =========================================================
+   ARENA
+========================================================= */
+
+.arena{
+    position:absolute;
+    left:370px;
+    right:35px;
+    top:125px;
+    bottom:35px;
+
+    border:3px solid #137daf;
+    border-radius:25px;
+
+    background:
+        radial-gradient(circle at 50% 40%,rgba(13,70,116,.85),transparent 65%),
+        #031326;
+
+    overflow:hidden;
+
+    box-shadow:
+        inset 0 0 40px rgba(0,170,255,.15);
+
+    z-index:10;
+}
+
+.arena::before{
+    content:"";
+    position:absolute;
+    inset:0;
+
+    background:
+        linear-gradient(rgba(0,180,255,.07) 1px,transparent 1px),
+        linear-gradient(90deg,rgba(0,180,255,.07) 1px,transparent 1px);
+
+    background-size:50px 50px;
+    pointer-events:none;
+}
+
+/* =========================================================
+   SYSTEM MAP
+========================================================= */
+
+.systemMap{
+    position:absolute;
+    left:5%;
+    right:5%;
+    top:20px;
+    height:80px;
+
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+
+    z-index:10;
+}
+
+.mapUnit{
+    width:145px;
+    height:68px;
+
+    border:2px solid #176a98;
+    border-radius:14px;
+
+    background:#071d35;
+
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    flex-direction:column;
+
+    opacity:.55;
+    transition:.3s;
+}
+
+.mapUnit strong{
+    font-family:"Orbitron";
+    font-size:9px;
+}
+
+.mapUnit.active{
+    opacity:1;
+    border-color:#ffd33f;
+    box-shadow:0 0 20px rgba(255,190,0,.7);
+}
+
+.mapUnit.done{
+    opacity:1;
+    border-color:#39e88b;
+    box-shadow:0 0 17px rgba(30,230,120,.5);
+}
+
+.mapLine{
+    height:4px;
+    flex:1;
+    background:#17668e;
+    box-shadow:0 0 8px #007fb5;
+}
+
+/* =========================================================
+   PLAY AREA
+========================================================= */
+
+.playArea{
+    position:absolute;
+    left:0;
+    right:0;
+    top:115px;
+    bottom:0;
+}
+
+.floor{
+    position:absolute;
+    bottom:0;
+    left:0;
+
+    width:100%;
+    height:80px;
+
+    border-top:3px solid #00baff;
+
+    background:
+        linear-gradient(90deg,rgba(0,190,255,.2) 1px,transparent 1px),
+        linear-gradient(rgba(0,190,255,.2) 1px,transparent 1px),
+        linear-gradient(#073b62,#031526);
+
+    background-size:55px 28px;
+
+    box-shadow:
+        0 -8px 25px rgba(0,170,255,.2);
+}
+
+/* =========================================================
+   GUARDIAN
+========================================================= */
+
+.guardian{
+    position:absolute;
+    left:8%;
+    bottom:80px;
+
+    width:70px;
+    height:95px;
+
+    z-index:30;
+}
+
+.head{
+    position:absolute;
+    width:36px;
+    height:36px;
+
+    left:17px;
+    top:0;
+
+    border:3px solid #57e6ff;
+    border-radius:50%;
+
+    background:#123c65;
+    box-shadow:0 0 17px #00c8ff;
+}
+
+.face{
+    position:absolute;
+    width:18px;
+    height:7px;
+
+    left:8px;
+    top:13px;
+
+    background:#6cf3ff;
+    border-radius:8px;
+
+    box-shadow:0 0 10px #5cf1ff;
+}
+
+.body{
+    position:absolute;
+    left:12px;
+    top:32px;
+
+    width:46px;
+    height:45px;
+
+    border:3px solid #00c8ff;
+    border-radius:10px;
+
+    background:#075887;
+    box-shadow:0 0 15px #008ed1;
+}
+
+.jet{
+    position:absolute;
+    left:2px;
+    top:43px;
+
+    width:13px;
+    height:27px;
+
+    border-radius:5px;
+    background:#653e94;
+
+    border:2px solid #b768ff;
+}
+
+.gun{
+    position:absolute;
+    left:51px;
+    top:49px;
+
+    width:34px;
+    height:11px;
+
+    border-radius:5px;
+
+    background:#ffc634;
+    box-shadow:0 0 12px #ffac00;
+}
+
+.leg{
+    position:absolute;
+    top:75px;
+
+    width:10px;
+    height:20px;
+
+    background:#51dcff;
+}
+
+.leg1{left:18px;}
+.leg2{left:42px;}
+
+/* =========================================================
+   DATA PACKET
+========================================================= */
+
+.dataPacket{
+    position:absolute;
+    left:19%;
+    bottom:190px;
+
+    width:68px;
+    height:68px;
+
+    border:4px solid #ffe054;
+    border-radius:17px;
+
+    background:
+        radial-gradient(circle,#fff08a,#ffaf14);
+
+    display:flex;
+    align-items:center;
+    justify-content:center;
+
+    color:#07111c;
+
+    font-family:"Orbitron";
+    font-weight:900;
+    font-size:15px;
+
+    box-shadow:
+        0 0 18px #ffc400,
+        0 0 40px rgba(255,175,0,.6);
+
+    z-index:20;
+
+    animation:packetFloat .7s infinite alternate ease-in-out;
+}
+
+@keyframes packetFloat{
+    from{transform:translateY(0);}
+    to{transform:translateY(-10px);}
+}
+
+/* =========================================================
+   GATES
+========================================================= */
+
+.gates{
+    position:absolute;
+    left:35%;
+    right:5%;
+    bottom:80px;
+
+    display:flex;
+    justify-content:space-around;
+    align-items:flex-end;
+
+    z-index:15;
+}
+
+.gate{
+    width:175px;
+    height:230px;
+
+    position:relative;
+
+    border:4px solid #00baff;
+    border-bottom:none;
+
+    border-radius:20px 20px 0 0;
+
+    background:
+        linear-gradient(
+            180deg,
+            rgba(10,68,110,.8),
+            rgba(3,17,33,.95)
+        );
+
+    box-shadow:
+        0 0 20px rgba(0,180,255,.4);
+
+    cursor:pointer;
+    transition:.2s;
+}
+
+.gate:hover{
+    transform:translateY(-7px);
+    box-shadow:0 0 30px #00aee8;
+}
+
+.gateTop{
+    height:65px;
+
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    flex-direction:column;
+
+    border-bottom:2px solid #137eac;
+}
+
+.gateIcon{
+    font-size:30px;
+}
+
+.gateName{
+    font-family:"Orbitron";
+    font-size:10px;
+    margin-top:4px;
+}
+
+.gateDoor{
+    position:absolute;
+
+    left:24px;
+    right:24px;
+    top:82px;
+    bottom:0;
+
+    border:3px solid #1a688e;
+    border-bottom:none;
+
+    background:
+        repeating-linear-gradient(
+            90deg,
+            #061b2e,
+            #061b2e 12px,
+            #0a304d 12px,
+            #0a304d 24px
+        );
+}
+
+.gate.correctGate{
+    border-color:#44ef94;
+    box-shadow:0 0 30px #28df82;
+}
+
+.gate.wrongGate{
+    border-color:#ff4d70;
+    box-shadow:0 0 30px #ff315c;
+}
+
+/* =========================================================
+   OUTPUT READY
+========================================================= */
+
+.gate.outputReady{
+    border-color:#ffe14b;
+
+    box-shadow:
+        0 0 15px #ffc400,
+        0 0 35px rgba(255,190,0,.85);
+
+    animation:outputPulse .65s infinite alternate;
+}
+
+.gate.outputReady .gateTop{
+    border-color:#ffe14b;
+}
+
+.gate.outputReady .gateName{
+    color:#ffe14b;
+    text-shadow:0 0 10px #ffb000;
+}
+
+@keyframes outputPulse{
+
+    from{
+        transform:translateY(0) scale(1);
+
+        box-shadow:
+            0 0 12px #ffc400,
+            0 0 25px rgba(255,190,0,.55);
+    }
+
+    to{
+        transform:translateY(-7px) scale(1.035);
+
+        box-shadow:
+            0 0 22px #ffe14b,
+            0 0 45px rgba(255,190,0,.95);
+    }
+}
+
+/* =========================================================
+   VIRUS
+========================================================= */
+
+.virus{
+    position:absolute;
+
+    width:48px;
+    height:48px;
+
+    border:3px solid #ff4d72;
+    border-radius:50%;
+
+    background:#73142f;
+
+    display:flex;
+    align-items:center;
+    justify-content:center;
+
+    font-size:21px;
+
+    box-shadow:
+        0 0 15px #ff315e;
+
+    z-index:25;
+
+    animation:virusFloat 1s infinite alternate ease-in-out;
+}
+
+@keyframes virusFloat{
+    from{transform:translateY(0) rotate(-6deg);}
+    to{transform:translateY(-15px) rotate(6deg);}
+}
+
+.virus.destroyed{
+    animation:explode .35s forwards;
+}
+
+@keyframes explode{
+    to{
+        opacity:0;
+        transform:scale(2.5) rotate(180deg);
+    }
+}
+
+/* =========================================================
+   BULLET
+========================================================= */
+
+.bullet{
+    position:absolute;
+
+    width:21px;
+    height:7px;
+
+    border-radius:10px;
+
+    background:#ffe142;
+
+    box-shadow:
+        0 0 9px #ffd000,
+        0 0 18px #ff9700;
+
+    z-index:40;
+}
+
+/* =========================================================
+   MISSION ARROW
+========================================================= */
+
+.missionArrow{
+    position:absolute;
+
+    left:50%;
+    top:120px;
+
+    transform:translateX(-50%);
+
+    color:#ffe04c;
+
+    font-family:"Orbitron";
+    font-size:12px;
+
+    text-align:center;
+
+    animation:arrowBounce .7s infinite alternate;
+
+    z-index:30;
+}
+
+.missionArrow div{
+    font-size:30px;
+}
+
+@keyframes arrowBounce{
+    to{
+        transform:
+            translateX(-50%)
+            translateY(10px);
+    }
+}
+
+
+/* Clear gate guidance: visible only after a route is cleared */
+.gate.guidedGate{border-color:#33ff9b !important;box-shadow:0 0 20px #1bff8c, inset 0 0 18px #14b96a !important;animation:guidePulse 1s ease-in-out infinite alternate;position:relative;}
+.gate.guidedGate::before{content:"⬇";position:absolute;top:-66px;left:50%;transform:translateX(-50%);font-size:48px;line-height:1;color:#ffdd3e;text-shadow:0 0 16px #ffae00;animation:guideBounce .65s ease-in-out infinite alternate;z-index:80;pointer-events:none;}
+.gate.guidedGate::after{content:"CLICK HERE";position:absolute;top:-92px;left:50%;transform:translateX(-50%);white-space:nowrap;color:#ffe76a;font:800 11px Orbitron,sans-serif;text-shadow:0 0 10px #ffb500;z-index:80;pointer-events:none;}
+@keyframes guidePulse{to{box-shadow:0 0 42px #1bff8c,inset 0 0 28px #16e384;}}
+@keyframes guideBounce{to{transform:translate(-50%,9px);}}
+.missionArrow.gateDirection{top:95px;width:90%;font-size:12px;animation:none;pointer-events:none;text-shadow:0 0 12px #ffb800;}
+.missionArrow.gateDirection div{font:600 18px Rajdhani,sans-serif;color:#fff;margin-top:8px;}
+
+/* =========================================================
+   OVERLAYS
+========================================================= */
+
+.overlay{
+    position:fixed;
+    inset:0;
+
+    background:rgba(0,5,15,.92);
+
+    display:flex;
+    align-items:center;
+    justify-content:center;
+
+    z-index:1000;
+}
+
+.hidden{
+    display:none !important;
+}
+
+.modal{
+    width:min(850px,92vw);
+
+    padding:30px;
+
+    border:4px solid #00baff;
+    border-radius:27px;
+
+    background:
+        radial-gradient(
+            circle at 50% 0,
+            #123c68,
+            #06172b 60%
+        );
+
+    box-shadow:
+        0 0 45px rgba(0,170,255,.55);
+
+    text-align:center;
+}
+
+.modal h1{
+    font-family:"Orbitron";
+    font-size:30px;
+
+    color:#ffc63d;
+
+    text-shadow:
+        0 0 10px #ff9d00;
+}
+
+.modalText{
+    margin-top:14px;
+
+    font-size:20px;
+    line-height:1.4;
+
+    color:#e3f3ff;
+}
+
+/* =========================================================
+   FLOW DEMO
+========================================================= */
+
+.flowDemo{
+    margin:25px 0;
+
+    display:flex;
+    align-items:center;
+    justify-content:center;
+
+    gap:10px;
+}
+
+.flowBox{
+    width:130px;
+
+    padding:14px 8px;
+
+    border:2px solid #1590c7;
+    border-radius:13px;
+
+    background:#071e37;
+}
+
+.flowBox .icon{
+    font-size:28px;
+}
+
+.flowBox strong{
+    display:block;
+
+    margin-top:5px;
+
+    font-family:"Orbitron";
+    font-size:9px;
+
+    color:#60ddff;
+}
+
+.flowArrow{
+    font-size:25px;
+    color:#ffd13c;
+}
+
+.tutorialNote{
+    padding:15px;
+
+    border:2px solid #ffcc39;
+    border-radius:13px;
+
+    background:#2a2005;
+
+    color:#ffe46e;
+    font-size:18px;
+}
+
+/* =========================================================
+   BUTTON
+========================================================= */
+
+.actionButton{
+    margin-top:23px;
+
+    min-width:310px;
+
+    padding:15px 28px;
+
+    border:4px solid #ffe05a;
+    border-radius:16px;
+
+    background:
+        linear-gradient(
+            #fff36e,
+            #ffb316
+        );
+
+    color:#06101b;
+
+    font-weight:900;
+    font-size:14px;
+
+    cursor:pointer;
+
+    box-shadow:
+        0 7px 0 #805000,
+        0 0 25px rgba(255,185,0,.55);
+
+    transition:.15s;
+}
+
+.actionButton:hover{
+    transform:
+        translateY(-7px)
+        scale(1.05);
+
+    box-shadow:
+        0 12px 0 #704500,
+        0 0 35px #ffd03c;
+}
+
+/* =========================================================
+   FEEDBACK
+========================================================= */
+
+.feedbackIcon{
+    font-size:55px;
+    margin-bottom:10px;
+}
+
+.correctTitle{
+    color:#4df29a !important;
+    text-shadow:0 0 15px #21dc7d !important;
+}
+
+.wrongTitle{
+    color:#ff637f !important;
+    text-shadow:0 0 15px #ff315d !important;
+}
+
+.learningBox{
+    margin-top:20px;
+
+    padding:15px;
+
+    border:2px solid #1a8ec1;
+    border-radius:13px;
+
+    background:#061c32;
+
+    font-size:18px;
+}
+
+.learningBox strong{
+    color:#55ddff;
+}
+
+/* =========================================================
+   CPU
+========================================================= */
+
+.cpuChallenge{
+    margin-top:22px;
+
+    display:flex;
+    justify-content:center;
+
+    gap:20px;
+}
+
+.cpuChoice{
+    width:250px;
+
+    padding:20px;
+
+    border:3px solid #a852ff;
+    border-radius:17px;
+
+    background:#1a0a34;
+
+    color:white;
+
+    cursor:pointer;
+
+    transition:.18s;
+}
+
+.cpuChoice:hover{
+    transform:
+        translateY(-8px)
+        scale(1.03);
+
+    box-shadow:
+        0 0 28px #a44cff;
+}
+
+.cpuChoice .cpuIcon{
+    font-size:38px;
+}
+
+.cpuChoice h3{
+    margin-top:8px;
+
+    font-family:"Orbitron";
+
+    color:#d48aff;
+}
+
+.cpuChoice p{
+    margin-top:7px;
+    font-size:17px;
+}
+
+/* =========================================================
+   RESULT
+========================================================= */
+
+.resultEquation{
+    margin:20px auto;
+
+    width:350px;
+
+    padding:18px;
+
+    border:3px solid #b259ff;
+    border-radius:15px;
+
+    background:#1d0c37;
+
+    font-family:"Orbitron";
+    font-size:27px;
+
+    color:#ffe154;
+
+    box-shadow:
+        0 0 25px rgba(170,70,255,.5);
+}
+
+/* =========================================================
+   REWARD
+========================================================= */
+
+.reward{
+    margin-top:20px;
+
+    font-family:"Orbitron";
+    font-size:32px;
+
+    color:#ffe14e;
+
+    text-shadow:
+        0 0 12px #ffb000,
+        0 0 28px #ff9200;
+
+    animation:rewardPop .7s ease;
+}
+
+@keyframes rewardPop{
+    0%{transform:scale(.3);}
+    55%{transform:scale(1.35);}
+    100%{transform:scale(1);}
+}
+
+/* =========================================================
+   RESPONSIVE
+========================================================= */
+
+@media(max-width:1200px){
+
+    .missionPanel,
+    .journey{
+        width:260px;
+        left:25px;
+    }
+
+    .arena{
+        left:305px;
+    }
+
+    .title{
+        font-size:27px;
+    }
+
+    .gate{
+        width:145px;
+    }
+}
+
+
+/* Character image only — all original gameplay and movement unchanged */
+.guardianImage{
+    display:block;
+    width:100%;
+    height:100%;
+    object-fit:contain;
+    transform:scale(1.55);
+    transform-origin:center bottom;
+    pointer-events:none;
+    user-select:none;
+}
+
+</style>
+</head>
+
+<body>
+
+<div id="game">
+
+<div class="frame"></div>
+
+<div class="flags">
+    <div class="flag blue"></div>
+    <div class="flag white"></div>
+    <div class="flag red"></div>
+    <div class="flag green"></div>
+    <div class="flag yellow"></div>
+</div>
+
+<div class="star" style="left:10%;top:12%;"></div>
+<div class="star" style="left:20%;top:18%;"></div>
+<div class="star" style="left:44%;top:10%;"></div>
+<div class="star" style="left:66%;top:16%;"></div>
+<div class="star" style="left:82%;top:12%;"></div>
+<div class="star" style="left:91%;top:28%;"></div>
+
+<!-- HEADER -->
+
+<div class="header">
+
+    <div class="zone">
+        TRAINING ZONE 2 · LEVEL 2
+    </div>
+
+    <div class="title">
+        ⚡ DATA FLOW DEFENDER
+    </div>
+
+    <div class="subtitle">
+        Protect the packet. Activate the correct route.
+    </div>
+
+</div>
+
+<!-- HUD -->
+
+<div class="hud">
+
+    <div class="hudBox">
+        ⭐ <span id="xpText">25</span> XP
+    </div>
+
+    <div
+        class="hudBox livesBox"
+        id="livesText"
+    >
+        ❤️ ❤️ ❤️
+    </div>
+
+</div>
+
+<!-- MISSION PANEL -->
+
+<div class="missionPanel">
+
+    <div class="panelTitle">
+        🎯 CURRENT MISSION
+    </div>
+
+    <div
+        class="stageLabel"
+        id="stageLabel"
+    >
+        MISSION 1 / 4
+    </div>
+
+    <div
+        class="missionText"
+        id="missionText"
+    >
+        Protect the incoming packet and destroy the virus drones.
+    </div>
+
+    <div class="packetDisplay">
+        💠 DATA PACKET:
+        <span id="packetPanelText">
+            4 + 5
+        </span>
+    </div>
+
+    <button
+        class="hintButton uiSound"
+        onclick="showHint()"
+    >
+        💡 NEED A HINT?
+    </button>
+
+</div>
+
+<!-- JOURNEY -->
+
+<div class="journey">
+
+    <div class="journeyTitle">
+        DATA JOURNEY
+    </div>
+
+    <div class="route">
+
+        <div
+            class="routeNode active"
+            id="journeyInput"
+        >
+            ⌨️
+            <span>INPUT</span>
+        </div>
+
+        <div class="arrow">›</div>
+
+        <div
+            class="routeNode"
+            id="journeyMemory"
+        >
+            🧠
+            <span>MEMORY</span>
+        </div>
+
+        <div class="arrow">›</div>
+
+        <div
+            class="routeNode"
+            id="journeyCPU"
+        >
+            ⚙️
+            <span>CPU</span>
+        </div>
+
+        <div class="arrow">›</div>
+
+        <div
+            class="routeNode"
+            id="journeyOutput"
+        >
+            🖥️
+            <span>OUTPUT</span>
+        </div>
+
+    </div>
+
+</div>
+
+<!-- ARENA -->
+
+<div class="arena">
+
+    <div class="systemMap">
+
+        <div
+            class="mapUnit active"
+            id="mapInput"
+        >
+            <div>⌨️</div>
+            <strong>INPUT</strong>
+        </div>
+
+        <div class="mapLine"></div>
+
+        <div
+            class="mapUnit"
+            id="mapMemory"
+        >
+            <div>🧠</div>
+            <strong>MEMORY</strong>
+        </div>
+
+        <div class="mapLine"></div>
+
+        <div
+            class="mapUnit"
+            id="mapCPU"
+        >
+            <div>⚙️</div>
+            <strong>CPU</strong>
+        </div>
+
+        <div class="mapLine"></div>
+
+        <div
+            class="mapUnit"
+            id="mapOutput"
+        >
+            <div>🖥️</div>
+            <strong>OUTPUT</strong>
+        </div>
+
+    </div>
+
+    <div
+        class="playArea"
+        id="playArea"
+    >
+
+        <div class="floor"></div>
+
+        <div
+            class="missionArrow"
+            id="missionArrow"
+        >
+            PROTECT THE PACKET
+            <div>▼</div>
+        </div>
+
+        <!-- GUARDIAN -->
+
+        <div class="guardian" id="guardian">
+            <img src="gho_guardian.png" alt="Bhutanese guardian wearing a gho" class="guardianImage">
+        </div>
+
+        <!-- DATA -->
+
+        <div
+            class="dataPacket"
+            id="dataPacket"
+        >
+            4 + 5
+        </div>
+
+        <!-- GATES -->
+
+        <div
+            class="gates"
+            id="gates"
+        >
+
+            <div
+                class="gate uiSound"
+                id="gateStorage"
+                onclick="selectGate('STORAGE')"
+            >
+
+                <div class="gateTop">
+                    <div class="gateIcon">💾</div>
+                    <div class="gateName">
+                        STORAGE
+                    </div>
+                </div>
+
+                <div class="gateDoor"></div>
+
+            </div>
+
+            <div
+                class="gate uiSound"
+                id="gateMemory"
+                onclick="selectGate('MEMORY')"
+            >
+
+                <div class="gateTop">
+                    <div class="gateIcon">🧠</div>
+                    <div class="gateName">
+                        MEMORY
+                    </div>
+                </div>
+
+                <div class="gateDoor"></div>
+
+            </div>
+
+            <div
+                class="gate uiSound"
+                id="gateOutput"
+                onclick="selectGate('OUTPUT')"
+            >
+
+                <div class="gateTop">
+                    <div class="gateIcon">🖥️</div>
+                    <div class="gateName">
+                        OUTPUT
+                    </div>
+                </div>
+
+                <div class="gateDoor"></div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+</div>
+
+<!-- =====================================================
+     TUTORIAL
+===================================================== -->
+
+<div
+    class="overlay"
+    id="tutorialOverlay"
+>
+
+<div class="modal">
+
+    <h1>
+        ⚡ WELCOME, SYSTEM GUARDIAN
+    </h1>
+
+    <div class="modalText">
+        A data packet containing
+        <strong style="color:#ffe050;">
+            4 + 5
+        </strong>
+        has entered the computer.
+        Protect it and guide it through the
+        correct parts of the system.
+    </div>
+
+    <div class="flowDemo">
+
+        <div class="flowBox">
+            <div class="icon">⌨️</div>
+            <strong>INPUT</strong>
+        </div>
+
+        <div class="flowArrow">➜</div>
+
+        <div class="flowBox">
+            <div class="icon">🧠</div>
+            <strong>MEMORY</strong>
+        </div>
+
+        <div class="flowArrow">➜</div>
+
+        <div class="flowBox">
+            <div class="icon">⚙️</div>
+            <strong>CPU</strong>
+        </div>
+
+        <div class="flowArrow">➜</div>
+
+        <div class="flowBox">
+            <div class="icon">🖥️</div>
+            <strong>OUTPUT</strong>
+        </div>
+
+    </div>
+
+    <div class="tutorialNote">
+        💡 Watch what happens to the data and use the clues during the mission.
+    </div>
+
+    <button
+        class="actionButton uiSound"
+        onclick="showControls()"
+    >
+        NEXT: HOW TO PLAY ▶
+    </button>
+
+</div>
+</div>
+
+<!-- CONTROLS -->
+
+<div
+    class="overlay hidden"
+    id="controlsOverlay"
+>
+
+<div class="modal">
+
+    <h1>
+        🎮 HOW TO PLAY
+    </h1>
+
+    <div class="flowDemo">
+
+        <div class="flowBox">
+            <div class="icon">⬅️➡️</div>
+            <strong>MOVE</strong>
+            <div>A / D</div>
+        </div>
+
+        <div class="flowBox">
+            <div class="icon">⬆️</div>
+            <strong>JET JUMP</strong>
+            <div>W</div>
+        </div>
+
+        <div class="flowBox">
+            <div class="icon">⚡</div>
+            <strong>FIRE</strong>
+            <div>SPACE</div>
+        </div>
+
+        <div class="flowBox">
+            <div class="icon">🚪</div>
+            <strong>ACTIVATE</strong>
+            <div>CLICK GATE</div>
+        </div>
+
+    </div>
+
+    <div class="tutorialNote">
+        ❤️ You have
+        <strong>3 lives for Training Zone 2.</strong>
+        Wrong routes cost one life.
+        Destroy the virus drones before activating a route.
+    </div>
+
+    <button
+        class="actionButton uiSound"
+        onclick="startGame()"
+    >
+        START DEFENCE ▶
+    </button>
+
+</div>
+</div>
+
+<!-- HINT -->
+
+<div
+    class="overlay hidden"
+    id="hintOverlay"
+>
+
+<div class="modal">
+
+    <h1>
+        💡 SYSTEM HINT
+    </h1>
+
+    <div
+        class="modalText"
+        id="hintText"
+    ></div>
+
+    <button
+        class="actionButton uiSound"
+        onclick="closeHint()"
+    >
+        RETURN TO MISSION ▶
+    </button>
+
+</div>
+</div>
+
+<!-- FEEDBACK -->
+
+<div
+    class="overlay hidden"
+    id="feedbackOverlay"
+>
+
+<div class="modal">
+
+    <div
+        class="feedbackIcon"
+        id="feedbackIcon"
+    >
+        ✅
+    </div>
+
+    <h1 id="feedbackTitle">
+        ROUTE ACCEPTED
+    </h1>
+
+    <div
+        class="modalText"
+        id="feedbackText"
+    ></div>
+
+    <div
+        class="learningBox"
+        id="learningText"
+    ></div>
+
+    <button
+        class="actionButton uiSound"
+        onclick="continueMission()"
+    >
+        CONTINUE MISSION ▶
+    </button>
+
+</div>
+</div>
+
+<!-- CPU -->
+
+<div
+    class="overlay hidden"
+    id="cpuOverlay"
+>
+
+<div class="modal">
+
+    <h1>
+        ⚙️ CPU COMMAND CHAMBER
+    </h1>
+
+    <div class="modalText">
+        The packet has reached the CPU.
+        Now the CPU must process:
+    </div>
+
+    <div class="resultEquation">
+        4 + 5 = ?
+    </div>
+
+    <div class="modalText">
+        Activate the CPU component that should perform this job.
+    </div>
+
+    <div class="cpuChallenge">
+
+        <button
+            class="cpuChoice uiSound"
+            onclick="chooseCPU('CU')"
+        >
+
+            <div class="cpuIcon">
+                🎛️
+            </div>
+
+            <h3>CU</h3>
+
+            <p>
+                Controls and coordinates the operations of the computer.
+            </p>
+
+        </button>
+
+        <button
+            class="cpuChoice uiSound"
+            onclick="chooseCPU('ALU')"
+        >
+
+            <div class="cpuIcon">
+                🧮
+            </div>
+
+            <h3>ALU</h3>
+
+            <p>
+                Performs arithmetic calculations and logical operations.
+            </p>
+
+        </button>
+
+    </div>
+
+</div>
+</div>
+
+<!-- PROCESSING -->
+
+<div
+    class="overlay hidden"
+    id="processingOverlay"
+>
+
+<div class="modal">
+
+    <h1>
+        ⚙️ PROCESSING DATA...
+    </h1>
+
+    <div
+        class="resultEquation"
+        id="processingEquation"
+    >
+        4 + 5
+    </div>
+
+    <div
+        class="modalText"
+        id="processingText"
+    >
+        The ALU is calculating the data...
+    </div>
+
+</div>
+</div>
+
+<!-- COMPLETE -->
+
+<div
+    class="overlay hidden"
+    id="completeOverlay"
+>
+
+<div class="modal">
+
+    <h1>
+        🏆 DATA FLOW RESTORED!
+    </h1>
+
+    <div class="modalText">
+        You successfully protected the packet through the computer system.
+    </div>
+
+    <div class="flowDemo">
+
+        <div class="flowBox">
+            <div class="icon">⌨️</div>
+            <strong>INPUT ✓</strong>
+        </div>
+
+        <div class="flowArrow">➜</div>
+
+        <div class="flowBox">
+            <div class="icon">🧠</div>
+            <strong>MEMORY ✓</strong>
+        </div>
+
+        <div class="flowArrow">➜</div>
+
+        <div class="flowBox">
+            <div class="icon">🧮</div>
+            <strong>ALU ✓</strong>
+        </div>
+
+        <div class="flowArrow">➜</div>
+
+        <div class="flowBox">
+            <div class="icon">🖥️</div>
+            <strong>OUTPUT ✓</strong>
+        </div>
+
+    </div>
+
+    <div class="learningBox">
+
+        <strong>What happened?</strong>
+
+        <br><br>
+
+        The data entered through
+        <b>Input</b>,
+        was temporarily held in
+        <b>Memory</b>,
+        was processed by the
+        <b>CPU</b>,
+        and the result was sent through
+        <b>Output</b>.
+
+        <br><br>
+
+        The <b>ALU</b> calculated
+        <b>4 + 5 = 9</b>.
+
+    </div>
+
+    <div
+        class="reward"
+        id="rewardText"
+    >
+        🪙 +25 XP
+    </div>
+
+    <button
+        class="actionButton uiSound"
+        onclick="goNextLevel()"
+    >
+        CONTINUE TO LEVEL 3 ▶
+    </button>
+
+</div>
+</div>
+
+<!-- GAME OVER -->
+
+<div
+    class="overlay hidden"
+    id="gameOverOverlay"
+>
+
+<div class="modal">
+
+    <h1 class="wrongTitle">
+        💥 SYSTEM FAILURE
+    </h1>
+
+    <div class="modalText">
+        All three lives have been lost.
+        Training Zone 2 must restart.
+    </div>
+
+    <button
+        class="actionButton uiSound"
+        onclick="restartZone()"
+    >
+        ↻ RESTART TRAINING ZONE 2
+    </button>
+
+</div>
+</div>
+
+<!-- AUDIO -->
+
+<audio id="selectSound" src="select.mp3" preload="auto"></audio>
+<audio id="correctSound" src="correct.mp3" preload="auto"></audio>
+<audio id="wrongSound" src="wrong.mp3" preload="auto"></audio>
+<audio id="coinSound" src="coins.mp3" preload="auto"></audio>
+<audio id="shootSound" src="shoot.mp3" preload="auto"></audio>
+
+<script>
+
+/* =========================================================
+   STORAGE
+========================================================= */
+
+if(localStorage.getItem("TO2Lives") === null){
+    localStorage.setItem("TO2Lives","3");
+}
+
+if(localStorage.getItem("TO2XP") === null){
+    localStorage.setItem("TO2XP","25");
+}
+
+if(localStorage.getItem("TO2L2Reward") === null){
+    localStorage.setItem("TO2L2Reward","false");
+}
+
+let lives =
+    Number(localStorage.getItem("TO2Lives"));
+
+let xp = 25;
+
+let level2RewardCollected =
+    localStorage.getItem("TO2L2Reward") === "true";
+
+/*
+Level 1 = 25 XP
+Level 2 completion = 50 XP
+
+Replaying Level 2 cannot increase XP.
+*/
+
+// Show 25 XP when Level 2 starts, including on replays.
+// The saved Level 2 reward is used only to prevent duplicate awards.
+xp = 25;
+
+/* =========================================================
+   GAME STATE
+========================================================= */
+
+let stage = 1;
+
+let gameRunning = false;
+
+let paused = true;
+
+let guardianX = 8;
+
+let guardianY = 80;
+
+let velocityY = 0;
+
+let jumping = false;
+
+let facing = 1;
+
+let virusesAlive = 3;
+
+let feedbackAction = null;
+
+let invincible = false;
+
+const keys = {};
+
+const guardian =
+    document.getElementById("guardian");
+
+const playArea =
+    document.getElementById("playArea");
+
+/* =========================================================
+   AUDIO
+========================================================= */
+
+function playAudio(id){
+
+    const source =
+        document.getElementById(id);
+
+    if(!source){
+        return;
+    }
+
+    /*
+    Clone audio so sounds don't interrupt
+    one another.
+    */
+
+    const sound =
+        source.cloneNode(true);
+
+    sound.volume = 1;
+
+    sound.currentTime = 0;
+
+    sound.play().catch(function(){});
+}
+
+/* Shooting sound uses ONE audio player, never overlapping clones. */
+const shotAudio = document.getElementById("shootSound");
+function playShotSound(){
+    if(!shotAudio) return;
+    shotAudio.pause();
+    shotAudio.currentTime = 0;
+    shotAudio.volume = 1;
+    shotAudio.play().catch(error => console.error("shoot.mp3:", error));
+}
+function stopShotSound(){
+    if(!shotAudio) return;
+    shotAudio.pause();
+    shotAudio.currentTime = 0;
+}
+window.addEventListener("blur", stopShotSound);
+
+/* =========================================================
+   HOVER AUDIO
+========================================================= */
+
+document.addEventListener(
+    "mouseover",
+    function(event){
+
+        const target =
+            event.target.closest(
+                ".uiSound"
+            );
+
+        if(!target){
+            return;
+        }
+
+        if(
+            event.relatedTarget &&
+            target.contains(
+                event.relatedTarget
+            )
+        ){
+            return;
+        }
+
+        playAudio("selectSound");
+    }
+);
+
+/* =========================================================
+   TUTORIAL
+========================================================= */
+
+function showControls(){
+
+    playAudio("selectSound");
+
+    document
+        .getElementById(
+            "tutorialOverlay"
+        )
+        .classList
+        .add("hidden");
+
+    document
+        .getElementById(
+            "controlsOverlay"
+        )
+        .classList
+        .remove("hidden");
+}
+
+function startGame(){
+
+    playAudio("selectSound");
+
+    document
+        .getElementById(
+            "controlsOverlay"
+        )
+        .classList
+        .add("hidden");
+
+    gameRunning = true;
+
+    paused = false;
+
+    stage = 1;
+
+    updateHUD();
+
+    updateMission();
+
+    spawnViruses();
+
+    requestAnimationFrame(
+        gameLoop
+    );
+}
+
+/* =========================================================
+   KEYBOARD
+========================================================= */
+
+document.addEventListener(
+    "keydown",
+    function(event){
+
+        if(
+            [
+                "KeyA",
+                "KeyD",
+                "KeyW",
+                "ArrowLeft",
+                "ArrowRight",
+                "ArrowUp",
+                "Space"
+            ].includes(event.code)
+        ){
+            event.preventDefault();
+        }
+
+        keys[event.code] = true;
+
+        if(
+            !gameRunning ||
+            paused
+        ){
+            return;
+        }
+
+        if(
+            event.code === "KeyW" ||
+            event.code === "ArrowUp"
+        ){
+            jump();
+        }
+
+        if(
+            event.code === "Space" &&
+            !event.repeat
+        ){
+            fire();
+        }
+    }
+);
+
+document.addEventListener(
+    "keyup",
+    function(event){
+
+        keys[event.code] = false;
+        // A quick SPACE tap should still play the complete gunshot.
+        // Audio stops naturally when the file finishes.
+    }
+);
+
+/* =========================================================
+   GAME LOOP
+========================================================= */
+
+function gameLoop(){
+
+    if(!gameRunning){
+        return;
+    }
+
+    if(!paused){
+
+        moveGuardian();
+
+        updateJump();
+
+        moveViruses();
+
+        checkVirusCollision();
+    }
+
+    requestAnimationFrame(
+        gameLoop
+    );
+}
+
+/* =========================================================
+   MOVE GUARDIAN
+========================================================= */
+
+function moveGuardian(){
+
+    const speed = .48;
+
+    if(
+        keys["KeyA"] ||
+        keys["ArrowLeft"]
+    ){
+
+        guardianX -= speed;
+
+        facing = -1;
+    }
+
+    if(
+        keys["KeyD"] ||
+        keys["ArrowRight"]
+    ){
+
+        guardianX += speed;
+
+        facing = 1;
+    }
+
+    guardianX =
+        Math.max(
+            2,
+            Math.min(
+                87,
+                guardianX
+            )
+        );
+
+    guardian.style.left =
+        guardianX + "%";
+
+    guardian.style.transform =
+        facing === -1
+        ? "scaleX(-1)"
+        : "scaleX(1)";
+
+    /*
+    MISSION 3
+
+    Result 9 follows the Guardian.
+    */
+
+    if(stage === 3){
+
+        const packet =
+            document.getElementById(
+                "dataPacket"
+            );
+
+        packet.style.left =
+            (guardianX + 2) + "%";
+
+        packet.style.bottom =
+            (guardianY + 105) + "px";
+    }
+}
+
+/* =========================================================
+   JUMP
+========================================================= */
+
+function jump(){
+
+    if(jumping){
+        return;
+    }
+
+    jumping = true;
+
+    velocityY = 12;
+}
+
+function updateJump(){
+
+    if(!jumping){
+        return;
+    }
+
+    velocityY -= .65;
+
+    guardianY += velocityY;
+
+    if(guardianY <= 80){
+
+        guardianY = 80;
+
+        velocityY = 0;
+
+        jumping = false;
+    }
+
+    guardian.style.bottom =
+        guardianY + "px";
+}
+
+/* =========================================================
+   NORMAL VIRUSES
+========================================================= */
+
+function spawnViruses(){
+
+    removeViruses();
+
+    virusesAlive = 3;
+
+    const positions = [
+
+        {
+            left:38,
+            bottom:130
+        },
+
+        {
+            left:57,
+            bottom:130
+        },
+
+        {
+            left:74,
+            bottom:130
+        }
+
+    ];
+
+    positions.forEach(
+        function(position,index){
+
+            const virus =
+                document.createElement(
+                    "div"
+                );
+
+            virus.className =
+                "virus";
+
+            virus.dataset.virus =
+                "true";
+
+            virus.dataset.direction =
+                index % 2 === 0
+                ? "-1"
+                : "1";
+
+            virus.style.left =
+                position.left + "%";
+
+            virus.style.bottom =
+                position.bottom + "px";
+
+            virus.innerHTML =
+                "☠";
+
+            playArea.appendChild(
+                virus
+            );
+        }
+    );
+}
+
+/* =========================================================
+   MISSION 3 VIRUSES
+========================================================= */
+
+function spawnOutputViruses(){
+
+    removeViruses();
+
+    virusesAlive = 3;
+
+    /*
+    These are deliberately placed at
+    shooting height.
+
+    This fixes the previous unreachable
+    final virus problem.
+    */
+
+    const positions = [
+
+        {
+            left:42,
+            bottom:130
+        },
+
+        {
+            left:60,
+            bottom:130
+        },
+
+        {
+            left:78,
+            bottom:130
+        }
+
+    ];
+
+    positions.forEach(
+        function(position,index){
+
+            const virus =
+                document.createElement(
+                    "div"
+                );
+
+            virus.className =
+                "virus";
+
+            virus.dataset.virus =
+                "true";
+
+            virus.dataset.outputVirus =
+                "true";
+
+            virus.dataset.direction =
+                index % 2 === 0
+                ? "-1"
+                : "1";
+
+            virus.style.left =
+                position.left + "%";
+
+            virus.style.bottom =
+                position.bottom + "px";
+
+            virus.innerHTML =
+                "☠";
+
+            playArea.appendChild(
+                virus
+            );
+        }
+    );
+}
+
+/* =========================================================
+   REMOVE VIRUSES
+========================================================= */
+
+function removeViruses(){
+
+    document
+        .querySelectorAll(
+            "[data-virus]"
+        )
+        .forEach(
+            function(virus){
+
+                virus.remove();
+            }
+        );
+}
+
+/* =========================================================
+   MOVE VIRUSES
+========================================================= */
+
+function moveViruses(){
+
+    document
+        .querySelectorAll(
+            "[data-virus]:not(.destroyed)"
+        )
+        .forEach(
+            function(virus){
+
+                let left =
+                    parseFloat(
+                        virus.style.left
+                    );
+
+                let direction =
+                    Number(
+                        virus.dataset.direction
+                    );
+
+                let speed =
+                    virus.dataset.outputVirus ===
+                    "true"
+                    ? .025
+                    : .045;
+
+                left +=
+                    direction * speed;
+
+                /*
+                Mission 3 viruses stay inside
+                reachable combat space.
+                */
+
+                if(
+                    virus.dataset.outputVirus ===
+                    "true"
+                ){
+
+                    if(left < 37){
+
+                        left = 37;
+
+                        direction = 1;
+                    }
+
+                    if(left > 82){
+
+                        left = 82;
+
+                        direction = -1;
+                    }
+
+                }else{
+
+                    if(left < 31){
+
+                        left = 31;
+
+                        direction = 1;
+                    }
+
+                    if(left > 82){
+
+                        left = 82;
+
+                        direction = -1;
+                    }
+                }
+
+                virus.dataset.direction =
+                    direction;
+
+                virus.style.left =
+                    left + "%";
+            }
+        );
+}
+
+/* =========================================================
+   FIRE
+========================================================= */
+
+function fire(){
+
+    const bullet =
+        document.createElement(
+            "div"
+        );
+
+    bullet.className =
+        "bullet";
+
+    let bulletX =
+        guardianX +
+        (
+            facing === 1
+            ? 5
+            : -1
+        );
+
+    let bulletY =
+        guardianY + 47;
+
+    bullet.style.left =
+        bulletX + "%";
+
+    bullet.style.bottom =
+        bulletY + "px";
+
+    bullet.dataset.direction =
+        facing;
+
+    playArea.appendChild(
+        bullet
+    );
+
+    playShotSound();
+
+    const timer =
+        setInterval(
+            function(){
+
+                if(!bullet.isConnected){
+
+                    clearInterval(timer);
+
+                    return;
+                }
+
+                bulletX +=
+                    Number(
+                        bullet.dataset.direction
+                    ) * .8;
+
+                bullet.style.left =
+                    bulletX + "%";
+
+                checkBulletVirus(
+                    bullet,
+                    timer
+                );
+
+                if(
+                    bulletX < 0 ||
+                    bulletX > 100
+                ){
+
+                    clearInterval(timer);
+
+                    bullet.remove();
+                }
+
+            },
+            16
+        );
+}
+
+/* =========================================================
+   BULLET COLLISION
+========================================================= */
+
+function checkBulletVirus(
+    bullet,
+    timer
+){
+
+    const bulletRect =
+        bullet.getBoundingClientRect();
+
+    const viruses =
+        document.querySelectorAll(
+            "[data-virus]:not(.destroyed)"
+        );
+
+    viruses.forEach(
+        function(virus){
+
+            const rect =
+                virus.getBoundingClientRect();
+
+            if(
+                bulletRect.right >
+                rect.left &&
+
+                bulletRect.left <
+                rect.right &&
+
+                bulletRect.bottom >
+                rect.top &&
+
+                bulletRect.top <
+                rect.bottom
+            ){
+
+                virus.classList.add(
+                    "destroyed"
+                );
+
+                bullet.remove();
+
+                clearInterval(timer);
+
+                virusesAlive--;
+
+                setTimeout(
+                    function(){
+
+                        virus.remove();
+
+                        /*
+                        ALL VIRUSES DESTROYED
+                        */
+
+                        if(
+                            virusesAlive <= 0
+                        ){
+
+                            /*
+                            MISSION 1
+                            */
+
+                            if(stage === 1){
+
+                                document
+                                    .getElementById(
+                                        "missionArrow"
+                                    )
+                                    .innerHTML =
+                                    "✅ PATH CLEARED!<div>Click the glowing MEMORY gate below ⬇</div>";
+
+                                document.getElementById("missionArrow").classList.add("gateDirection");
+                                document.getElementById("gateMemory").classList.add("guidedGate");
+
+                                document
+                                    .getElementById(
+                                        "missionText"
+                                    )
+                                    .textContent =
+                                    "Virus drones cleared! Now activate the correct destination for the data.";
+                            }
+
+                            /*
+                            MISSION 3
+                            */
+
+                            else if(stage === 3){
+
+                                const outputGate =
+                                    document
+                                    .getElementById(
+                                        "gateOutput"
+                                    );
+
+                                outputGate
+                                    .classList
+                                    .add(
+                                        "outputReady"
+                                    );
+
+                                document
+                                    .getElementById(
+                                        "missionArrow"
+                                    )
+                                    .innerHTML =
+                                    "✅ PATH CLEARED!<div>Click the glowing OUTPUT gate below ⬇</div>";
+
+                                document.querySelectorAll(".gate.guidedGate").forEach(gate => gate.classList.remove("guidedGate"));
+                                document.getElementById("missionArrow").classList.add("gateDirection");
+                                document.getElementById("gateOutput").classList.add("guidedGate");
+
+                                document
+                                    .getElementById(
+                                        "missionText"
+                                    )
+                                    .textContent =
+                                    "All viruses destroyed! Processing is complete. Send result 9 to the correct final destination.";
+
+                                playAudio(
+                                    "correctSound"
+                                );
+                            }
+                        }
+
+                    },
+                    350
+                );
+            }
+        }
+    );
+}
+
+/* =========================================================
+   PLAYER / VIRUS COLLISION
+========================================================= */
+
+function checkVirusCollision(){
+
+    if(invincible){
+        return;
+    }
+
+    const guardianRect =
+        guardian.getBoundingClientRect();
+
+    const viruses =
+        document.querySelectorAll(
+            "[data-virus]:not(.destroyed)"
+        );
+
+    for(
+        const virus of viruses
+    ){
+
+        const rect =
+            virus.getBoundingClientRect();
+
+        if(
+            guardianRect.right >
+            rect.left &&
+
+            guardianRect.left <
+            rect.right &&
+
+            guardianRect.bottom >
+            rect.top &&
+
+            guardianRect.top <
+            rect.bottom
+        ){
+
+            invincible = true;
+
+            loseLife(
+                "A virus drone hit your System Guardian. Keep your distance and press SPACE to destroy the corrupted data."
+            );
+
+            setTimeout(
+                function(){
+
+                    invincible =
+                        false;
+
+                },
+                1600
+            );
+
+            break;
+        }
+    }
+}
+
+/* =========================================================
+   FIRST GATE
+========================================================= */
+
+function selectGate(choice){
+
+    if(stage !== 1){
+        return;
+    }
+
+    playAudio("selectSound");
+
+    if(virusesAlive > 0){
+
+        showTemporaryMessage(
+            false,
+            "ROUTE BLOCKED",
+            "Destroy all virus drones first. The data cannot safely travel while the pathway is corrupted.",
+            "⚡ Clear the pathway before routing the packet."
+        );
+
+        return;
+    }
+
+    if(choice === "MEMORY"){
+
+        document
+            .getElementById(
+                "gateMemory"
+            )
+            .classList
+            .add(
+                "correctGate"
+            );
+
+        playAudio(
+            "correctSound"
+        );
+
+        stage = 2;
+
+        markInputDone();
+
+        feedbackAction =
+            beginCPUStage;
+
+        showFeedback(
+            true,
+            "MEMORY ROUTE ACTIVATED!",
+            "Correct! The packet has entered the computer and must be temporarily held before the CPU processes it.",
+            "🧠 MEMORY temporarily holds the data and instructions that the CPU needs."
+        );
+
+    }else{
+
+        const wrongGate =
+            choice === "STORAGE"
+            ? document.getElementById(
+                "gateStorage"
+            )
+            : document.getElementById(
+                "gateOutput"
+            );
+
+        wrongGate
+            .classList
+            .add(
+                "wrongGate"
+            );
+
+        setTimeout(
+            function(){
+
+                wrongGate
+                    .classList
+                    .remove(
+                        "wrongGate"
+                    );
+
+            },
+            900
+        );
+
+        if(
+            choice ===
+            "STORAGE"
+        ){
+
+            loseLife(
+                "Storage is used for longer-term saving. This packet needs to be temporarily held in Memory before CPU processing."
+            );
+
+        }else{
+
+            loseLife(
+                "Output happens after processing. The packet has not reached the CPU yet."
+            );
+        }
+    }
+}
+
+/* =========================================================
+   CPU STAGE
+========================================================= */
+
+function beginCPUStage(){
+
+    stage = 2;
+
+    removeViruses();
+
+    document
+        .getElementById(
+            "gates"
+        )
+        .style
+        .display =
+        "none";
+
+    document
+        .getElementById(
+            "dataPacket"
+        )
+        .style
+        .left =
+        "48%";
+
+    document
+        .getElementById(
+            "dataPacket"
+        )
+        .style
+        .bottom =
+        "190px";
+
+    document
+        .getElementById(
+            "missionArrow"
+        )
+        .innerHTML =
+        "PACKET MOVING TO CPU<div>▼</div>";
+
+    updateMission();
+
+    setTimeout(
+        function(){
+
+            paused = true;
+
+            document
+                .getElementById(
+                    "cpuOverlay"
+                )
+                .classList
+                .remove(
+                    "hidden"
+                );
+
+        },
+        900
+    );
+}
+
+/* =========================================================
+   CPU CHOICE
+========================================================= */
+
+function chooseCPU(choice){
+
+    playAudio("selectSound");
+
+    if(choice === "ALU"){
+
+        playAudio(
+            "correctSound"
+        );
+
+        document
+            .getElementById(
+                "cpuOverlay"
+            )
+            .classList
+            .add(
+                "hidden"
+            );
+
+        document
+            .getElementById(
+                "processingOverlay"
+            )
+            .classList
+            .remove(
+                "hidden"
+            );
+
+        document
+            .getElementById(
+                "processingEquation"
+            )
+            .textContent =
+            "4 + 5";
+
+        document
+            .getElementById(
+                "processingText"
+            )
+            .textContent =
+            "ALU calculating...";
+
+        setTimeout(
+            function(){
+
+                document
+                    .getElementById(
+                        "processingEquation"
+                    )
+                    .textContent =
+                    "4 + 5 = 9";
+
+                document
+                    .getElementById(
+                        "processingText"
+                    )
+                    .textContent =
+                    "PROCESSING COMPLETE!";
+
+            },
+            900
+        );
+
+        setTimeout(
+            function(){
+
+                document
+                    .getElementById(
+                        "processingOverlay"
+                    )
+                    .classList
+                    .add(
+                        "hidden"
+                    );
+
+                stage = 3;
+
+                markMemoryDone();
+
+                feedbackAction =
+                    beginOutputStage;
+
+                showFeedback(
+                    true,
+                    "CPU PROCESSING COMPLETE!",
+                    "Excellent! 4 + 5 is an arithmetic operation, so the ALU calculated the result: 9.",
+                    "🧮 The ALU performs arithmetic calculations and logical operations. The CU controls and coordinates the CPU's activities."
+                );
+
+            },
+            1900
+        );
+
+    }else{
+
+        document
+            .getElementById(
+                "cpuOverlay"
+            )
+            .classList
+            .add(
+                "hidden"
+            );
+
+        feedbackAction =
+            reopenCPU;
+
+        loseLife(
+            "The CU controls and coordinates operations, but it does not perform the arithmetic calculation 4 + 5. This task needs the ALU."
+        );
+    }
+}
+
+function reopenCPU(){
+
+    paused = true;
+
+    document
+        .getElementById(
+            "cpuOverlay"
+        )
+        .classList
+        .remove(
+            "hidden"
+        );
+}
+
+/* =========================================================
+   OUTPUT STAGE - FIXED
+========================================================= */
+
+function beginOutputStage(){
+
+    stage = 3;
+
+    // Remove the previous mission's highlighted MEMORY gate and arrow.
+    // Only OUTPUT will be highlighted after the final viruses are cleared.
+    document.querySelectorAll(".gate.guidedGate").forEach(gate => {
+        gate.classList.remove("guidedGate");
+    });
+    document.getElementById("missionArrow").classList.remove("gateDirection");
+
+    /*
+    Change packet to processed result.
+    */
+
+    document
+        .getElementById(
+            "dataPacket"
+        )
+        .textContent =
+        "9";
+
+    document
+        .getElementById(
+            "packetPanelText"
+        )
+        .textContent =
+        "RESULT = 9";
+
+    /*
+    Show gates again.
+    */
+
+    document
+        .getElementById(
+            "gates"
+        )
+        .style
+        .display =
+        "flex";
+
+    /*
+    Reset gate states.
+    */
+
+    document
+        .getElementById(
+            "gateStorage"
+        )
+        .classList
+        .remove(
+            "correctGate",
+            "wrongGate"
+        );
+
+    document
+        .getElementById(
+            "gateMemory"
+        )
+        .classList
+        .remove(
+            "correctGate",
+            "wrongGate"
+        );
+
+    document
+        .getElementById(
+            "gateOutput"
+        )
+        .classList
+        .remove(
+            "correctGate",
+            "wrongGate",
+            "outputReady"
+        );
+
+    /*
+    Mission 3 click behavior.
+    */
+
+    document
+        .getElementById(
+            "gateStorage"
+        )
+        .onclick =
+        function(){
+
+            selectOutputGate(
+                "STORAGE"
+            );
+        };
+
+    document
+        .getElementById(
+            "gateMemory"
+        )
+        .onclick =
+        function(){
+
+            selectOutputGate(
+                "MEMORY"
+            );
+        };
+
+    document
+        .getElementById(
+            "gateOutput"
+        )
+        .onclick =
+        function(){
+
+            selectOutputGate(
+                "OUTPUT"
+            );
+        };
+
+    /*
+    Move player back into open combat area.
+    */
+
+    guardianX = 15;
+
+    guardianY = 80;
+
+    velocityY = 0;
+
+    jumping = false;
+
+    guardian.style.left =
+        guardianX + "%";
+
+    guardian.style.bottom =
+        guardianY + "px";
+
+    /*
+    Result 9 begins beside the Guardian
+    and will follow them.
+    */
+
+    const packet =
+        document.getElementById(
+            "dataPacket"
+        );
+
+    packet.style.left =
+        "17%";
+
+    packet.style.bottom =
+        "185px";
+
+    packet.style.transition =
+        "left .08s linear, bottom .08s linear";
+
+    /*
+    Spawn reachable enemies.
+    */
+
+    spawnOutputViruses();
+
+    updateMission();
+
+    document
+        .getElementById(
+            "missionArrow"
+        )
+        .innerHTML =
+        "PROTECT RESULT 9<div>▼</div>";
+
+    paused = false;
+}
+
+/* =========================================================
+   OUTPUT GATE
+========================================================= */
+
+function selectOutputGate(choice){
+
+    if(stage !== 3){
+        return;
+    }
+
+    playAudio("selectSound");
+
+    /*
+    Cannot finish until enemies are gone.
+    */
+
+    if(virusesAlive > 0){
+
+        showTemporaryMessage(
+            false,
+            "OUTPUT PATH BLOCKED",
+            "Destroy all three virus drones first. Result 9 cannot safely leave the computer yet.",
+            "⚡ Protect the processed result before sending it to its final destination."
+        );
+
+        return;
+    }
+
+    /*
+    CORRECT
+    */
+
+    if(choice === "OUTPUT"){
+
+        playAudio(
+            "correctSound"
+        );
+
+        document
+            .getElementById(
+                "gateOutput"
+            )
+            .classList
+            .remove(
+                "outputReady"
+            );
+
+        document
+            .getElementById(
+                "gateOutput"
+            )
+            .classList
+            .add(
+                "correctGate"
+            );
+
+        stage = 4;
+
+        markCPUDone();
+
+        feedbackAction =
+            finishLevel;
+
+        showFeedback(
+            true,
+            "OUTPUT GATE OPEN!",
+            "Correct! The CPU has finished processing 4 + 5. Result 9 can now leave the computer through the Output Unit.",
+            "🖥 OUTPUT sends processed information to devices such as a monitor, speaker or printer."
+        );
+
+        return;
+    }
+
+    /*
+    WRONG
+    */
+
+    const wrongGate =
+        choice === "MEMORY"
+        ? document.getElementById(
+            "gateMemory"
+        )
+        : document.getElementById(
+            "gateStorage"
+        );
+
+    wrongGate
+        .classList
+        .add(
+            "wrongGate"
+        );
+
+    setTimeout(
+        function(){
+
+            wrongGate
+                .classList
+                .remove(
+                    "wrongGate"
+                );
+
+        },
+        900
+    );
+
+    if(choice === "MEMORY"){
+
+        loseLife(
+            "Result 9 has already been processed. It does not need to return to Memory. Send the processed result to OUTPUT."
+        );
+
+    }else{
+
+        loseLife(
+            "Storage is not the final destination in this data-flow mission. The processed result must be presented to the user through OUTPUT."
+        );
+    }
+}
+
+/* =========================================================
+   FEEDBACK
+========================================================= */
+
+function showFeedback(
+    correct,
+    title,
+    text,
+    learning
+){
+
+    paused = true;
+
+    document
+        .getElementById(
+            "feedbackIcon"
+        )
+        .textContent =
+        correct
+        ? "✅"
+        : "❌";
+
+    const titleElement =
+        document.getElementById(
+            "feedbackTitle"
+        );
+
+    titleElement.textContent =
+        title;
+
+    titleElement.className =
+        correct
+        ? "correctTitle"
+        : "wrongTitle";
+
+    document
+        .getElementById(
+            "feedbackText"
+        )
+        .textContent =
+        text;
+
+    document
+        .getElementById(
+            "learningText"
+        )
+        .innerHTML =
+        learning;
+
+    document
+        .getElementById(
+            "feedbackOverlay"
+        )
+        .classList
+        .remove(
+            "hidden"
+        );
+}
+
+function showTemporaryMessage(
+    correct,
+    title,
+    text,
+    learning
+){
+
+    feedbackAction = null;
+
+    showFeedback(
+        correct,
+        title,
+        text,
+        learning
+    );
+}
+
+function continueMission(){
+
+    playAudio("selectSound");
+
+    document
+        .getElementById(
+            "feedbackOverlay"
+        )
+        .classList
+        .add(
+            "hidden"
+        );
+
+    const action =
+        feedbackAction;
+
+    feedbackAction = null;
+
+    if(action){
+
+        action();
+
+    }else{
+
+        paused = false;
+    }
+}
+
+/* =========================================================
+   LOSE LIFE
+========================================================= */
+
+function loseLife(message){
+
+    lives--;
+
+    if(lives < 0){
+        lives = 0;
+    }
+
+    localStorage.setItem(
+        "TO2Lives",
+        String(lives)
+    );
+
+    updateHUD();
+
+    playAudio(
+        "wrongSound"
+    );
+
+    if(lives <= 0){
+
+        paused = true;
+
+        document
+            .getElementById(
+                "gameOverOverlay"
+            )
+            .classList
+            .remove(
+                "hidden"
+            );
+
+        return;
+    }
+
+    /*
+    Preserve feedbackAction when the
+    CPU needs to reopen after a wrong CU
+    selection.
+    */
+
+    const existingAction =
+        feedbackAction;
+
+    showFeedback(
+        false,
+        "SYSTEM ROUTE ERROR",
+        message,
+        "💡 Follow what is happening to the data. Ask yourself whether it is waiting to be processed, being processed, or already finished."
+    );
+
+    feedbackAction =
+        existingAction;
+}
+
+/* =========================================================
+   HINT
+========================================================= */
+
+function showHint(){
+
+    playAudio(
+        "selectSound"
+    );
+
+    let text = "";
+
+    if(stage === 1){
+
+        text =
+        "The packet has entered the computer, but the CPU has not processed it yet. Which unit temporarily holds active data and instructions?";
+
+    }else if(stage === 2){
+
+        text =
+        "4 + 5 is an arithmetic calculation. Which CPU component performs arithmetic and logical operations?";
+
+    }else if(stage === 3){
+
+        text =
+        "First destroy all three virus drones. After processing is complete, the result must leave the computer through the Output Unit.";
+
+    }else{
+
+        text =
+        "You have restored the complete data flow.";
+    }
+
+    document
+        .getElementById(
+            "hintText"
+        )
+        .textContent =
+        text;
+
+    document
+        .getElementById(
+            "hintOverlay"
+        )
+        .classList
+        .remove(
+            "hidden"
+        );
+
+    paused = true;
+}
+
+function closeHint(){
+
+    playAudio(
+        "selectSound"
+    );
+
+    document
+        .getElementById(
+            "hintOverlay"
+        )
+        .classList
+        .add(
+            "hidden"
+        );
+
+    paused = false;
+}
+
+/* =========================================================
+   MISSION TEXT
+========================================================= */
+
+function updateMission(){
+
+    const label =
+        document.getElementById(
+            "stageLabel"
+        );
+
+    const mission =
+        document.getElementById(
+            "missionText"
+        );
+
+    if(stage === 1){
+
+        label.textContent =
+            "MISSION 1 / 4";
+
+        mission.textContent =
+            "Destroy the virus drones. Then guide 4 + 5 to the unit that holds data before processing.";
+
+    }else if(stage === 2){
+
+        label.textContent =
+            "MISSION 2 / 4";
+
+        mission.textContent =
+            "The packet reached the CPU. Decide which CPU component should process 4 + 5.";
+
+    }else if(stage === 3){
+
+        label.textContent =
+            "MISSION 3 / 4";
+
+        mission.textContent =
+            "The CPU produced result 9. Protect it, destroy all three viruses, then send it to the correct final destination.";
+
+    }else{
+
+        label.textContent =
+            "MISSION 4 / 4";
+
+        mission.textContent =
+            "Data flow restored. Mission complete!";
+    }
+}
+
+/* =========================================================
+   MAP
+========================================================= */
+
+function markInputDone(){
+
+    document
+        .getElementById(
+            "mapInput"
+        )
+        .className =
+        "mapUnit done";
+
+    document
+        .getElementById(
+            "mapMemory"
+        )
+        .className =
+        "mapUnit active";
+
+    document
+        .getElementById(
+            "journeyInput"
+        )
+        .className =
+        "routeNode done";
+
+    document
+        .getElementById(
+            "journeyMemory"
+        )
+        .className =
+        "routeNode active";
+}
+
+function markMemoryDone(){
+
+    document
+        .getElementById(
+            "mapMemory"
+        )
+        .className =
+        "mapUnit done";
+
+    document
+        .getElementById(
+            "mapCPU"
+        )
+        .className =
+        "mapUnit active";
+
+    document
+        .getElementById(
+            "journeyMemory"
+        )
+        .className =
+        "routeNode done";
+
+    document
+        .getElementById(
+            "journeyCPU"
+        )
+        .className =
+        "routeNode active";
+}
+
+function markCPUDone(){
+
+    document
+        .getElementById(
+            "mapCPU"
+        )
+        .className =
+        "mapUnit done";
+
+    document
+        .getElementById(
+            "mapOutput"
+        )
+        .className =
+        "mapUnit active";
+
+    document
+        .getElementById(
+            "journeyCPU"
+        )
+        .className =
+        "routeNode done";
+
+    document
+        .getElementById(
+            "journeyOutput"
+        )
+        .className =
+        "routeNode active";
+}
+
+function markOutputDone(){
+
+    document
+        .getElementById(
+            "mapOutput"
+        )
+        .className =
+        "mapUnit done";
+
+    document
+        .getElementById(
+            "journeyOutput"
+        )
+        .className =
+        "routeNode done";
+}
+
+/* =========================================================
+   FINISH LEVEL
+========================================================= */
+
+function finishLevel(){
+
+    paused = true;
+
+    stage = 4;
+
+    removeViruses();
+
+    markOutputDone();
+
+    updateMission();
+
+    /*
+    Level 2 gives ONLY 25 XP.
+
+    Level 1 = 25 XP
+    Level 2 = 25 XP
+    TOTAL = 50 XP
+
+    Replaying this level will NOT
+    increase XP again.
+    */
+
+    if(
+        level2RewardCollected
+    ){
+
+        xp = 50;
+
+        localStorage.setItem(
+            "TO2XP",
+            "50"
+        );
+
+        document
+            .getElementById(
+                "rewardText"
+            )
+            .textContent =
+            "⭐ 50 XP • LEVEL 2 REWARD ALREADY COLLECTED";
+
+    }else{
+
+        level2RewardCollected =
+            true;
+
+        localStorage.setItem(
+            "TO2L2Reward",
+            "true"
+        );
+
+        /*
+        SET directly to 50.
+        Never use += 25.
+        */
+
+        xp = 50;
+
+        localStorage.setItem(
+            "TO2XP",
+            "50"
+        );
+
+        document
+            .getElementById(
+                "rewardText"
+            )
+            .textContent =
+            "🪙 +25 XP";
+
+        /*
+        Coin sound = coins.mp3
+        */
+
+    }
+
+    // Play coins.mp3 on every completion without increasing XP again.
+    const coinSource = document.getElementById("coinSound");
+    if (coinSource) {
+        const coinPlayback = coinSource.cloneNode(true);
+        coinPlayback.volume = 1;
+        coinPlayback.play().catch(error => console.error("coins.mp3:", error));
+    }
+
+    updateHUD();
+
+    document
+        .getElementById(
+            "completeOverlay"
+        )
+        .classList
+        .remove(
+            "hidden"
+        );
+}
+
+/* =========================================================
+   HUD
+========================================================= */
+
+function updateHUD(){
+
+    document
+        .getElementById(
+            "xpText"
+        )
+        .textContent =
+        xp;
+
+    let hearts = "";
+
+    for(
+        let i = 0;
+        i < 3;
+        i++
+    ){
+
+        hearts +=
+            i < lives
+            ? "❤️ "
+            : "🖤 ";
+    }
+
+    document
+        .getElementById(
+            "livesText"
+        )
+        .textContent =
+        hearts.trim();
+}
+
+/* =========================================================
+   NEXT
+========================================================= */
+
+function goNextLevel(){
+
+    playAudio(
+        "selectSound"
+    );
+
+    setTimeout(
+        function(){
+
+            window.location.href =
+                "to2l3.html";
+
+        },
+        350
+    );
+}
+
+/* =========================================================
+   RESTART TRAINING ZONE 2
+========================================================= */
+
+function restartZone(){
+
+    playAudio(
+        "selectSound"
+    );
+
+    localStorage.setItem(
+        "TO2Lives",
+        "3"
+    );
+
+    localStorage.setItem(
+        "TO2XP",
+        "0"
+    );
+
+    localStorage.setItem(
+        "TO2L1Reward",
+        "false"
+    );
+
+    localStorage.setItem(
+        "TO2L2Reward",
+        "false"
+    );
+
+    setTimeout(
+        function(){
+
+            window.location.href =
+                "to2.html";
+
+        },
+        350
+    );
+}
+
+/* =========================================================
+   INITIAL
+========================================================= */
+
+updateHUD();
+
+</script>
+
+</body>
+</html>
